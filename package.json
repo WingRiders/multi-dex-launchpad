@@ -1,0 +1,23 @@
+{
+  "name": "multi-dex-launchpad",
+  "version": "0.1.0",
+  "workspaces": [
+    "backend/agent",
+    "backend/aggregator",
+    "backend/common",
+    "common",
+    "frontend"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "check": "turbo check",
+    "fix": "turbo fix",
+    "test": "turbo test",
+    "clean": "turbo clean"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.3",
+    "turbo": "^2.5.8"
+  },
+  "packageManager": "bun@1.3.3"
+}

@@ -1,0 +1,88 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
+  "assist": {"actions": {"source": {"organizeImports": "on"}}},
+  "files": {
+    "includes": [
+      "**",
+      "!**/bun.lock",
+      "!**/dist",
+      "!**/node_modules",
+      "!**/.turbo"
+    ]
+  },
+  "formatter": {
+    "indentStyle": "space"
+  },
+  "linter": {
+    "rules": {
+      "recommended": true,
+      "style": {
+        "noNonNullAssertion": {
+          "level": "off"
+        },
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "filenameCases": ["kebab-case"]
+          }
+        }
+      },
+      "correctness": {
+        "noUnusedVariables": {
+          "level": "warn"
+        },
+        "noUnusedImports": {
+          "level": "warn",
+          "fix": "safe"
+        }
+      },
+      "suspicious": {
+        "noExplicitAny": {},
+        "noConsole": {
+          "level": "warn",
+          "options": {
+            "allow": ["warn", "error", "debug"]
+          }
+        },
+        "noArrayIndexKey": {
+          "level": "off"
+        }
+      },
+      "complexity": {
+        "noForEach": {
+          "level": "off"
+        }
+      },
+      "nursery": {
+        "useSortedClasses": {
+          "level": "error",
+          "options": {}
+        }
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "bracketSpacing": false,
+      "quoteStyle": "single",
+      "semicolons": "asNeeded"
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["common/src/cli/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": {
+              "level": "off",
+              "options": {
+                "allow": ["warn", "error"]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
