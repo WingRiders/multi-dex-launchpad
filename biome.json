@@ -6,6 +6,7 @@
       "**",
       "!**/bun.lock",
       "!**/dist",
+      "!**/generated",
       "!**/node_modules",
       "!**/.turbo"
     ]

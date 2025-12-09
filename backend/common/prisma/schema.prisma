@@ -1,0 +1,15 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+  runtime  = "bun"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Block {
+  slot   Int    @id
+  height Int
+  hash   String @db.VarChar(64)
+}

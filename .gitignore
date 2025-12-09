@@ -13,6 +13,9 @@ tsconfig.tsbuildinfo
 # IntelliJ
 .idea
 
+# Prisma
+generated
+
 # env files (can opt-in for committing if needed)
 .env*
 !.env.example
