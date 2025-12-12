@@ -1,1 +1,1 @@
-export const name = 'multi-dex-launchpad-backend-common'
+export * from './db'

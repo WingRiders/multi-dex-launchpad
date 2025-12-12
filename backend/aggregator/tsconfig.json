@@ -13,17 +13,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "incremental": true,
-    "composite": true,
     "noErrorTruncation": true
   },
-  "references": [
-    {
-      "path": "../common"
-    },
-    {
-      "path": "../../common"
-    }
-  ],
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", ".turbo"]
 }

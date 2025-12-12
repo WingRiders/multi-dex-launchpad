@@ -6,16 +6,16 @@
       "outputs": ["prisma/generated/**"]
     },
     "build": {
-      "dependsOn": ["prisma:generate"],
+      "dependsOn": ["prisma:generate", "^prisma:generate"],
       "outputs": ["dist"],
       "env": ["NODE_ENV"]
     },
     "check": {
-      "dependsOn": ["prisma:generate"],
+      "dependsOn": ["prisma:generate", "^prisma:generate"],
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/biome.json"]
     },
     "fix": {
-      "dependsOn": ["prisma:generate"],
+      "dependsOn": ["prisma:generate", "^prisma:generate"],
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/biome.json"]
     },
     "test": {},
