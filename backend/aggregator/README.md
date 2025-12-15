@@ -10,3 +10,14 @@ However, migrations are executed exclusively by this service.
 ```bash
 bun prisma:dev
 ```
+
+## Run server
+
+```bash
+bun dev
+```
+
+## Query healthcheck
+```bash
+curl http://localhost:3350/healthcheck
+```

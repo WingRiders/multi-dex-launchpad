@@ -7,7 +7,10 @@ const envSchema = z.object({
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'])
     .default('info'),
+  MODE: z.enum(['aggregator', 'server', 'both']).default('both'),
+  SERVER_PORT: z.coerce.number().positive(),
   DATABASE_URL: z.string(),
+  CORS_ENABLED_FOR: z.string().optional(),
 })
 
 const parsedEnv = envSchema.safeParse(process.env)
@@ -24,3 +27,8 @@ if (!parsedEnv.success) {
 export const config = parsedEnv.data
 
 export const isProd = config.NODE_ENV === 'production'
+
+export const isAggregatorMode = ['aggregator', 'both'].includes(config.MODE)
+export const isOnlyAggregatorMode = config.MODE === 'aggregator'
+export const isServerMode = ['server', 'both'].includes(config.MODE)
+export const isOnlyServerMode = config.MODE === 'server'
