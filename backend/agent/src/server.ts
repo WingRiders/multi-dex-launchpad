@@ -1,23 +1,13 @@
 import {createServer} from 'node:http'
 import {createHTTPHandler} from '@trpc/server/adapters/standalone'
-import {applyWSSHandler} from '@trpc/server/adapters/ws'
 import {getCorsOptions} from '@wingriders/multi-dex-launchpad-backend-common'
 import cors from 'cors'
-import {WebSocketServer} from 'ws'
-import {
-  createAggregatorRouter,
-  createBothModeRouter,
-  createServerRouter,
-} from './app-router'
-import {config, isProd, isServerMode} from './config'
+import {createRouter} from './app-router'
+import {config, isProd} from './config'
 import {logger} from './logger'
 
 export const startServer = () => {
-  const router = {
-    aggregator: createAggregatorRouter(),
-    server: createServerRouter(),
-    both: createBothModeRouter(),
-  }[config.MODE]
+  const router = createRouter()
 
   const trpcHandler = createHTTPHandler({
     router,
@@ -30,15 +20,6 @@ export const startServer = () => {
   const server = createServer((req, res) => {
     trpcHandler(req, res)
   })
-
-  if (isServerMode) {
-    // WebSocket server
-    const wss = new WebSocketServer({server})
-    applyWSSHandler({
-      wss,
-      router,
-    })
-  }
 
   server.listen(config.SERVER_PORT)
 
