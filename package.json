@@ -9,6 +9,7 @@
     "frontend"
   ],
   "scripts": {
+    "postinstall": "scripts/fix-libsodium.sh",
     "build": "turbo build",
     "check": "turbo check",
     "fix": "turbo fix",
