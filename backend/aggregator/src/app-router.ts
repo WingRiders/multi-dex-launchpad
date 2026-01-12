@@ -1,10 +1,12 @@
 import {initTRPC} from '@trpc/server'
 import type {RouterRecord} from '@trpc/server/unstable-core-do-not-import'
+import {z} from 'zod'
 import {
   getAggregatorHealthcheck,
   getBothModeHealthcheck,
   getServerHealthcheck,
 } from './endpoints/healthcheck'
+import {submitTx} from './ogmios/tx-submission-client'
 
 export const t = initTRPC.create()
 export const publicProcedure = t.procedure
@@ -17,6 +19,9 @@ export const createAggregatorRouter = () =>
 
 export const createServerRouter = () =>
   t.router({
+    submitTx: publicProcedure
+      .input(z.string())
+      .mutation(({input}) => submitTx(input)),
     healthcheck: publicProcedure.query(getServerHealthcheck),
   })
 

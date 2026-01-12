@@ -1,19 +1,44 @@
 import {TRPCError} from '@trpc/server'
 import {prisma} from '../db/prisma-client'
+import {tipToSlot} from '../helpers'
+import {getLedgerTip, getNetworkTip} from '../ogmios/ledger-state-query'
+import {isTxSubmissionClientInitialized as isTxSubmissionClientInitializedFn} from '../ogmios/tx-submission-client'
+
+const IS_DB_SYNCED_THRESHOLD_SLOTS = 300 // 5 minutes
 
 const getAggregatorHealthStatus = async () => {
   const lastBlockPromise = prisma.block.findFirst({orderBy: [{slot: 'desc'}]})
-  const [lastBlockSlot, isDbConnected] = await Promise.all([
+  const networkTipPromise = getNetworkTip()
+  const [
+    networkSlot,
+    ledgerSlot,
+    lastBlockSlot,
+    isDbConnected,
+    isOgmiosConnected,
+  ] = await Promise.all([
+    networkTipPromise.then(tipToSlot).catch(() => 0),
+    getLedgerTip()
+      .then(tipToSlot)
+      .catch(() => 0),
     lastBlockPromise.then((block) => (block ? block.slot : 0)).catch(() => 0),
     lastBlockPromise.then(() => true).catch(() => false),
+    networkTipPromise.then(() => true).catch(() => false),
   ])
 
-  const healthy = isDbConnected
+  const isDbSynced =
+    networkSlot - ledgerSlot < IS_DB_SYNCED_THRESHOLD_SLOTS &&
+    ledgerSlot - lastBlockSlot < IS_DB_SYNCED_THRESHOLD_SLOTS
+
+  const healthy = isDbConnected && isDbSynced && isOgmiosConnected
 
   return {
     healthy,
+    networkSlot,
+    ledgerSlot,
     lastBlockSlot,
     isDbConnected,
+    isDbSynced,
+    isOgmiosConnected,
     uptime: process.uptime(),
   }
 }
@@ -38,15 +63,18 @@ const getServerHealthStatus = async () => {
     })
     .then(() => true)
     .catch(() => false)
+  const isTxSubmissionClientInitialized = isTxSubmissionClientInitializedFn()
 
-  const healthy = isDbConnected
+  const healthy = isDbConnected && isTxSubmissionClientInitialized
 
   return {
     healthy,
     isDbConnected,
+    isTxSubmissionClientInitialized,
     uptime: process.uptime(),
   }
 }
+
 export const getServerHealthcheck = async () => {
   const healthStatus = await getServerHealthStatus()
 

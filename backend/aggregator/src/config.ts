@@ -9,7 +9,10 @@ const envSchema = z.object({
     .default('info'),
   MODE: z.enum(['aggregator', 'server', 'both']).default('both'),
   SERVER_PORT: z.coerce.number().positive(),
+  NETWORK: z.enum(['preprod']).default('preprod'), // TODO: add mainnet once bootstrap is done
   DATABASE_URL: z.string(),
+  OGMIOS_HOST: z.string(),
+  OGMIOS_PORT: z.coerce.number().positive(),
   CORS_ENABLED_FOR: z.string().optional(),
 })
 

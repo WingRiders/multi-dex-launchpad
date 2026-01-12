@@ -1,10 +1,15 @@
-import {prisma} from './db/prisma-client'
-import {logger} from './logger'
-
+import {isAggregatorMode} from './config'
+import {ensureDBMigrated} from './db/migrate-db'
+import {startChainSyncClient} from './ogmios/chain-sync'
+import {getOgmiosContext} from './ogmios/ogmios'
 import {startServer} from './server'
 
-export const name = 'multi-dex-launchpad-aggregator'
+await getOgmiosContext()
 
-logger.info({blockCount: await prisma.block.count()}, 'Hello World!')
+if (isAggregatorMode) {
+  await ensureDBMigrated()
+
+  startChainSyncClient()
+}
 
 startServer()
