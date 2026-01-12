@@ -1,10 +1,8 @@
 import {describe, expect, it} from 'bun:test'
 
 import type {Data} from '@meshsdk/core'
-import {
-  applyParamsToScript,
-  PlutusScriptVersion,
-} from '../../src/contract-generation/apply-params-to-script'
+import {applyParamsToScript} from '../../src/contract-generation/apply-params-to-script'
+import {PlutusScriptVersion} from '../../src/contract-generation/constants'
 
 const SCRIPT_CBOR_HEX = '4e4d01000033222220051200120011'
 
