@@ -11,6 +11,7 @@ const envSchema = z.object({
   SERVER_PORT: z.coerce.number().positive(),
   NETWORK: z.enum(['preprod']).default('preprod'), // TODO: add mainnet once bootstrap is done
   DATABASE_URL: z.string(),
+  DB_SCHEMA: z.string(),
   OGMIOS_HOST: z.string(),
   OGMIOS_PORT: z.coerce.number().positive(),
   CORS_ENABLED_FOR: z.string().optional(),
