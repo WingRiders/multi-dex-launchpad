@@ -7,9 +7,12 @@ const envSchema = z.object({
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'])
     .default('info'),
-  MODE: z.enum(['aggregator', 'server', 'both']).default('both'),
+  MODE: z.enum(['agent', 'aggregator', 'server', 'all']).default('all'),
   SERVER_PORT: z.coerce.number().positive(),
+  NETWORK: z.enum(['preprod']).default('preprod'), // TODO: add mainnet once bootstrap is done
   DATABASE_URL: z.string(),
+  OGMIOS_HOST: z.string(),
+  OGMIOS_PORT: z.coerce.number().positive(),
   CORS_ENABLED_FOR: z.string().optional(),
 })
 
@@ -27,3 +30,12 @@ if (!parsedEnv.success) {
 export const config = parsedEnv.data
 
 export const isProd = config.NODE_ENV === 'production'
+
+export const isAggregatorMode = ['aggregator', 'all'].includes(config.MODE)
+export const isOnlyAggregatorMode = config.MODE === 'aggregator'
+
+export const isServerMode = ['server', 'all'].includes(config.MODE)
+export const isOnlyServerMode = config.MODE === 'server'
+
+export const isAgentMode = ['agent', 'all'].includes(config.MODE)
+export const isOnlyAgentMode = config.MODE === 'agent'

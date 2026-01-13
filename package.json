@@ -2,9 +2,7 @@
   "name": "multi-dex-launchpad",
   "version": "0.1.0",
   "workspaces": [
-    "backend/agent",
-    "backend/aggregator",
-    "backend/common",
+    "backend",
     "common",
     "frontend"
   ],

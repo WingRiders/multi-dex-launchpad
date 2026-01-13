@@ -1,7 +1,7 @@
 import {TRPCError} from '@trpc/server'
-import {prisma} from '../db/prisma-client'
+import {prisma} from '../../db/prisma-client'
 
-const getHealthStatus = async () => {
+export const getAgentHealthStatus = async () => {
   const lastBlockPromise = prisma.block.findFirst({orderBy: [{slot: 'desc'}]})
   const [lastBlockSlot, isDbConnected] = await Promise.all([
     lastBlockPromise.then((block) => (block ? block.slot : 0)).catch(() => 0),
@@ -18,8 +18,8 @@ const getHealthStatus = async () => {
   }
 }
 
-export const getHealthcheck = async () => {
-  const healthStatus = await getHealthStatus()
+export const getAgentHealthcheck = async () => {
+  const healthStatus = await getAgentHealthStatus()
 
   if (!healthStatus.healthy) {
     throw new TRPCError({

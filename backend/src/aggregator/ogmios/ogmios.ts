@@ -1,6 +1,6 @@
 import {createInteractionContext} from '@cardano-ogmios/client'
-import {config} from '../config'
-import {logger} from '../logger'
+import {config} from '../../config'
+import {logger} from '../../logger'
 
 let context: Awaited<ReturnType<typeof createInteractionContext>> | undefined
 export const getOgmiosContext = async () => {

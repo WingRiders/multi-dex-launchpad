@@ -1,12 +1,13 @@
 import {initTRPC} from '@trpc/server'
 import type {RouterRecord} from '@trpc/server/unstable-core-do-not-import'
 import {z} from 'zod'
+import {getAgentHealthcheck} from './agent/endpoints/healthcheck'
 import {
   getAggregatorHealthcheck,
-  getBothModeHealthcheck,
+  getAllModesHealthcheck,
   getServerHealthcheck,
-} from './endpoints/healthcheck'
-import {submitTx} from './ogmios/tx-submission-client'
+} from './aggregator/endpoints/healthcheck'
+import {submitTx} from './aggregator/ogmios/tx-submission-client'
 
 export const t = initTRPC.create()
 export const publicProcedure = t.procedure
@@ -25,6 +26,11 @@ export const createServerRouter = () =>
     healthcheck: publicProcedure.query(getServerHealthcheck),
   })
 
+export const createAgentRouter = () =>
+  t.router({
+    healthcheck: publicProcedure.query(getAgentHealthcheck),
+  })
+
 const omitHealthcheck = <T extends RouterRecord>(
   procedures: T,
 ): Omit<T, 'healthcheck'> =>
@@ -32,12 +38,13 @@ const omitHealthcheck = <T extends RouterRecord>(
     Object.entries(procedures).filter(([key]) => key !== 'healthcheck'),
   ) as Omit<T, 'healthcheck'>
 
-export const createBothModeRouter = () =>
+export const createAllModesRouter = () =>
   mergeRouters(
     t.router(omitHealthcheck(createAggregatorRouter()._def.procedures)),
     t.router(omitHealthcheck(createServerRouter()._def.procedures)),
+    t.router(omitHealthcheck(createAgentRouter()._def.procedures)),
     t.router({
-      healthcheck: publicProcedure.query(getBothModeHealthcheck),
+      healthcheck: publicProcedure.query(getAllModesHealthcheck),
     }),
   )
 

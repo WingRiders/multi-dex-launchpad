@@ -1,28 +1,31 @@
 {
-  "name": "@wingriders/multi-dex-launchpad-aggregator",
+  "name": "@wingriders/multi-dex-launchpad-backend",
   "version": "0.1.0",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
   },
   "scripts": {
-    "build": "tsgo",
+    "build": "bun prisma:generate && tsgo",
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
     "check": "bun biome check . && bun run tsgo --noEmit",
     "fix": "bun biome check . --write",
-    "prisma:dev": "prisma migrate dev",
-    "prisma:deploy": "prisma migrate deploy"
+    "clean": "rm -r prisma/generated",
+    "prisma:generate": "bunx --bun prisma generate",
+    "prisma:dev": "bunx --bun prisma migrate dev",
+    "prisma:deploy": "bunx --bun prisma migrate deploy",
+    "prisma:status": "bunx --bun prisma migrate status"
   },
   "dependencies": {
     "@cardano-ogmios/client": "^6.14.0",
+    "@prisma/adapter-pg": "^7.2.0",
+    "@prisma/client": "^7.2.0",
     "@trpc/server": "^11.7.2",
-    "@wingriders/multi-dex-launchpad-backend-common": "workspace:*",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "dotenv-expand": "^12.0.3",
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.3",
+    "prisma": "^7.2.0",
     "ws": "^8.18.3",
     "zod": "^4.1.13"
   },
@@ -33,7 +36,6 @@
     "@types/cors": "^2.8.19",
     "@types/ws": "^8.18.1",
     "@typescript/native-preview": "7.0.0-dev.20251205.1",
-    "prisma": "^7.2.0",
     "typescript": "^6.0.0-dev.20251205"
   }
 }

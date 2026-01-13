@@ -1,9 +1,6 @@
-import {createPrismaClient} from '@wingriders/multi-dex-launchpad-backend-common'
-import {
-  Prisma,
-  type PrismaClient,
-} from '@wingriders/multi-dex-launchpad-backend-common/prisma'
+import {Prisma, type PrismaClient} from '../../prisma/generated/client'
 import {config} from '../config'
+import {createPrismaClient} from '../db'
 
 export const prisma: PrismaClient = createPrismaClient(config.DATABASE_URL)
 

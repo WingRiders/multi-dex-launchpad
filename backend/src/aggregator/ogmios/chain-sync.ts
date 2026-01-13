@@ -1,9 +1,9 @@
 import {createChainSynchronizationClient} from '@cardano-ogmios/client'
 import type {BlockPraos, Point} from '@cardano-ogmios/schema'
-import type {Block} from '@wingriders/multi-dex-launchpad-backend-common/prisma'
-import {prisma} from '../db/prisma-client'
-import {originPoint} from '../helpers'
-import {logger} from '../logger'
+import type {Block} from '../../../prisma/generated/client'
+import {prisma} from '../../db/prisma-client'
+import {originPoint} from '../../helpers'
+import {logger} from '../../logger'
 import {getOgmiosContext} from './ogmios'
 
 // Buffering is suitable when doing the initial sync

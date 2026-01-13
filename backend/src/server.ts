@@ -1,22 +1,24 @@
 import {createServer} from 'node:http'
 import {createHTTPHandler} from '@trpc/server/adapters/standalone'
 import {applyWSSHandler} from '@trpc/server/adapters/ws'
-import {getCorsOptions} from '@wingriders/multi-dex-launchpad-backend-common'
 import cors from 'cors'
 import {WebSocketServer} from 'ws'
 import {
+  createAgentRouter,
   createAggregatorRouter,
-  createBothModeRouter,
+  createAllModesRouter,
   createServerRouter,
 } from './app-router'
 import {config, isProd, isServerMode} from './config'
+import {getCorsOptions} from './helpers/cors'
 import {logger} from './logger'
 
 export const startServer = () => {
   const router = {
     aggregator: createAggregatorRouter(),
     server: createServerRouter(),
-    both: createBothModeRouter(),
+    agent: createAgentRouter(),
+    all: createAllModesRouter(),
   }[config.MODE]
 
   const trpcHandler = createHTTPHandler({

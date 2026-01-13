@@ -1,6 +1,7 @@
 import {TRPCError} from '@trpc/server'
-import {prisma} from '../db/prisma-client'
-import {tipToSlot} from '../helpers'
+import {getAgentHealthStatus} from '../../agent/endpoints/healthcheck'
+import {prisma} from '../../db/prisma-client'
+import {tipToSlot} from '../../helpers'
 import {getLedgerTip, getNetworkTip} from '../ogmios/ledger-state-query'
 import {isTxSubmissionClientInitialized as isTxSubmissionClientInitializedFn} from '../ogmios/tx-submission-client'
 
@@ -88,16 +89,22 @@ export const getServerHealthcheck = async () => {
   return healthStatus
 }
 
-export const getBothModeHealthcheck = async () => {
-  const [aggregatorHealthStatus, serverHealthStatus] = await Promise.all([
-    getAggregatorHealthStatus(),
-    getServerHealthStatus(),
-  ])
+export const getAllModesHealthcheck = async () => {
+  const [aggregatorHealthStatus, serverHealthStatus, agentHealthStatus] =
+    await Promise.all([
+      getAggregatorHealthStatus(),
+      getServerHealthStatus(),
+      getAgentHealthStatus(),
+    ])
 
   const healthStatus = {
     ...aggregatorHealthStatus,
     ...serverHealthStatus,
-    healthy: aggregatorHealthStatus.healthy && serverHealthStatus.healthy,
+    ...agentHealthStatus,
+    healthy:
+      aggregatorHealthStatus.healthy &&
+      serverHealthStatus.healthy &&
+      agentHealthStatus.healthy,
   }
 
   if (!healthStatus.healthy) {
