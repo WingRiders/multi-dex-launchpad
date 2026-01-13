@@ -9,7 +9,7 @@ import {
   PLUTUS_SCRIPT_VERSION_TO_LANGUAGE,
   type PlutusScriptVersion,
   SCRIPT_HASH_LENGTH,
-} from '@/contract-generation/constants'
+} from '@/constants'
 
 export const getScriptHash = (
   scriptBytes: Uint8Array,

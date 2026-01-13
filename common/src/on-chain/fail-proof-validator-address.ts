@@ -1,6 +1,6 @@
 import type {Network} from '@meshsdk/core'
 import {type NetworkId, scriptHashToBech32} from '@meshsdk/core-cst'
-import {getScriptFromExport} from '../contract-generation/helpers'
+import {getScriptFromExport} from '@/helpers'
 import {failProofValidator as failProofValidatorExport} from './artifacts'
 
 export const failProofValidatorAddress = (network: Network) => {
