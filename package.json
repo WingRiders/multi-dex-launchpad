@@ -10,15 +10,14 @@
   ],
   "scripts": {
     "postinstall": "scripts/fix-libsodium.sh",
-    "build": "turbo build",
-    "check": "turbo check",
-    "fix": "turbo fix",
-    "test": "turbo test",
-    "clean": "turbo clean"
+    "build": "bun run --filter '*' build",
+    "check": "bun run --filter '*' check",
+    "fix": "bun run --filter '*' fix",
+    "test": "bun run --filter '*' test",
+    "clean": "bun run --filter '*' clean"
   },
   "devDependencies": {
-    "@types/bun": "^1.3.3",
-    "turbo": "^2.5.8"
+    "@types/bun": "^1.3.3"
   },
   "packageManager": "bun@1.3.3"
 }

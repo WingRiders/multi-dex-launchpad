@@ -7,8 +7,7 @@
       "!**/bun.lock",
       "!**/dist",
       "!**/generated",
-      "!**/node_modules",
-      "!**/.turbo"
+      "!**/node_modules"
     ]
   },
   "formatter": {

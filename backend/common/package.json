@@ -7,7 +7,7 @@
     "./prisma": "./prisma/generated/client.ts"
   },
   "scripts": {
-    "build": "tsgo",
+    "build": "bun prisma:generate && tsgo",
     "check": "bun biome check . && bun run tsgo --noEmit",
     "fix": "bun biome check . --write",
     "clean": "rm -r prisma/generated",

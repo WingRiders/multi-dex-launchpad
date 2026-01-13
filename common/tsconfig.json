@@ -20,5 +20,5 @@
     }
   },
   "include": ["src"],
-  "exclude": ["node_modules", ".turbo"]
+  "exclude": ["node_modules"]
 }
