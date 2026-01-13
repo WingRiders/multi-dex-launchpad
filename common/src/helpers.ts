@@ -1,3 +1,11 @@
+import {mConStr0} from '@meshsdk/common'
+import {
+  type Data,
+  deserializeAddress,
+  mPubKeyAddress,
+  mScriptAddress,
+  type TxInput,
+} from '@meshsdk/core'
 import {
   blake2b,
   HexBlob,
@@ -10,6 +18,7 @@ import {
   type PlutusScriptVersion,
   SCRIPT_HASH_LENGTH,
 } from '@/constants'
+import {applyParamsToScript} from '@/contract-generation/apply-params-to-script'
 
 export const getScriptHash = (
   scriptBytes: Uint8Array,
@@ -30,26 +39,36 @@ export const getScriptFromExport: (plutusExport: {
   type: string
 }) => {
   hash: string
-  bytes: Buffer
+  hex: string
   language: PlutusLanguageVersion
 } = (plutusExport) => {
-  const scriptCborBytes = Buffer.from(
-    parseDatumCbor(plutusExport.cborHex).bytes,
-    'hex',
-  )
+  const scriptCborHex = parseDatumCbor(plutusExport.cborHex).bytes
+  const scriptCborBytes = Buffer.from(scriptCborHex, 'hex')
 
   return {
     hash: getScriptHash(
       scriptCborBytes,
       scriptTypeFromExportToScriptVersion(plutusExport.type),
     ),
-    bytes: scriptCborBytes,
+    hex: scriptCborHex,
     language:
       PLUTUS_SCRIPT_VERSION_TO_LANGUAGE[
         plutusExport.type as PlutusScriptVersion
       ],
   }
 }
+
+export const applyParamsToScriptExport = async (
+  script: {cborHex: string; type: string},
+  params: Data[],
+) =>
+  applyParamsToScript(
+    {
+      cborHex: script.cborHex,
+      version: scriptTypeFromExportToScriptVersion(script.type),
+    },
+    params,
+  )
 
 const scriptTypeFromExportToScriptVersion = (
   type: string,
@@ -59,3 +78,26 @@ const scriptTypeFromExportToScriptVersion = (
   }
   return type as PlutusScriptVersion
 }
+
+export const bech32AddressToMeshData = (address: string): Data => {
+  const deserializedAddress = deserializeAddress(address)
+  const [stakeCredential, isStakeScriptCredential] =
+    deserializedAddress.stakeCredentialHash != null
+      ? [deserializedAddress.stakeCredentialHash, false]
+      : [deserializedAddress.stakeScriptCredentialHash, true]
+  if (deserializedAddress.pubKeyHash) {
+    return mPubKeyAddress(
+      deserializedAddress.pubKeyHash,
+      stakeCredential,
+      isStakeScriptCredential,
+    )
+  }
+  return mScriptAddress(
+    deserializedAddress.scriptHash,
+    stakeCredential,
+    isStakeScriptCredential,
+  )
+}
+
+export const txInputToMeshData = ({txHash, outputIndex}: TxInput): Data =>
+  mConStr0([mConStr0([txHash]), outputIndex])
