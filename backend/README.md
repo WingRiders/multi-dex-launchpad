@@ -1,11 +1,9 @@
 # Multi-DEX Launchpad Backend
 
-This package contains the source code for the backend services. They share the same codebase and are differentiated with a MODE env variable.
+This package contains the source code for the backend. The service can run either as an agent or a server, that's controlled my MODE env variable.
 
-The Aggregator service is responsible for collecting on-chain data for the Launchpad, storing it in the database, and exposing API endpoints for the frontend.
-
-The Agent service is responsible for executing the Launchpad.
-
+The agent is responsible for collecting on-chain data for the Launchpad, storing it in the database, and executing the Launchpad.
+The server exposes API endpoints for the frontend.
 ---
 
 ## Note for development in IntelliJ

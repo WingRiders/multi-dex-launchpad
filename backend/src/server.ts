@@ -5,7 +5,6 @@ import cors from 'cors'
 import {WebSocketServer} from 'ws'
 import {
   createAgentRouter,
-  createAggregatorRouter,
   createAllModesRouter,
   createServerRouter,
 } from './app-router'
@@ -15,7 +14,6 @@ import {logger} from './logger'
 
 export const startServer = () => {
   const router = {
-    aggregator: createAggregatorRouter(),
     server: createServerRouter(),
     agent: createAgentRouter(),
     all: createAllModesRouter(),
