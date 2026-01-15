@@ -19,6 +19,7 @@ import {
   SCRIPT_HASH_LENGTH,
 } from '@/constants'
 import {applyParamsToScript} from '@/contract-generation/apply-params-to-script'
+import {ensure} from './ensure'
 
 export const getScriptHash = (
   scriptBytes: Uint8Array,
@@ -73,9 +74,11 @@ export const applyParamsToScriptExport = async (
 const scriptTypeFromExportToScriptVersion = (
   type: string,
 ): PlutusScriptVersion => {
-  if (!(type in PLUTUS_SCRIPT_VERSION_PREFIX)) {
-    throw new Error(`Incorrect plutus script version: ${type}`)
-  }
+  ensure(
+    type in PLUTUS_SCRIPT_VERSION_PREFIX,
+    {type},
+    'Incorrect plutus script version',
+  )
   return type as PlutusScriptVersion
 }
 

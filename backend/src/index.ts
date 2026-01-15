@@ -9,4 +9,5 @@ const start = async () => {
   if (isAgentMode) startAgent()
 }
 
+// TODO: catch errors from ensure, and probably all other errors as well
 await start()

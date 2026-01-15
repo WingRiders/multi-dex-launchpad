@@ -2,6 +2,7 @@ import {
   createTransactionSubmissionClient,
   type TransactionSubmission,
 } from '@cardano-ogmios/client'
+import {ensure} from '@wingriders/multi-dex-launchpad-common'
 import {getOgmiosContext} from './ogmios'
 
 let txSubmissionClient: TransactionSubmission.TransactionSubmissionClient | null =
@@ -20,8 +21,6 @@ export const initializeTxSubmissionClient = async () => {
 export const isTxSubmissionClientInitialized = () => txSubmissionClient != null
 
 export const submitTx = (signedTxBody: string) => {
-  if (txSubmissionClient === null) {
-    throw new Error('TxSubmission client not initialized')
-  }
+  ensure(txSubmissionClient !== null, 'TxSubmission client not initialized')
   return txSubmissionClient.submitTransaction(signedTxBody)
 }
