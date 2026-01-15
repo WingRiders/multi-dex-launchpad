@@ -1,0 +1,9 @@
+{
+  "short_name": "Multi-DEX Launchpad",
+  "name": "Multi-DEX Launchpad platform created by WingRiders",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

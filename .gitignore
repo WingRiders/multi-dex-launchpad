@@ -22,5 +22,14 @@ generated
 !.env.prod
 
 dist
+dist-ssr
 
 .prettierrc.json
+
+.DS_Store
+
+.nitro
+.tanstack
+.wrangler
+.output
+.vinxi

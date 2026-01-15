@@ -1,5 +1,6 @@
 import {initTRPC} from '@trpc/server'
 import type {RouterRecord} from '@trpc/server/unstable-core-do-not-import'
+import superjson from 'superjson'
 import {z} from 'zod'
 import {
   getAgentHealthcheck,
@@ -8,7 +9,9 @@ import {
 } from './agent/endpoints/healthcheck'
 import {submitTx} from './agent/ogmios/tx-submission-client'
 
-export const t = initTRPC.create()
+export const t = initTRPC.create({
+  transformer: superjson,
+})
 export const publicProcedure = t.procedure
 export const mergeRouters = t.mergeRouters
 
