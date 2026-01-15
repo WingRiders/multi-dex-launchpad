@@ -1,4 +1,4 @@
-import {PlutusLanguageVersion} from '@meshsdk/core-cst'
+import type {LanguageVersion} from '@meshsdk/common'
 
 export const SCRIPT_HASH_LENGTH = 28
 
@@ -16,9 +16,9 @@ export const PLUTUS_SCRIPT_VERSION_PREFIX = {
 
 export const PLUTUS_SCRIPT_VERSION_TO_LANGUAGE: Record<
   PlutusScriptVersion,
-  PlutusLanguageVersion
+  LanguageVersion
 > = {
-  [PlutusScriptVersion.PlutusScriptV1]: PlutusLanguageVersion.V1,
-  [PlutusScriptVersion.PlutusScriptV2]: PlutusLanguageVersion.V2,
-  [PlutusScriptVersion.PlutusScriptV3]: PlutusLanguageVersion.V3,
+  [PlutusScriptVersion.PlutusScriptV1]: 'V1',
+  [PlutusScriptVersion.PlutusScriptV2]: 'V2',
+  [PlutusScriptVersion.PlutusScriptV3]: 'V3',
 }

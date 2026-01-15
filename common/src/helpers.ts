@@ -6,12 +6,7 @@ import {
   mScriptAddress,
   type TxInput,
 } from '@meshsdk/core'
-import {
-  blake2b,
-  HexBlob,
-  type PlutusLanguageVersion,
-  parseDatumCbor,
-} from '@meshsdk/core-cst'
+import {blake2b, HexBlob, parseDatumCbor} from '@meshsdk/core-cst'
 import {
   PLUTUS_SCRIPT_VERSION_PREFIX,
   PLUTUS_SCRIPT_VERSION_TO_LANGUAGE,
@@ -20,6 +15,7 @@ import {
 } from '@/constants'
 import {applyParamsToScript} from '@/contract-generation/apply-params-to-script'
 import {ensure} from './ensure'
+import type {Contract} from './on-chain/types'
 
 export const getScriptHash = (
   scriptBytes: Uint8Array,
@@ -35,14 +31,10 @@ export const getScriptHash = (
   )
 }
 
-export const getScriptFromExport: (plutusExport: {
+export const getScriptFromExport = (plutusExport: {
   cborHex: string
   type: string
-}) => {
-  hash: string
-  hex: string
-  language: PlutusLanguageVersion
-} = (plutusExport) => {
+}): Contract => {
   const scriptCborHex = parseDatumCbor(plutusExport.cborHex).bytes
   const scriptCborBytes = Buffer.from(scriptCborHex, 'hex')
 
@@ -52,7 +44,7 @@ export const getScriptFromExport: (plutusExport: {
       scriptTypeFromExportToScriptVersion(plutusExport.type),
     ),
     hex: scriptCborHex,
-    language:
+    version:
       PLUTUS_SCRIPT_VERSION_TO_LANGUAGE[
         plutusExport.type as PlutusScriptVersion
       ],

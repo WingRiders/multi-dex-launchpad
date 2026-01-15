@@ -1,6 +1,7 @@
 import {applyParamsToScriptExport, getScriptFromExport} from '@/helpers'
 import {poolProofConfigToMeshData} from '@/launchpad-configs/pool-proof-config'
 import {poolProofPolicyConfigToMeshData} from '@/launchpad-configs/pool-proof-policy-config'
+import type {ConstantContracts} from '@/on-chain/types'
 import * as artifacts from '../on-chain/artifacts'
 
 type GenerateConstantContractsParams = {
@@ -8,15 +9,6 @@ type GenerateConstantContractsParams = {
   wrPoolSymbol: string
   sundaePoolScriptHash: string
   usesWr: boolean
-}
-
-type ConstantContract = {hex: string; hash: string}
-
-type ConstantContracts = {
-  failProofPolicy: ConstantContract
-  failProofValidator: ConstantContract
-  poolProofPolicy: ConstantContract
-  poolProofValidator: ConstantContract
 }
 
 export const generateConstantContracts = async (

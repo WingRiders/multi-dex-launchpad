@@ -1,13 +1,17 @@
 import type {Data} from '@meshsdk/core'
 import {parseDatumCbor, toPlutusData} from '@meshsdk/core-cst'
 import {applyParamsToScript as applyParamsToScriptLib} from '@wingriders/apply-params-to-script'
-import type {PlutusScriptVersion} from '@/constants'
+import {
+  PLUTUS_SCRIPT_VERSION_TO_LANGUAGE,
+  type PlutusScriptVersion,
+} from '@/constants'
 import {getScriptHash} from '@/helpers'
+import type {Contract} from '@/on-chain/types'
 
 export const applyParamsToScript = async (
   script: {cborHex: string; version: PlutusScriptVersion},
   params: Data[],
-) => {
+): Promise<Contract> => {
   const paramsCborHex = toPlutusData(params).toCbor()
   const paramsCborBytes = Buffer.from(paramsCborHex, 'hex')
   const scriptCborBytes = Buffer.from(
@@ -23,5 +27,6 @@ export const applyParamsToScript = async (
   return {
     hex: parametrizedScriptBytes.toHex(),
     hash,
+    version: PLUTUS_SCRIPT_VERSION_TO_LANGUAGE[script.version],
   }
 }
