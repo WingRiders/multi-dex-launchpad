@@ -1,5 +1,5 @@
 import type {Data, TxInput} from '@meshsdk/core'
-import {txInputToMeshData} from '@/helpers'
+import {txInputToMeshData} from '../helpers/mesh-data'
 
 export type RewardsFoldPolicyConfig = {
   starter: TxInput

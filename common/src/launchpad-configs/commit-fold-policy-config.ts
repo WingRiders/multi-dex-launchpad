@@ -1,6 +1,6 @@
 import {mConStr0} from '@meshsdk/common'
 import type {TxInput} from '@meshsdk/core'
-import {txInputToMeshData} from '@/helpers'
+import {txInputToMeshData} from '../helpers/mesh-data'
 
 export type CommitFoldPolicyConfig = {
   starter: TxInput

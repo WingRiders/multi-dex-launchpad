@@ -1,8 +1,8 @@
-import {applyParamsToScriptExport, getScriptFromExport} from '@/helpers'
-import {poolProofConfigToMeshData} from '@/launchpad-configs/pool-proof-config'
-import {poolProofPolicyConfigToMeshData} from '@/launchpad-configs/pool-proof-policy-config'
-import type {ConstantContracts} from '@/on-chain/types'
+import {applyParamsToScriptExport, getScriptFromExport} from '../helpers/script'
+import {poolProofConfigToMeshData} from '../launchpad-configs/pool-proof-config'
+import {poolProofPolicyConfigToMeshData} from '../launchpad-configs/pool-proof-policy-config'
 import * as artifacts from '../on-chain/artifacts'
+import type {ConstantContracts} from '../on-chain/types'
 
 type GenerateConstantContractsParams = {
   wrPoolValidatorHash: string

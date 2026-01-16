@@ -1,21 +1,14 @@
-import {mConStr0} from '@meshsdk/common'
-import {
-  type Data,
-  deserializeAddress,
-  mPubKeyAddress,
-  mScriptAddress,
-  type TxInput,
-} from '@meshsdk/core'
+import type {Data} from '@meshsdk/core'
 import {blake2b, HexBlob, parseDatumCbor} from '@meshsdk/core-cst'
 import {
   PLUTUS_SCRIPT_VERSION_PREFIX,
   PLUTUS_SCRIPT_VERSION_TO_LANGUAGE,
   type PlutusScriptVersion,
   SCRIPT_HASH_LENGTH,
-} from '@/constants'
-import {applyParamsToScript} from '@/contract-generation/apply-params-to-script'
-import {ensure} from './ensure'
-import type {Contract} from './on-chain/types'
+} from '../constants'
+import {applyParamsToScript} from '../contract-generation/apply-params-to-script'
+import {ensure} from '../ensure'
+import type {Contract} from '../on-chain/types'
 
 export const getScriptHash = (
   scriptBytes: Uint8Array,
@@ -73,26 +66,3 @@ const scriptTypeFromExportToScriptVersion = (
   )
   return type as PlutusScriptVersion
 }
-
-export const bech32AddressToMeshData = (address: string): Data => {
-  const deserializedAddress = deserializeAddress(address)
-  const [stakeCredential, isStakeScriptCredential] =
-    deserializedAddress.stakeCredentialHash != null
-      ? [deserializedAddress.stakeCredentialHash, false]
-      : [deserializedAddress.stakeScriptCredentialHash, true]
-  if (deserializedAddress.pubKeyHash) {
-    return mPubKeyAddress(
-      deserializedAddress.pubKeyHash,
-      stakeCredential,
-      isStakeScriptCredential,
-    )
-  }
-  return mScriptAddress(
-    deserializedAddress.scriptHash,
-    stakeCredential,
-    isStakeScriptCredential,
-  )
-}
-
-export const txInputToMeshData = ({txHash, outputIndex}: TxInput): Data =>
-  mConStr0([mConStr0([txHash]), outputIndex])

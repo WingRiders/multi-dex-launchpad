@@ -8,6 +8,7 @@ import {
   getServerHealthcheck,
 } from './agent/endpoints/healthcheck'
 import {submitTx} from './agent/ogmios/tx-submission-client'
+import {getTokenMetadata, getTokensMetadata} from './endpoints/token-metadata'
 
 export const t = initTRPC.create({
   transformer: superjson,
@@ -21,6 +22,13 @@ export const createServerRouter = () =>
       .input(z.string())
       .mutation(({input}) => submitTx(input)),
     healthcheck: publicProcedure.query(getServerHealthcheck),
+    // using mutation instead of query because the input can be too large for a GET request
+    tokensMetadata: publicProcedure
+      .input(z.array(z.string()))
+      .mutation(({input}) => getTokensMetadata(input)),
+    tokenMetadata: publicProcedure
+      .input(z.string())
+      .query(({input}) => getTokenMetadata(input)),
   })
 
 export const createAgentRouter = () =>

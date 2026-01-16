@@ -9,6 +9,7 @@ import {
   createServerRouter,
 } from './app-router'
 import {config, isProd, isServerMode} from './config'
+import {handleTokenImageRequest} from './endpoints/token-image'
 import {getCorsOptions} from './helpers/cors'
 import {logger} from './logger'
 
@@ -28,6 +29,12 @@ export const startServer = () => {
 
   // HTTP server
   const server = createServer((req, res) => {
+    if (isServerMode) {
+      if (req.url?.match(/^\/token-image\/.+$/)) {
+        handleTokenImageRequest(req.url.split('/').pop()!, res)
+      }
+    }
+
     trpcHandler(req, res)
   })
 

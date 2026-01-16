@@ -3,7 +3,7 @@
   "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
   "extends": "//",
   "files": {
-    "includes": ["**", "!src/routeTree.gen.ts"]
+    "includes": ["**", "!.output", "!.tanstack", "!src/routeTree.gen.ts"]
   },
   "css": {
     "parser": {

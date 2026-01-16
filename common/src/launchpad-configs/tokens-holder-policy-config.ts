@@ -1,6 +1,6 @@
 import {mConStr0, parseAssetUnit} from '@meshsdk/common'
 import type {Quantity, TxInput, Unit} from '@meshsdk/core'
-import {txInputToMeshData} from '@/helpers'
+import {txInputToMeshData} from '../helpers/mesh-data'
 
 export type TokensHolderPolicyConfig = {
   // PubKeyHash
