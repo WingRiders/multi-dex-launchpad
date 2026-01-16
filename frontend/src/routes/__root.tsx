@@ -8,13 +8,14 @@ import {
 import {TanStackRouterDevtoolsPanel} from '@tanstack/react-router-devtools'
 import type {TRPCOptionsProxy} from '@trpc/tanstack-react-query'
 import type {ServerAppRouter} from '@wingriders/multi-dex-launchpad-backend/src/app-router'
+import type {ClientConfig} from '@/config/client'
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 import appCss from '../styles.css?url'
 
 interface MyRouterContext {
   queryClient: QueryClient
-
   trpc: TRPCOptionsProxy<ServerAppRouter>
+  clientConfig: ClientConfig
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({

@@ -4,24 +4,16 @@ import {createTRPCOptionsProxy} from '@trpc/tanstack-react-query'
 import type {ServerAppRouter} from '@wingriders/multi-dex-launchpad-backend/src/app-router'
 import superjson from 'superjson'
 
-import {TRPCProvider} from '@/integrations/trpc/react'
+export const getContext = (apiServerUrl: string) => {
+  const trpcClient = createTRPCClient<ServerAppRouter>({
+    links: [
+      httpBatchStreamLink({
+        transformer: superjson,
+        url: apiServerUrl,
+      }),
+    ],
+  })
 
-const getUrl = () => {
-  // TODO: get this from environment variables, different for browser and server
-  if (typeof window !== 'undefined') return 'http://127.0.0.1:3350'
-  return 'http://127.0.0.1:3350'
-}
-
-export const trpcClient = createTRPCClient<ServerAppRouter>({
-  links: [
-    httpBatchStreamLink({
-      transformer: superjson,
-      url: getUrl(),
-    }),
-  ],
-})
-
-export const getContext = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
       dehydrate: {serializeData: superjson.serialize},
@@ -37,18 +29,4 @@ export const getContext = () => {
     queryClient,
     trpc: serverHelpers,
   }
-}
-
-export const Provider = ({
-  children,
-  queryClient,
-}: {
-  children: React.ReactNode
-  queryClient: QueryClient
-}) => {
-  return (
-    <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
-      {children}
-    </TRPCProvider>
-  )
 }
