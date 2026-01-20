@@ -8,7 +8,6 @@ type GenerateConstantContractsParams = {
   wrPoolValidatorHash: string
   wrPoolSymbol: string
   sundaePoolScriptHash: string
-  usesWr: boolean
 }
 
 export const generateConstantContracts = async (
@@ -24,10 +23,14 @@ export const generateConstantContracts = async (
     artifacts.parametricPoolProofValidator,
     [poolProofConfigToMeshData({poolProofSymbol: poolProofPolicy.hash})],
   )
+  const refScriptCarrierValidator = getScriptFromExport(
+    artifacts.refScriptCarrierValidator,
+  )
   return {
     failProofPolicy,
     failProofValidator,
     poolProofPolicy,
     poolProofValidator,
+    refScriptCarrierValidator,
   }
 }

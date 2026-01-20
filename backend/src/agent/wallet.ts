@@ -1,4 +1,4 @@
-import {MeshWallet} from '@meshsdk/core'
+import {deserializeAddress, MeshWallet} from '@meshsdk/core'
 import {
   ensure,
   networkToNetworkId,
@@ -7,6 +7,7 @@ import {config} from '../config'
 import {fetcher, ogmiosSubmitter} from './providers'
 
 let wallet: MeshWallet | undefined
+let walletPubKeyHash: string | undefined
 
 export const initWallet = async () => {
   ensure(config.WALLET_MNEMONIC != null, 'The mnemonic is not provided')
@@ -22,9 +23,17 @@ export const initWallet = async () => {
     accountIndex: config.WALLET_ACCOUNT_INDEX,
   })
   await wallet.init()
+  walletPubKeyHash = deserializeAddress(
+    await wallet.getChangeAddress(),
+  ).pubKeyHash
 }
 
 export const getWallet = (): MeshWallet => {
   ensure(wallet != null, 'Wallet is not initialized')
   return wallet
+}
+
+export const getWalletPubKeyHash = (): string => {
+  ensure(walletPubKeyHash != null, 'Wallet is not initialized')
+  return walletPubKeyHash
 }

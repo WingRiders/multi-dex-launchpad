@@ -10,5 +10,4 @@ export const ogmiosSubmitter = new OgmiosProvider(
 // We need to maintain offline fetcher state
 // we can port the ogmios fetcher maybe?
 export const fetcher = new OfflineFetcher(config.NETWORK)
-
 export const evaluator = new coreCsl.OfflineEvaluator(fetcher, config.NETWORK)

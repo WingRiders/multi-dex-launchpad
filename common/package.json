@@ -15,7 +15,8 @@
     "@meshsdk/common": "^1.9.0-beta.93",
     "@meshsdk/core": "^1.9.0-beta.93",
     "@meshsdk/core-cst": "^1.9.0-beta.93",
-    "@wingriders/apply-params-to-script": "^0.1.2"
+    "@wingriders/apply-params-to-script": "^0.1.2",
+    "better-result": "^2.3.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.8",

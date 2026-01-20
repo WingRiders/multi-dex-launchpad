@@ -5,7 +5,7 @@ import {
   PLUTUS_SCRIPT_VERSION_TO_LANGUAGE,
   type PlutusScriptVersion,
 } from '../constants'
-import {getScriptHash} from '../helpers/script'
+import {getScriptHash} from '../helpers'
 import type {Contract} from '../on-chain/types'
 
 export const applyParamsToScript = async (

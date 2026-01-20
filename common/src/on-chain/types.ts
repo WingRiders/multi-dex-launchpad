@@ -8,6 +8,7 @@ export type ConstantContracts = {
   failProofValidator: Contract
   poolProofPolicy: Contract
   poolProofValidator: Contract
+  refScriptCarrierValidator: Contract
 }
 
 export const networkToNetworkId: Record<Network, NetworkId> = {
