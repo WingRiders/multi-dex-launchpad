@@ -11,6 +11,9 @@ body {
     "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  background: var(--background);
+  color: var(--foreground);
 }
 
 code {
@@ -134,5 +137,11 @@ code {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
   }
 }
