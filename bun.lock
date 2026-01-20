@@ -16,6 +16,10 @@
       "version": "0.1.0",
       "dependencies": {
         "@cardano-ogmios/client": "^6.14.0",
+        "@meshsdk/common": "^1.9.0-beta.93",
+        "@meshsdk/core": "^1.9.0-beta.93",
+        "@meshsdk/core-csl": "1.9.0-beta.93",
+        "@meshsdk/core-cst": "^1.9.0-beta.93",
         "@prisma/adapter-pg": "^7.2.0",
         "@prisma/client": "^7.2.0",
         "@trpc/server": "^11.7.2",
@@ -355,6 +359,8 @@
 
     "@meshsdk/core": ["@meshsdk/core@1.9.0-beta.93", "", { "dependencies": { "@meshsdk/common": "1.9.0-beta.93", "@meshsdk/core-cst": "1.9.0-beta.93", "@meshsdk/provider": "1.9.0-beta.93", "@meshsdk/transaction": "1.9.0-beta.93", "@meshsdk/wallet": "1.9.0-beta.93", "libsodium-wrappers-sumo": "0.7.15" } }, "sha512-kMkx0dCc0Lyp8Js+BrJa90gTKftzQsjzV2UQSrdQpfNIzJeKL07j1H3m/EWpfQANfh3+OjOKVs/mG6fRn7Z9yg=="],
 
+    "@meshsdk/core-csl": ["@meshsdk/core-csl@1.9.0-beta.93", "", { "dependencies": { "@meshsdk/common": "1.9.0-beta.93", "@sidan-lab/whisky-js-browser": "^1.0.11", "@sidan-lab/whisky-js-nodejs": "^1.0.11", "@types/base32-encoding": "^1.0.2", "base32-encoding": "^1.0.0", "bech32": "^2.0.0", "json-bigint": "^1.0.0" } }, "sha512-pDczWEcdNS3c63UIn2oTVSY3Fug9OFKhsUlxxXLVXZgnTrmtobT59/8oDvdqIeJKU9FAtjZ4/0WgYtfMr6TFYw=="],
+
     "@meshsdk/core-cst": ["@meshsdk/core-cst@1.9.0-beta.93", "", { "dependencies": { "@cardano-sdk/core": "^0.46.11", "@cardano-sdk/crypto": "^0.4.4", "@cardano-sdk/input-selection": "^0.14.27", "@cardano-sdk/util": "^0.17.1", "@harmoniclabs/cbor": "1.6.0", "@harmoniclabs/pair": "^1.0.0", "@harmoniclabs/plutus-data": "1.2.6", "@harmoniclabs/uplc": "1.4.1", "@meshsdk/common": "1.9.0-beta.93", "@types/base32-encoding": "^1.0.2", "base32-encoding": "^1.0.0", "bech32": "^2.0.0", "blakejs": "^1.2.1", "bn.js": "^5.2.0", "libsodium-wrappers-sumo": "0.7.15" } }, "sha512-I43NqJ4bJFZcjKKSdf3NGjFsXDENMfiLJ/gIX8MqNOZhpkHyFIbdIsjZr5JkbdNF8g8POJYhEZDgG3+418FSrQ=="],
 
     "@meshsdk/provider": ["@meshsdk/provider@1.9.0-beta.93", "", { "dependencies": { "@meshsdk/bitcoin": "1.9.0-beta.93", "@meshsdk/common": "1.9.0-beta.93", "@meshsdk/core-cst": "1.9.0-beta.93", "@utxorpc/sdk": "^0.6.7", "@utxorpc/spec": "^0.16.0", "axios": "^1.7.2", "cbor": "^10.0.9", "libsodium-wrappers-sumo": "0.7.15" } }, "sha512-2Fkg7XoS7QTYLPEceToaJnPWGDGuK/Oas4N2Ec7xxSm1xFwGcRnAr+L2EWeQwIabAz3DTE3H8LHDHgaPBr2CZg=="],
@@ -602,6 +608,10 @@
     "@rollup/rollup-win32-x64-msvc": ["@rollup/rollup-win32-x64-msvc@4.55.1", "", { "os": "win32", "cpu": "x64" }, "sha512-SPEpaL6DX4rmcXtnhdrQYgzQ5W2uW3SCJch88lB2zImhJRhIIK44fkUrgIV/Q8yUNfw5oyZ5vkeQsZLhCb06lw=="],
 
     "@scure/base": ["@scure/base@1.2.6", "", {}, "sha512-g/nm5FgUa//MCj1gV09zTJTaM6KBAHqLN907YVQqf7zC49+DcO4B1so4ZX07Ef10Twr6nuqYEH9GEggFXA4Fmg=="],
+
+    "@sidan-lab/whisky-js-browser": ["@sidan-lab/whisky-js-browser@1.0.18", "", {}, "sha512-AMltJVi9dnT2xA/ZYInAzYP4QyjOygmcXEFcNAlSatHUS8/oB0n8q7g7F9enE8Z8zKcKFhyRIyTIIYo+F7A/0A=="],
+
+    "@sidan-lab/whisky-js-nodejs": ["@sidan-lab/whisky-js-nodejs@1.0.18", "", {}, "sha512-p5fwbvHvzLn7zSDMw1ouALkOyyJmSG4ngL6hlPucqQWECk5hsfHgGn1cZlwd0hEB44oz/77MTzcD+H3Cwgjo/g=="],
 
     "@simplewebauthn/browser": ["@simplewebauthn/browser@13.2.2", "", {}, "sha512-FNW1oLQpTJyqG5kkDg5ZsotvWgmBaC6jCHR7Ej0qUNep36Wl9tj2eZu7J5rP+uhXgHaLk+QQ3lqcw2vS5MX1IA=="],
 
@@ -1745,7 +1755,9 @@
 
     "recast/source-map": ["source-map@0.6.1", "", {}, "sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g=="],
 
-    "serialize-error/type-fest": ["type-fest@0.20.2", "", {}, "sha512-Ne+eE4r0/iWnpAxD852z3A+N0Bt5RN//NjJwRd2VFHEmrywxf5vsZlh4R6lixl6B+wz/8d+maTSAkN1FIkI3LQ=="],
+     "serialize-error/type-fest": ["type-fest@0.20.2", "", {}, "sha512-Ne+eE4r0/iWnpAxD852z3A+N0Bt5RN//NjJwRd2VFHEmrywxf5vsZlh4R6lixl6B+wz/8d+maTSAkN1FIkI3LQ=="],
+    "remeda/type-fest": ["type-fest@4.41.0", "", {}, "sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA=="],
+
 
     "solid-js/seroval": ["seroval@1.3.2", "", {}, "sha512-RbcPH1n5cfwKrru7v7+zrZvjLurgHhGyso3HTyGtRivGWgYjbOmGuivCQaORNELjNONoK35nj28EoWul9sb1zQ=="],
 

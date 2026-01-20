@@ -9,14 +9,14 @@ const envSchema = z.object({
     .default('info'),
   MODE: z.enum(['agent', 'server', 'all']).default('all'),
   SERVER_PORT: z.coerce.number().positive(),
+  WALLET_MNEMONIC: z.string().optional(),
+  WALLET_ACCOUNT_INDEX: z.coerce.number().nonnegative().optional(),
   NETWORK: z.enum(['preprod']).default('preprod'), // TODO: add mainnet once bootstrap is done
   DATABASE_URL: z.string(),
   DB_SCHEMA: z.string(),
   OGMIOS_HOST: z.string(),
   OGMIOS_PORT: z.coerce.number().positive(),
   CORS_ENABLED_FOR: z.string().optional(),
-  // TODO: optional wallet
-  //       if no wallet is provided, only aggregation is performed
 })
 
 const parsedEnv = envSchema.safeParse(process.env)
