@@ -9,7 +9,7 @@
     "check": "bun biome check . && bun run tsgo --noEmit",
     "fix": "bun biome check . --write",
     "clean": "rm -r prisma/generated",
-    "prisma:generate": "bunx --bun prisma generate",
+    "prisma:generate": "bunx --bun prisma generate --no-hints",
     "prisma:dev": "bunx --bun prisma migrate dev",
     "prisma:deploy": "bunx --bun prisma migrate deploy",
     "prisma:status": "bunx --bun prisma migrate status"

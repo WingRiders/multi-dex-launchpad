@@ -22,3 +22,41 @@ bun prisma:generate
 ```
 
 TODO
+
+# Architecture
+
+## Launch flow
+
+Users creates and signs a transaction:
+  - Sends funds to the agent
+  - Creates the first project tokens holder
+  - Creates the head node
+  - Submits the launch config in the metadata
+The starter is the first input of the transaction
+
+Then the agent has to:
+  - Generate and deploy the reference scripts
+  - Insert separator nodes <- ! has to happen before the start
+
+After that the initialization is done and the launch starts.
+Users make contributions.
+The commit fold happens.
+The rewards fold happens and rewards holders are created.
+The pools are created.
+The pool proofs are created.
+The users retrieve the rewards.
+
+## What do we need to keep track of?
+
+- the launches with their config and status
+  they are initiated by users, we can aggregate them from on-chain activity
+  we only track launches with valid configurations
+  since the contracts are generated, we can prefilter by tx metadata
+
+- the agent utxos
+
+- all the launch-related utxos
+
+- the reference script holder utxos, both the constant and the launch ones
+
+- the Wr & Sundae pool utxos

@@ -12,4 +12,306 @@ model Block {
   slot   Int    @id
   height Int
   hash   String @db.VarChar(64)
+
+  createdLaunches Launch[] @relation("createdLaunch")
+
+  txOutputs      TxOutput[] @relation("created")
+  spentTxOutputs TxOutput[] @relation("spent")
+}
+
+model TxOutput {
+  txHash      String
+  outputIndex Int
+
+  address String
+
+  datum     String?
+  datumHash String?
+
+  value Json
+
+  slot  Int
+  block Block @relation("created", fields: [slot], references: [slot], onDelete: Cascade)
+
+  // NOTE: we enforce spentTxHash is set to null together with spentSlot with a trigger
+  spentTxHash String?
+  spentSlot   Int?
+  spentBlock  Block?  @relation("spent", fields: [spentSlot], references: [slot], onDelete: SetNull)
+
+  // ref script carriers
+  launchNodeValidatorRefScriptCarrier                     Launch? @relation("nodeValidatorRefScriptCarrier")
+  launchNodePolicyRefScriptCarrier                        Launch? @relation("nodePolicyRefScriptCarrier")
+  launchFirstProjectTokensHolderValidatorRefScriptCarrier Launch? @relation("firstProjectTokensHolderValidatorRefScriptCarrier")
+  launchProjectTokensHolderPolicyRefScriptCarrier         Launch? @relation("projectTokensHolderPolicyRefScriptCarrier")
+  launchFinalProjectTokensHolderValidatorRefScriptCarrier Launch? @relation("finalProjectTokensHolderValidatorRefScriptCarrier")
+  launchCommitFoldValidatorRefScriptCarrier               Launch? @relation("commitFoldValidatorRefScriptCarrier")
+  launchCommitFoldPolicyRefScriptCarrier                  Launch? @relation("commitFoldPolicyRefScriptCarrier")
+  launchRewardsFoldValidatorRefScriptCarrier              Launch? @relation("rewardsFoldValidatorRefScriptCarrier")
+  launchRewardsFoldPolicyRefScriptCarrier                 Launch? @relation("rewardsFoldPolicyRefScriptCarrier")
+  launchRewardsHolderValidatorRefScriptCarrier            Launch? @relation("rewardsHolderValidatorRefScriptCarrier")
+
+  // tracked utxos
+  launchFailProof                Launch?         @relation("failProof")
+  launchFirstProjectTokensHolder Launch?         @relation("firstProjectTokensHolder")
+  launchFinalProjectTokensHolder Launch?         @relation("finalProjectTokensHolder")
+  launchCommitFold               Launch?         @relation("commitFold")
+  launchRewardsFold              Launch?         @relation("rewardsFold")
+  launchWrPool                   Launch?         @relation("wrPool")
+  launchWrPoolProof              Launch?         @relation("wrPoolProof")
+  launchSundaePool               Launch?         @relation("sundaePool")
+  launchSundaePoolProof          Launch?         @relation("sundaePoolProof")
+  nodes                          Node[]
+  rewardsHolders                 RewardsHolder[]
+
+  @@id([txHash, outputIndex])
+}
+
+model Node {
+  txHash      String
+  outputIndex Int
+  txOut       TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
+
+  launchTxHash String
+  launch       Launch @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
+
+  @@unique([txHash, outputIndex, launchTxHash])
+}
+
+model RewardsHolder {
+  txHash      String
+  outputIndex Int
+  txOut       TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
+
+  launchTxHash String
+  launch       Launch @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
+
+  @@unique([txHash, outputIndex, launchTxHash])
+}
+
+// NOTE: we don't need the status since we can infer it from other fields
+model Launch {
+  // NOTE: each launch is uniquely identified by its first transaction
+  txHash String @id
+  slot   Int
+  block  Block  @relation("createdLaunch", fields: [slot], references: [slot], onDelete: Cascade)
+
+  // Project info
+  projectTitle String
+  projectDescription String
+  projectUrl String
+  projectLogoUrl String
+  projectTierInfoUrl String?
+  projectTokenomicsUrl String
+  projectWhitepaperUrl String?
+  projectTermsAndConditionsUrl String?
+  projectAdditionalUrl String?
+  projectSocialLinks String[]
+  projectPresaleTierName String?
+
+  // Ref script carriers for generated contracts
+  // constant contracts ref carriers are not saved in the db REVIEW: maybe we should?
+  nodeValidatorRefScriptCarrierTxHash      String?
+  nodeValidatorRefScriptCarrierOutputIndex Int?
+  nodeValidatorRefScriptCarrier            TxOutput? @relation("nodeValidatorRefScriptCarrier", fields: [nodeValidatorRefScriptCarrierTxHash, nodeValidatorRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  nodePolicyRefScriptCarrierTxHash      String?
+  nodePolicyRefScriptCarrierOutputIndex Int?
+  nodePolicyRefScriptCarrier            TxOutput? @relation("nodePolicyRefScriptCarrier", fields: [nodePolicyRefScriptCarrierTxHash, nodePolicyRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  firstProjectTokensHolderValidatorRefScriptCarrierTxHash      String?
+  firstProjectTokensHolderValidatorRefScriptCarrierOutputIndex Int?
+  firstProjectTokensHolderValidatorRefScriptCarrier            TxOutput? @relation("firstProjectTokensHolderValidatorRefScriptCarrier", fields: [firstProjectTokensHolderValidatorRefScriptCarrierTxHash, firstProjectTokensHolderValidatorRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  projectTokensHolderPolicyRefScriptCarrierTxHash      String?
+  projectTokensHolderPolicyRefScriptCarrierOutputIndex Int?
+  projectTokensHolderPolicyRefScriptCarrier            TxOutput? @relation("projectTokensHolderPolicyRefScriptCarrier", fields: [projectTokensHolderPolicyRefScriptCarrierTxHash, projectTokensHolderPolicyRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  finalProjectTokensHolderValidatorRefScriptCarrierTxHash      String?
+  finalProjectTokensHolderValidatorRefScriptCarrierOutputIndex Int?
+  finalProjectTokensHolderValidatorRefScriptCarrier            TxOutput? @relation("finalProjectTokensHolderValidatorRefScriptCarrier", fields: [finalProjectTokensHolderValidatorRefScriptCarrierTxHash, finalProjectTokensHolderValidatorRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  commitFoldValidatorRefScriptCarrierTxHash      String?
+  commitFoldValidatorRefScriptCarrierOutputIndex Int?
+  commitFoldValidatorRefScriptCarrier            TxOutput? @relation("commitFoldValidatorRefScriptCarrier", fields: [commitFoldValidatorRefScriptCarrierTxHash, commitFoldValidatorRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  commitFoldPolicyRefScriptCarrierTxHash      String?
+  commitFoldPolicyRefScriptCarrierOutputIndex Int?
+  commitFoldPolicyRefScriptCarrier            TxOutput? @relation("commitFoldPolicyRefScriptCarrier", fields: [commitFoldPolicyRefScriptCarrierTxHash, commitFoldPolicyRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  rewardsFoldValidatorRefScriptCarrierTxHash      String?
+  rewardsFoldValidatorRefScriptCarrierOutputIndex Int?
+  rewardsFoldValidatorRefScriptCarrier            TxOutput? @relation("rewardsFoldValidatorRefScriptCarrier", fields: [rewardsFoldValidatorRefScriptCarrierTxHash, rewardsFoldValidatorRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  rewardsFoldPolicyRefScriptCarrierTxHash      String?
+  rewardsFoldPolicyRefScriptCarrierOutputIndex Int?
+  rewardsFoldPolicyRefScriptCarrier            TxOutput? @relation("rewardsFoldPolicyRefScriptCarrier", fields: [rewardsFoldPolicyRefScriptCarrierTxHash, rewardsFoldPolicyRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  rewardsHolderValidatorRefScriptCarrierTxHash      String?
+  rewardsHolderValidatorRefScriptCarrierOutputIndex Int?
+  rewardsHolderValidatorRefScriptCarrier            TxOutput? @relation("rewardsHolderValidatorRefScriptCarrier", fields: [rewardsHolderValidatorRefScriptCarrierTxHash, rewardsHolderValidatorRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  // Tracked utxos
+  nodes          Node[]
+  rewardsHolders RewardsHolder[]
+
+  failProofTxHash      String?
+  failProofOutputIndex Int?
+  failProof            TxOutput? @relation("failProof", fields: [failProofTxHash, failProofOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  firstProjectTokensHolderTxHash      String?
+  firstProjectTokensHolderOutputIndex Int?
+  firstProjectTokensHolder            TxOutput? @relation("firstProjectTokensHolder", fields: [firstProjectTokensHolderTxHash, firstProjectTokensHolderOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  finalProjectTokensHolderTxHash      String?
+  finalProjectTokensHolderOutputIndex Int?
+  finalProjectTokensHolder            TxOutput? @relation("finalProjectTokensHolder", fields: [finalProjectTokensHolderTxHash, finalProjectTokensHolderOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  commitFoldTxHash      String?
+  commitFoldOutputIndex Int?
+  commitFold            TxOutput? @relation("commitFold", fields: [commitFoldTxHash, commitFoldOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  rewardsFoldTxHash      String?
+  rewardsFoldOutputIndex Int?
+  rewardsFold            TxOutput? @relation("rewardsFold", fields: [rewardsFoldTxHash, rewardsFoldOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  // REVIEW: we probably don't want to store the pools because they change all the time
+  //         but we actually need this data, and fetching it doesn't make sense as it's a standalone service
+  //         we need to stop aggregating these once the pool proof is created
+  wrPoolTxHash      String?
+  wrPoolOutputIndex Int?
+  wrPool            TxOutput? @relation("wrPool", fields: [wrPoolTxHash, wrPoolOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  wrPoolProofTxHash      String?
+  wrPoolProofOutputIndex Int?
+  wrPoolProof            TxOutput? @relation("wrPoolProof", fields: [wrPoolProofTxHash, wrPoolProofOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  sundaePoolTxHash      String?
+  sundaePoolOutputIndex Int?
+  sundaePool            TxOutput? @relation("sundaePool", fields: [sundaePoolTxHash, sundaePoolOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  sundaePoolProofTxHash      String?
+  sundaePoolProofOutputIndex Int?
+  sundaePoolProof            TxOutput? @relation("sundaePoolProof", fields: [sundaePoolProofTxHash, sundaePoolProofOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+
+  // The configuration is available as soon as the transaction is parsed.
+  // We store it inline in the launch table.
+
+  // The owner of the launch, supplies the project tokens
+  ownerBech32Address                 String
+  // A value between 0 and 10_000, specifies a split of liquidity between Sundae and Wr pools
+  // 0 means everything goes to Sundae
+  // 10_000 means everything goes to Wr
+  splitBps                           Int
+  // The script hash of the Wr V2 Constant Product pool
+  wrPoolValidatorHash                String
+  // The script hash of the Wr V2 factory
+  wrFactoryValidatorHash             String
+  // The currency symbol of the Wr V2 pool policy
+  wrPoolCurrencySymbol               String
+  // The script hash of the Sundae V3 pool
+  sundaePoolScriptHash               String
+  // The max amount of ada it is tolerable to pay to create a Sundae pool
+  // Note that the actual amount is hopefully less and is controlled by the Sundae settings utxo.
+  // In case the settings specify a value above the tolerance, no Sundae pool is created.
+  sundaeFeeTolerance                 BigInt
+  // The currency symbol of the Sundae settings NFT.
+  sundaeSettingsCurrencySymbol       String
+  // The start time must be set to the lowest of the tiers start times.
+  startTime                          BigInt
+  // The time after which users no longer can contribute to the launch.
+  contributionEndTime                BigInt
+  // The time after which users no longer can withdraw from the launch.
+  // the withdrawalEndTime must be after the contributionEndTime
+  withdrawalEndTime                  BigInt
+  // The asset that is being launched
+  projectTokenPolicyId               String
+  projectTokenAssetName              String
+  // The asset that is being raised
+  raisingTokenPolicyId               String
+  raisingTokenAssetName              String
+  // The min possible amount of tokens the launchpad can raise.
+  // In case less raised tokens are collected, the launch is considered failed and tokens are returned back.
+  projectMinCommitment               BigInt
+  // The maximum amount of tokens the launchpad can raise.
+  // Can be set to max int64 value to essentially remove the cap.
+  projectMaxCommitment               BigInt
+  // The total number of the project tokens committed to the launchpad.
+  totalTokens                        BigInt
+  // The number of the project tokens to distribute among the launchpad users.
+  tokensToDistribute                 BigInt
+  // The percentage of the raised tokens to place into the pool.
+  raisedTokensPoolPartPercentage     Int
+  // Controls the dao fee collected in raised tokens
+  daoFeeNumerator                    Int
+  // Controls the dao fee collected in raised tokens
+  daoFeeDenominator                  Int
+  // Controls the address where the dao fee is sent
+  daoFeeReceiverBech32Address        String
+  // Controls the pub key hash of a dao admin.
+  // This signer can add separator nodes (the launch owner can do that as well).
+  daoAdminPubKeyHash                 String
+  // How much collateral (in Lovelace) is locked into the launch
+  // Must be at least 2 ada per used DEX plus 2 ada for the dao fee utxo
+  // The rest is returned if the launch is successful.
+  // If the launch is failed, the collateral is split between the commit fold owner and the dao fee receiver
+  collateral                         Int
+  // The tx out ref of the utxo that has to be spent to uniquely identify a launch
+  starterTxHash                      String
+  starterOutputIndex                 BigInt
+  // Configures the duration period of the vesting utxo which holds the owner's shares
+  vestingPeriodDuration              BigInt
+  // Configures the duration period to first unlock of the vesting utxo which holds the owner's shares
+  vestingPeriodDurationToFirstUnlock BigInt
+  // Configures the number of installments of the vesting utxo which holds the owner's shares
+  vestingPeriodInstallments          Int
+  // Configures the start of the vesting utxo which holds the owner's shares
+  vestingPeriodStart                 BigInt
+  // Configures the validator hash of the vesting utxo which holds the owner's shares
+  vestingValidatorHash               String
+  // Policy ID of the presale tier token
+  // Note that the token name is not checked.
+  // That allows using NFTs on the same policy as presale tokens.
+  presaleTierCs                      String
+  // The commitment start time of the presale tier
+  presaleTierStartTime               BigInt
+  // The commitment start time of the default tier
+  defaultStartTime                   BigInt
+  // The min user commitment of the presale tier
+  presaleTierMinCommitment           BigInt
+  // The min user commitment of the default tier
+  defaultTierMinCommitment           BigInt
+  // The max user commitment of the presale tier
+  presaleTierMaxCommitment           BigInt
+  // The max user commitment of the  tier
+  defaultTierMaxCommitment           BigInt
+  // The amount of ada a commitment node must hold.
+  // This ada is used up to compensate the folds and to create a user rewards holder.
+  nodeAda                            BigInt
+  // The amount of ada the commit fold gets per each folded node.
+  commitFoldFeeAda                   BigInt
+  // The min amount of ada various utxos are expected to held.
+  // This includes the rewards holder, dao fee, and final project tokens holder.
+  oilAda                             BigInt
+
+  // unique ref script carriers
+  @@unique([nodeValidatorRefScriptCarrierTxHash, nodeValidatorRefScriptCarrierOutputIndex])
+  @@unique([nodePolicyRefScriptCarrierTxHash, nodePolicyRefScriptCarrierOutputIndex])
+  @@unique([firstProjectTokensHolderValidatorRefScriptCarrierTxHash, firstProjectTokensHolderValidatorRefScriptCarrierOutputIndex])
+  @@unique([projectTokensHolderPolicyRefScriptCarrierTxHash, projectTokensHolderPolicyRefScriptCarrierOutputIndex])
+  @@unique([finalProjectTokensHolderValidatorRefScriptCarrierTxHash, finalProjectTokensHolderValidatorRefScriptCarrierOutputIndex])
+  @@unique([commitFoldValidatorRefScriptCarrierTxHash, commitFoldValidatorRefScriptCarrierOutputIndex])
+  @@unique([commitFoldPolicyRefScriptCarrierTxHash, commitFoldPolicyRefScriptCarrierOutputIndex])
+  @@unique([rewardsFoldValidatorRefScriptCarrierTxHash, rewardsFoldValidatorRefScriptCarrierOutputIndex])
+  @@unique([rewardsFoldPolicyRefScriptCarrierTxHash, rewardsFoldPolicyRefScriptCarrierOutputIndex])
+  @@unique([rewardsHolderValidatorRefScriptCarrierTxHash, rewardsHolderValidatorRefScriptCarrierOutputIndex])
+  // unique tracked utxos
+  @@unique([failProofTxHash, failProofOutputIndex])
+  @@unique([firstProjectTokensHolderTxHash, firstProjectTokensHolderOutputIndex])
+  @@unique([finalProjectTokensHolderTxHash, finalProjectTokensHolderOutputIndex])
+  @@unique([commitFoldTxHash, commitFoldOutputIndex])
+  @@unique([rewardsFoldTxHash, rewardsFoldOutputIndex])
+  @@unique([wrPoolTxHash, wrPoolOutputIndex])
+  @@unique([wrPoolProofTxHash, wrPoolProofOutputIndex])
+  @@unique([sundaePoolTxHash, sundaePoolOutputIndex])
+  @@unique([sundaePoolProofTxHash, sundaePoolProofOutputIndex])
 }
