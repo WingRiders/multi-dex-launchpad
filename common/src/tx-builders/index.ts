@@ -1,17 +1,10 @@
-import {
-  type IEvaluator,
-  type ISubmitter,
-  MeshTxBuilder,
-  type MeshTxBuilderBody,
-} from '@meshsdk/core'
+export * from './init-launchpad'
+export * from './ref-script-carriers'
+
+import type {IEvaluator, ISubmitter, MeshTxBuilderBody} from '@meshsdk/common'
+import {MeshTxBuilder} from '@meshsdk/core'
 import {Result} from 'better-result'
-import {
-  type RefScriptCarrierDatum,
-  refScriptCarrierDatumToMeshData,
-} from './datums'
-import type {Network} from './helpers/network'
-import {getRefScriptCarrierValidatorAddress} from './on-chain/addresses'
-import type {Contract} from './on-chain/types'
+import type {Network} from '..'
 
 export const makeBuilder = (
   changeAddress: string,
@@ -25,19 +18,6 @@ export const makeBuilder = (
   })
     .setNetwork(network)
     .changeAddress(changeAddress)
-
-export const addRefScriptCarrier = (
-  b: MeshTxBuilder,
-  network: Network,
-  refScriptCarrierDatum: RefScriptCarrierDatum,
-  contract: Contract,
-) =>
-  b
-    .txOut(getRefScriptCarrierValidatorAddress(network), [])
-    .txOutInlineDatumValue(
-      refScriptCarrierDatumToMeshData(refScriptCarrierDatum),
-    )
-    .txOutReferenceScript(contract.hex, contract.version)
 
 export const buildTx = (b: MeshTxBuilder) =>
   Result.tryPromise(() => b.complete())

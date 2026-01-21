@@ -1,4 +1,5 @@
 import {resolvePaymentKeyHash} from '@meshsdk/core'
+import type {Contract} from '..'
 import {applyParamsToScriptExport} from '../helpers/script'
 import {commitFoldConfigToMeshData} from '../launchpad-configs/commit-fold-config'
 import {commitFoldPolicyConfigToMeshData} from '../launchpad-configs/commit-fold-policy-config'
@@ -13,6 +14,19 @@ import {tokensHolderFirstConfigToMeshData} from '../launchpad-configs/tokens-hol
 import {tokensHolderPolicyConfigToMeshData} from '../launchpad-configs/tokens-holder-policy-config'
 import * as artifacts from '../on-chain/artifacts'
 
+export type GeneratedContracts = {
+  rewardsHolderValidator: Contract
+  rewardsFoldPolicy: Contract
+  nodePolicy: Contract
+  commitFoldPolicy: Contract
+  tokensHolderPolicy: Contract
+  commitFoldValidator: Contract
+  tokensHolderFinalValidator: Contract
+  tokensHolderFirstValidator: Contract
+  rewardsFoldValidator: Contract
+  nodeValidator: Contract
+}
+
 export const generateLaunchpadContracts = async (
   launchpadConfig: LaunchpadConfig,
   constantScriptHashes: {
@@ -21,7 +35,7 @@ export const generateLaunchpadContracts = async (
     poolProofSymbol: string
     poolProofValidatorHash: string
   },
-) => {
+): Promise<GeneratedContracts> => {
   const rewardsHolderValidator = await applyParamsToScriptExport(
     artifacts.parametricRewardsHolderValidator,
     [
