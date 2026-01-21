@@ -8,3 +8,6 @@ export type TokenMetadata = {
   logo?: string
   decimals?: number
 }
+
+export const launchTimeStatuses = ['past', 'active', 'upcoming'] as const
+export type LaunchTimeStatus = (typeof launchTimeStatuses)[number]

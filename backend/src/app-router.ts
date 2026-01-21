@@ -1,5 +1,6 @@
 import {initTRPC} from '@trpc/server'
 import type {RouterRecord} from '@trpc/server/unstable-core-do-not-import'
+import {launchTimeStatuses} from '@wingriders/multi-dex-launchpad-common'
 import superjson from 'superjson'
 import {z} from 'zod'
 import {
@@ -9,6 +10,7 @@ import {
 } from './agent/endpoints/healthcheck'
 import {submitTx} from './agent/ogmios/tx-submission-client'
 import {getTokenMetadata, getTokensMetadata} from './endpoints/token-metadata'
+import {mockedLaunches} from './mocked-data'
 
 export const t = initTRPC.create({
   transformer: superjson,
@@ -29,6 +31,32 @@ export const createServerRouter = () =>
     tokenMetadata: publicProcedure
       .input(z.string())
       .query(({input}) => getTokenMetadata(input)),
+    launches: publicProcedure
+      .input(
+        z
+          .object({
+            timeStatus: z.enum(launchTimeStatuses).optional(),
+          })
+          .optional(),
+      )
+      .query(async ({input: {timeStatus} = {}}) => {
+        const now = Date.now()
+        return mockedLaunches.filter((launch) => {
+          switch (timeStatus) {
+            case 'past':
+              return launch.endTime.getTime() < now
+            case 'active':
+              return (
+                launch.startTime.getTime() <= now &&
+                launch.endTime.getTime() >= now
+              )
+            case 'upcoming':
+              return launch.startTime.getTime() > now
+            default:
+              return true
+          }
+        })
+      }),
   })
 
 export const createAgentRouter = () =>

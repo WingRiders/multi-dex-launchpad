@@ -2,6 +2,7 @@ import type {Metadata} from 'next'
 import {Geist, Geist_Mono} from 'next/font/google'
 import './globals.css'
 import {PublicEnvScript} from 'next-runtime-env'
+import {Suspense} from 'react'
 import {QueryProvider} from '@/components/query-provider'
 import {ThemeProvider} from '@/components/theme-provider'
 
@@ -19,6 +20,8 @@ export const metadata: Metadata = {
   title: 'Multi DEX Launchpad',
   description: 'Multi DEX Launchpad',
 }
+
+export const dynamic = 'force-dynamic'
 
 type RootLayoutProps = {
   children: React.ReactNode
@@ -40,7 +43,9 @@ const RootLayout = ({children}: RootLayoutProps) => {
           enableSystem
           disableTransitionOnChange
         >
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider>
+            <Suspense>{children}</Suspense>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>
