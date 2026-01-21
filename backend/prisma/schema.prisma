@@ -98,17 +98,17 @@ model Launch {
   block  Block  @relation("createdLaunch", fields: [slot], references: [slot], onDelete: Cascade)
 
   // Project info
-  projectTitle String
-  projectDescription String
-  projectUrl String
-  projectLogoUrl String
-  projectTierInfoUrl String?
-  projectTokenomicsUrl String
-  projectWhitepaperUrl String?
+  projectTitle                 String
+  projectDescription           String
+  projectUrl                   String
+  projectLogoUrl               String
+  projectTierInfoUrl           String?
+  projectTokenomicsUrl         String
+  projectWhitepaperUrl         String?
   projectTermsAndConditionsUrl String?
-  projectAdditionalUrl String?
-  projectSocialLinks String[]
-  projectPresaleTierName String?
+  projectAdditionalUrl         String?
+  projectSocialLinks           String[]
+  projectPresaleTierName       String?
 
   // Ref script carriers for generated contracts
   // constant contracts ref carriers are not saved in the db REVIEW: maybe we should?
@@ -220,11 +220,8 @@ model Launch {
   sundaeSettingsCurrencySymbol       String
   // The start time must be set to the lowest of the tiers start times.
   startTime                          BigInt
-  // The time after which users no longer can contribute to the launch.
-  contributionEndTime                BigInt
-  // The time after which users no longer can withdraw from the launch.
-  // the withdrawalEndTime must be after the contributionEndTime
-  withdrawalEndTime                  BigInt
+  // The time after which users no longer can contribute to nor withdraw from the launch.
+  endTime                            BigInt
   // The asset that is being launched
   projectTokenPolicyId               String
   projectTokenAssetName              String

@@ -4,8 +4,7 @@ import {txInputToMeshData} from '../helpers/mesh-data'
 
 export type CommitFoldPolicyConfig = {
   starter: TxInput
-  contributionEndTime: number // POSIXTime
-  withdrawalEndTime: number // POSIXTime
+  endTime: number // POSIXTime
   nodeSymbol: string
 }
 
@@ -14,7 +13,6 @@ export const commitFoldPolicyConfigToMeshData = (
 ) =>
   mConStr0([
     txInputToMeshData(config.starter),
-    config.contributionEndTime,
-    config.withdrawalEndTime,
+    config.endTime,
     config.nodeSymbol,
   ])

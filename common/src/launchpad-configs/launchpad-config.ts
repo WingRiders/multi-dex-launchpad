@@ -45,12 +45,8 @@ export type LaunchpadConfig = {
   // The start time must be set to the lowest of the tiers start times.
   startTime: number // POSIXTime
 
-  // The time after which users no longer can contribute to the launch.
-  contributionEndTime: number // POSIXTime
-
-  // The time after which users no longer can withdraw from the launch.
-  // the withdrawalEndTime must be after the contributionEndTime
-  withdrawalEndTime: number // POSIXTime
+  // The time after which users no longer can contribute to nor withdraw from the launch.
+  endTime: number // POSIXTime
 
   // The asset that is being launched
   projectToken: Unit

@@ -5,7 +5,7 @@ export type CommitFoldConfig = {
   starter: TxInput
   commitFoldSymbol: string
   nodeSymbol: string
-  withdrawalEndTime: number // POSIXTime
+  endTime: number // POSIXTime
   daoAdminPubKeyHash: string
 }
 
@@ -14,6 +14,6 @@ export const commitFoldConfigToMeshData = (config: CommitFoldConfig) =>
     txInputToMeshData(config.starter),
     config.commitFoldSymbol,
     config.nodeSymbol,
-    config.withdrawalEndTime,
+    config.endTime,
     config.daoAdminPubKeyHash,
   ])

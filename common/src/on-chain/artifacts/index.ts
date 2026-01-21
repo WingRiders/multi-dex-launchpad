@@ -1,5 +1,5 @@
-// Generated from core-contracts
-// Commit: 5ce10c023ddbad2cefa06451da54c12b5563cdac
+// Generated from launchpad-contracts
+// Commit: 823c18ee6ad6474ecfc2f849a8f5d0d8fd870281
 export {default as alwaysFailsTokenValidator} from './always-fails-token.plutus.json'
 export {default as parametricCommitFoldValidator} from './commit-fold.plutus.json'
 export {default as parametricCommitFoldPolicy} from './commit-fold-policy.plutus.json'

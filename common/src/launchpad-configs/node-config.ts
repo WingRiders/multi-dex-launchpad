@@ -22,8 +22,7 @@ export type NodeConfig = {
   defaultTierMaxCommitment: Quantity
   defaultStartTime: number // POSIXTime
   startTime: number // POSIXTime
-  contributionEndTime: number // POSIXTime
-  withdrawalEndTime: number // POSIXTime
+  endTime: number // POSIXTime
   projectMinCommitment: Quantity
   projectMaxCommitment: Quantity
   totalTokens: Quantity
@@ -60,8 +59,7 @@ export const nodeConfigToMeshData = (config: NodeConfig) => {
     BigInt(config.defaultTierMaxCommitment),
     config.defaultStartTime,
     config.startTime,
-    config.contributionEndTime,
-    config.withdrawalEndTime,
+    config.endTime,
     BigInt(config.projectMinCommitment),
     BigInt(config.projectMaxCommitment),
     BigInt(config.totalTokens),

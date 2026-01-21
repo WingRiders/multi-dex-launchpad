@@ -6,7 +6,7 @@ export type RewardsHolderConfig = {
   poolProofSymbol: string
   usesWr: boolean
   usesSundae: boolean
-  withdrawalEndTime: number // POSIXTime
+  endTime: number // POSIXTime
 }
 
 export const rewardsHolderConfigToMeshData = (
@@ -17,5 +17,5 @@ export const rewardsHolderConfigToMeshData = (
     config.poolProofSymbol,
     mBool(config.usesWr),
     mBool(config.usesSundae),
-    config.withdrawalEndTime,
+    config.endTime,
   ])

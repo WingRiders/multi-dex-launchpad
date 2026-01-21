@@ -26,7 +26,7 @@ git clone --filter=blob:none --no-checkout "$repository" "$tmpdir"
 cd "$tmpdir"
 git sparse-checkout init --cone
 git sparse-checkout set artifacts
-git checkout milestone
+git checkout master
 commit_hash=$(git rev-parse HEAD)
 cp -R artifacts/* "$artifactsDir"
 cd -

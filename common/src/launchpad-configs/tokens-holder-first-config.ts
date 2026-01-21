@@ -7,7 +7,7 @@ export type TokensHolderFirstConfig = {
   startTime: number // POSIXTime
   projectTokensHolderSymbol: string
   starter: TxInput
-  withdrawalEndTime: number // POSIXTime
+  endTime: number // POSIXTime
   daoAdminPubKeyHash: string // PubKeyHash
 }
 
@@ -19,6 +19,6 @@ export const tokensHolderFirstConfigToMeshData = (
     config.startTime,
     config.projectTokensHolderSymbol,
     txInputToMeshData(config.starter),
-    config.withdrawalEndTime,
+    config.endTime,
     config.daoAdminPubKeyHash,
   ])

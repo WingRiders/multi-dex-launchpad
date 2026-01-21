@@ -16,7 +16,7 @@ export type RewardsFoldConfig = {
   // Policy ID of the presale tier token
   presaleTierCs: string
   tokensToDistribute: Quantity
-  withdrawalEndTime: number // POSIXTime
+  endTime: number // POSIXTime
   oilAda: Quantity
   commitFoldFeeAda: Quantity
   // if 0, only sundae pool is created
@@ -49,7 +49,7 @@ export const rewardsFoldConfigToMeshData = (config: RewardsFoldConfig) => {
     raisingToken.assetName,
     config.presaleTierCs,
     BigInt(config.tokensToDistribute),
-    config.withdrawalEndTime,
+    config.endTime,
     BigInt(config.oilAda),
     BigInt(config.commitFoldFeeAda),
     config.splitBps,
