@@ -21,15 +21,27 @@ import {getOgmiosContext} from './ogmios'
 // Buffering is suitable when doing the initial sync
 const BUFFER_SIZE = 10_000
 
-let blockBuffer: Block[] = []
-let agentTxOutputBuffer: TxOutputCreateManyInput[] = []
-let spentTxOutputBuffer: {
-  spentSlot: number
-  spent: {
-    utxos: TransactionOutputReference[]
-    spentTxHash: string
-  }[]
-}[] = []
+type SyncEvent =
+  | {
+      type: 'block'
+      data: Block
+    }
+  | {
+      type: 'txOutput'
+      data: TxOutputCreateManyInput
+    }
+  | {
+      type: 'spentTxOutput'
+      data: {
+        spentSlot: number
+        spent: {
+          utxos: TransactionOutputReference[]
+          spentTxHash: string
+        }[]
+      }
+    }
+
+let syncEventBuffer: SyncEvent[] = []
 
 // TODO: we might want to switch to a set/map?
 let trackedUtxos: TxOutput[] = []
@@ -51,14 +63,9 @@ export const getAddressTrackedUtxos = (bech32Address: string): TxOutput[] =>
 // Must be called after the buffers are emptied.
 const resetTrackedUtxos = async () => {
   ensure(
-    blockBuffer.length === 0,
-    {blockBuffer},
-    'Block buffer must be empty to reset the tracked utxos cache',
-  )
-  ensure(
-    agentTxOutputBuffer.length === 0,
-    {agentTxOutputBuffer},
-    'Agent tx output buffer must be empty to reset the tracked utxos cache',
+    syncEventBuffer.length === 0,
+    {syncEventBuffer},
+    'Sync event buffer must be empty to reset the tracked utxos cache',
   )
   trackedUtxos = await prisma.txOutput.findMany({
     where: {spentSlot: null},
@@ -67,10 +74,13 @@ const resetTrackedUtxos = async () => {
 
 // Aggregation logic is here
 const processBlock = async (block: BlockPraos) => {
-  blockBuffer.push({
-    slot: block.slot,
-    hash: block.id,
-    height: block.height,
+  syncEventBuffer.push({
+    type: 'block',
+    data: {
+      slot: block.slot,
+      hash: block.id,
+      height: block.height,
+    },
   })
 
   parseAgentTxOutputs(block.slot, block.transactions || [])
@@ -78,13 +88,20 @@ const processBlock = async (block: BlockPraos) => {
 }
 
 const parseSpentTxOutputs = (slot: number, transactions: Transaction[]) => {
-  const spent: (typeof spentTxOutputBuffer)[number]['spent'] = []
+  const spent: {
+    utxos: TransactionOutputReference[]
+    spentTxHash: string
+  }[] = []
   for (const tx of transactions) {
     const spentTrackedUtxos = tx.inputs.filter(isUtxoTracked)
     if (spentTrackedUtxos.length > 0)
       spent.push({utxos: spentTrackedUtxos, spentTxHash: tx.id})
   }
-  if (spent.length > 0) spentTxOutputBuffer.push({spentSlot: slot, spent})
+  if (spent.length > 0)
+    syncEventBuffer.push({
+      type: 'spentTxOutput',
+      data: {spentSlot: slot, spent},
+    })
 }
 
 const parseAgentTxOutputs = (slot: number, transactions: Transaction[]) => {
@@ -99,16 +116,19 @@ const parseAgentTxOutputs = (slot: number, transactions: Transaction[]) => {
             getWalletPubKeyHash(),
         ).unwrapOr(false),
       )
-    agentTxOutputBuffer.push(
+    syncEventBuffer.push(
       ...toAgent.map(([out, i]) => ({
-        txHash: tx.id,
-        address: out.address,
-        outputIndex: i,
-        datum: out.datum,
-        datumHash: out.datumHash,
-        // trust me
-        value: superjson.serialize(out.value) as object as InputJsonValue,
-        slot,
+        type: 'txOutput' as const,
+        data: {
+          txHash: tx.id,
+          address: out.address,
+          outputIndex: i,
+          datum: out.datum,
+          datumHash: out.datumHash,
+          // trust me
+          value: superjson.serialize(out.value) as object as InputJsonValue,
+          slot,
+        },
       })),
     )
   }
@@ -147,17 +167,20 @@ const writeBuffersIfNecessary = async ({
   // If one buffer is being written others must as well as they might depend on each other
   // For example block determines in case of restarts the intersect for resuming
   // chain sync. If block buffer was written but other data not, it could get lost forever.
-  if (
-    blockBuffer.length >= threshold ||
-    agentTxOutputBuffer.length >= threshold
-  ) {
+  if (syncEventBuffer.length >= threshold) {
+    const blockBuffer = syncEventBuffer.filter((e) => e.type === 'block')
+    const txOutputBuffer = syncEventBuffer.filter((e) => e.type === 'txOutput')
+    const spentTxOutputBuffer = syncEventBuffer.filter(
+      (e) => e.type === 'spentTxOutput',
+    )
+
     const latestBlock = blockBuffer[blockBuffer.length - 1]
-    const latestSlot = latestBlock?.slot
+    const latestSlot = latestBlock?.data.slot
     const statsBeforeDbWrite = {
       blocks: blockBuffer.length,
       latestSlot,
       ...(latestLedgerHeight
-        ? {progress: (latestBlock?.height || 1) / latestLedgerHeight}
+        ? {progress: (latestBlock?.data.height || 1) / latestLedgerHeight}
         : {}),
       rollbackToSlot,
     }
@@ -179,16 +202,20 @@ const writeBuffersIfNecessary = async ({
         await prisma.$executeRaw`INSERT INTO "Block" ("slot", "hash", "height")
                            SELECT *
                            FROM unnest(
-                                   ${blockBuffer.map(({slot}) => slot)}::integer[],
-                                   ${blockBuffer.map(({hash}) => hash)}::text[],
-                                   ${blockBuffer.map(({height}) => height)}::integer[])`
+                                   ${blockBuffer.map(({data: {slot}}) => slot)}::integer[],
+                                   ${blockBuffer.map(({data: {hash}}) => hash)}::text[],
+                                   ${blockBuffer.map(({data: {height}}) => height)}::integer[])`
 
-      if (agentTxOutputBuffer.length > 0)
-        await prisma.txOutput.createMany({data: agentTxOutputBuffer})
+      if (txOutputBuffer.length > 0)
+        await prisma.txOutput.createMany({
+          data: txOutputBuffer.map((e) => e.data),
+        })
 
       if (spentTxOutputBuffer.length > 0)
         // TODO: that can use less queries
-        for (const {spentSlot, spent} of spentTxOutputBuffer)
+        for (const {
+          data: {spentSlot, spent},
+        } of spentTxOutputBuffer)
           for (const {utxos, spentTxHash} of spent)
             for (const {transaction, index} of utxos)
               await prisma.txOutput.updateMany({
@@ -203,9 +230,7 @@ const writeBuffersIfNecessary = async ({
 
     logger.info(stats, 'Wrote buffers to DB')
 
-    blockBuffer = []
-    agentTxOutputBuffer = []
-    spentTxOutputBuffer = []
+    syncEventBuffer = []
     touchedDb = true
   }
   return touchedDb
@@ -224,11 +249,13 @@ const findIntersect = async () => {
 // Start the chain sync client, and add a listener on the underlying socket - connection to Ogmios
 // If that closes try to restart the chain sync again
 export const startChainSyncClient = async () => {
-  // Before starting flush the buffers, required in case of restarts to get rid of stale
+  // Before starting reset the event buffer;
+  // required in case of restarts to get rid of stale
   // data and prevent double writes
-  blockBuffer = []
-  agentTxOutputBuffer = []
-  spentTxOutputBuffer = []
+  syncEventBuffer = []
+
+  // We don't reset the tracked utxos cache here
+  // the startup rollback takes care of it
 
   const context = await getOgmiosContext()
 
