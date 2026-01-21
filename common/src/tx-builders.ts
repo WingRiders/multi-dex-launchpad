@@ -3,13 +3,13 @@ import {
   type ISubmitter,
   MeshTxBuilder,
   type MeshTxBuilderBody,
-  type Network,
 } from '@meshsdk/core'
 import {Result} from 'better-result'
 import {
   type RefScriptCarrierDatum,
   refScriptCarrierDatumToMeshData,
 } from './datums'
+import type {Network} from './helpers/network'
 import {getRefScriptCarrierValidatorAddress} from './on-chain/addresses'
 import type {Contract} from './on-chain/types'
 

@@ -1,3 +1,4 @@
+import {networks} from '@wingriders/multi-dex-launchpad-common'
 import {z} from 'zod'
 
 const envSchema = z.object({
@@ -11,7 +12,7 @@ const envSchema = z.object({
   SERVER_PORT: z.coerce.number().positive(),
   WALLET_MNEMONIC: z.string().optional(),
   WALLET_ACCOUNT_INDEX: z.coerce.number().nonnegative().optional(),
-  NETWORK: z.enum(['preprod']).default('preprod'), // TODO: add mainnet once bootstrap is done
+  NETWORK: z.enum(networks),
   DATABASE_URL: z.string(),
   DB_SCHEMA: z.string(),
   OGMIOS_HOST: z.string(),
