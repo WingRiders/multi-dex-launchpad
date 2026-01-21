@@ -28,6 +28,8 @@ model TxOutput {
   datum     String?
   datumHash String?
 
+  // policy id -> asset name -> quantity
+  // comes from Ogmios, serialized with superjson
   value Json
 
   slot  Int

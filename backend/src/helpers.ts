@@ -1,4 +1,6 @@
-import type {Point} from '@cardano-ogmios/schema'
+import type {Point, Value} from '@cardano-ogmios/schema'
+import type {Asset} from '@meshsdk/common'
+import {createUnit, LOVELACE_UNIT} from '@wingriders/multi-dex-launchpad-common'
 import {config} from './config'
 
 export const originPoint = {
@@ -19,3 +21,22 @@ export const originPoint = {
 
 export const tipToSlot = (tip: Point | 'origin') =>
   tip === 'origin' ? originPoint.slot : tip.slot
+
+export const ogmiosValueToMeshAssets = (
+  value: Value,
+  {
+    includeAda = false,
+    includeZero = false,
+  }: {includeAda?: boolean; includeZero?: boolean} = {},
+): Asset[] =>
+  Object.entries(value).flatMap(([policyId, assets]) =>
+    Object.entries(assets).flatMap(([assetName, quantity]) => {
+      if (policyId === 'ada' && !includeAda) return []
+      if (quantity === 0n && !includeZero) return []
+      return {
+        unit:
+          policyId === 'ada' ? LOVELACE_UNIT : createUnit(policyId, assetName),
+        quantity: quantity.toString(),
+      }
+    }),
+  )

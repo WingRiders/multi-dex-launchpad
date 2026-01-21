@@ -1,6 +1,4 @@
 export * from './constants'
-
-export * from './contract-generation'
 export * from './contract-generation'
 export * from './datums'
 export * from './ensure'

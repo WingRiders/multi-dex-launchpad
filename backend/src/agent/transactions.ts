@@ -1,3 +1,5 @@
+import type {Value} from '@cardano-ogmios/schema'
+import type {UTxO} from '@meshsdk/common'
 import {
   addRefScriptCarrier,
   buildTx,
@@ -11,8 +13,12 @@ import {
   WR_POOL_SYMBOL,
   WR_POOL_VALIDATOR_HASH,
 } from '@wingriders/multi-dex-launchpad-common'
+import superjson, {type SuperJSONResult} from 'superjson'
+import type {TxOutput} from '../../prisma/generated/client'
 import {config} from '../config'
+import {ogmiosValueToMeshAssets} from '../helpers'
 import {logger} from '../logger'
+import {getAddressTrackedUtxos} from './ogmios/chain-sync'
 import {submitTx} from './ogmios/tx-submission-client'
 import {evaluator, ogmiosSubmitter} from './providers'
 import {getWallet, getWalletPubKeyHash} from './wallet'
@@ -35,18 +41,47 @@ export const deployConstantContracts = async (): Promise<string | null> => {
   return txHash
 }
 
+export const txOutputToMeshOutput = (output: TxOutput): UTxO => {
+  // TODO: ensure the shape
+  const value: Value = superjson.deserialize(
+    output.value as unknown as SuperJSONResult,
+  )
+
+  return {
+    input: {
+      txHash: output.txHash,
+      outputIndex: output.outputIndex,
+    },
+    output: {
+      address: output.address,
+      amount: ogmiosValueToMeshAssets(value, {
+        includeAda: true,
+      }),
+      dataHash: output.datumHash ?? undefined,
+      plutusData: output.datum ?? undefined,
+    },
+  }
+}
+
 export const deployContracts = async (
   contracts: Contract[],
 ): Promise<string | null> => {
+  // TODO: ensure the sync is done?
   ensure(contracts.length > 0, "Can't deploy 0 contracts")
   const wallet = getWallet()
 
-  // TODO: track agent utxos
   const b = makeBuilder(
     await wallet.getChangeAddress(),
     config.NETWORK,
     ogmiosSubmitter,
     evaluator,
+  )
+  // NOTE: we assume only utxos on the change address
+  //       are allowed to be spent
+  b.selectUtxosFrom(
+    getAddressTrackedUtxos(await wallet.getChangeAddress()).map(
+      txOutputToMeshOutput,
+    ),
   )
 
   const datum: RefScriptCarrierDatum = {
