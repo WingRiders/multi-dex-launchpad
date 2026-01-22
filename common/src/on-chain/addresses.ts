@@ -1,6 +1,7 @@
 import {
   buildBaseAddress,
   buildEnterpriseAddress,
+  type Hash28ByteBase16,
   scriptHashToBech32,
 } from '@meshsdk/core-cst'
 import {getScriptFromExport} from '../helpers'
@@ -24,11 +25,15 @@ export const makeBech32Address = (
 ): string => {
   const networkId = networkToNetworkId[network]
   if (stakeKeyHash != null)
-    return buildBaseAddress(networkId, paymentKeyHash, stakeKeyHash)
+    return buildBaseAddress(
+      networkId,
+      paymentKeyHash as Hash28ByteBase16,
+      stakeKeyHash,
+    )
       .toAddress()
       .toBech32()
   else
-    return buildEnterpriseAddress(networkId, paymentKeyHash)
+    return buildEnterpriseAddress(networkId, paymentKeyHash as Hash28ByteBase16)
       .toAddress()
       .toBech32()
 }
