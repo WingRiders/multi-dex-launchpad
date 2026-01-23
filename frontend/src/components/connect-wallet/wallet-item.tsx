@@ -1,4 +1,4 @@
-import {Loader2} from 'lucide-react'
+import {Loader2Icon} from 'lucide-react'
 import Image from 'next/image'
 import type {WalletInfo} from '@/wallet/supported-wallets'
 import {cn} from '../../lib/utils'
@@ -41,7 +41,7 @@ export const WalletItem = ({
 
       {isWalletConnecting && (
         <div className="absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center">
-          <Loader2 className="size-4 animate-spin" />
+          <Loader2Icon className="size-4 animate-spin" />
         </div>
       )}
     </button>

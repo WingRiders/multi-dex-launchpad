@@ -15,5 +15,13 @@
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(((?:[^()]|\\([^()]*\\))*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
     ["cx\\(((?:[^()]|\\([^()]*\\))*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ],
+  "workbench.editor.customLabels.patterns": {
+    "**/app/**/{page,layout,route,template,loading}.{tsx,ts}": "${dirname}/${filename}.${extname}"
+  },
+  "typescript.preferences.autoImportSpecifierExcludeRegexes": [
+    "@radix-ui",
+    "next/router",
+    "next/dist"
   ]
 }

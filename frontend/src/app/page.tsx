@@ -1,4 +1,4 @@
-import {Loader2} from 'lucide-react'
+import {Loader2Icon} from 'lucide-react'
 import {Suspense} from 'react'
 import {LaunchesSection} from '@/app/launches-section'
 import {PageContainer} from '@/components/page-container'
@@ -16,7 +16,7 @@ const Dashboard = async () => {
       <Suspense
         fallback={
           <div className="mt-40 flex items-center justify-center">
-            <Loader2 className="size-8 animate-spin" />
+            <Loader2Icon className="size-8 animate-spin" />
           </div>
         }
       >

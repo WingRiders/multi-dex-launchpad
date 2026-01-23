@@ -1,6 +1,6 @@
 import {Slot} from '@radix-ui/react-slot'
 import {cva, type VariantProps} from 'class-variance-authority'
-import {Loader2} from 'lucide-react'
+import {Loader2Icon} from 'lucide-react'
 import type * as React from 'react'
 import {cn} from '@/lib/utils'
 
@@ -62,7 +62,7 @@ function Button({
     >
       {loading ? (
         <>
-          <Loader2 className="size-4 animate-spin" />
+          <Loader2Icon className="size-4 animate-spin" />
           {children}
         </>
       ) : (
