@@ -1,4 +1,4 @@
-import {mConStr0} from '@meshsdk/common'
+import {mConStr0, mConStr1} from '@meshsdk/common'
 import {
   type Data,
   deserializeAddress,
@@ -29,3 +29,8 @@ export const bech32AddressToMeshData = (address: string): Data => {
 
 export const txInputToMeshData = ({txHash, outputIndex}: TxInput): Data =>
   mConStr0([mConStr0([txHash]), outputIndex])
+
+export const maybeToMeshData = <T>(
+  value: T | null,
+  toMeshData: (v: T) => Data,
+) => (value ? mConStr0([toMeshData(value)]) : mConStr1([]))
