@@ -24,16 +24,15 @@ export const makeBech32Address = (
   stakeKeyHash?: string,
 ): string => {
   const networkId = networkToNetworkId[network]
-  if (stakeKeyHash != null)
-    return buildBaseAddress(
-      networkId,
-      paymentKeyHash as Hash28ByteBase16,
-      stakeKeyHash,
-    )
-      .toAddress()
-      .toBech32()
-  else
-    return buildEnterpriseAddress(networkId, paymentKeyHash as Hash28ByteBase16)
-      .toAddress()
-      .toBech32()
+  return (
+    stakeKeyHash != null
+      ? buildBaseAddress(
+          networkId,
+          paymentKeyHash as Hash28ByteBase16,
+          stakeKeyHash,
+        )
+      : buildEnterpriseAddress(networkId, paymentKeyHash as Hash28ByteBase16)
+  )
+    .toAddress()
+    .toBech32()
 }
