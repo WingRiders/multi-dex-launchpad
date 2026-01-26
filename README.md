@@ -8,12 +8,13 @@ Multi-DEX Launchpad enables token issuers on Cardano to deploy liquidity across 
 
 This project uses [Bun](https://bun.sh/) as both the package manager and runtime. If you don't have Bun installed, you can follow the installation guide on their website.
 
-This monorepo consists of the following workspaces:
+This repository is a monorepo with the following workspaces:
 
 - `common` - Common code shared between backend and frontend
-- `backend/common` - Common code shared between aggregator and agent
-- `backend/aggregator` - A Bun application that aggregates blockchain data, stores it in a database, and provides endpoints via tRPC
-- `backend/agent` - A Bun application that executes the launches
+- `backend` - A Bun application that:
+  - Aggregates blockchain data and stores into database
+  - Executes launches
+  - Exposes API endpoints (tRPC)
 - `frontend` - A Next.js application that provides the user interface for Multi-DEX Launchpad
 
 ### Development
@@ -44,4 +45,4 @@ bun run build
 
 #### Run the application
 
-To run the application locally, you need to run both the [backend/aggregator](./backend/aggregator/README.md) and [frontend](./frontend/README.md). You can follow the instructions in their respective README files to see how to run each application.
+To run the application locally, you need to run both the [backend](./backend/README.md) and [frontend](./frontend/README.md). You can follow the instructions in their respective README files to see how to run each application.
