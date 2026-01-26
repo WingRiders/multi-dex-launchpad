@@ -7,6 +7,7 @@ import {config} from '../config'
 import {fetcher, ogmiosSubmitter} from './providers'
 
 let wallet: MeshWallet | undefined
+let walletChangeAddress: string | undefined
 let walletPubKeyHash: string | undefined
 
 export const initWallet = async () => {
@@ -23,14 +24,18 @@ export const initWallet = async () => {
     accountIndex: config.WALLET_ACCOUNT_INDEX,
   })
   await wallet.init()
-  walletPubKeyHash = deserializeAddress(
-    await wallet.getChangeAddress(),
-  ).pubKeyHash
+  walletChangeAddress = await wallet.getChangeAddress()
+  walletPubKeyHash = deserializeAddress(walletChangeAddress).pubKeyHash
 }
 
 export const getWallet = (): MeshWallet => {
   ensure(wallet != null, 'Wallet is not initialized')
   return wallet
+}
+
+export const getWalletChangeAddress = (): string => {
+  ensure(walletChangeAddress != null, 'Wallet is not initialized')
+  return walletChangeAddress
 }
 
 export const getWalletPubKeyHash = (): string => {

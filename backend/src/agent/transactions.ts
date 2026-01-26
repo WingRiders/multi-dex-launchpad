@@ -21,7 +21,7 @@ import {logger} from '../logger'
 import {getAddressTrackedUtxos} from './ogmios/chain-sync'
 import {submitTx} from './ogmios/tx-submission-client'
 import {evaluator, ogmiosSubmitter} from './providers'
-import {getWallet, getWalletPubKeyHash} from './wallet'
+import {getWallet, getWalletChangeAddress, getWalletPubKeyHash} from './wallet'
 
 export const deployConstantContracts = async (): Promise<string | null> => {
   const constantContracts = await generateConstantContracts({
@@ -71,7 +71,7 @@ export const deployContracts = async (
   const wallet = getWallet()
 
   const b = makeBuilder(
-    await wallet.getChangeAddress(),
+    getWalletChangeAddress(),
     config.NETWORK,
     ogmiosSubmitter,
     evaluator,
@@ -79,9 +79,7 @@ export const deployContracts = async (
   // NOTE: we assume only utxos on the change address
   //       are allowed to be spent
   b.selectUtxosFrom(
-    getAddressTrackedUtxos(await wallet.getChangeAddress()).map(
-      txOutputToMeshOutput,
-    ),
+    getAddressTrackedUtxos(getWalletChangeAddress()).map(txOutputToMeshOutput),
   )
 
   const datum: RefScriptCarrierDatum = {
