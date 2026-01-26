@@ -1,14 +1,17 @@
 import {
   type Asset,
+  applyCborEncoding,
   deserializeAddress,
   type MeshTxBuilder,
   type TxOutput,
 } from '@meshsdk/core'
 import {
+  createUnit,
   ensure,
   type GeneratedContracts,
   type LaunchpadConfig,
   type LaunchTxMetadata,
+  LOVELACE_UNIT,
   makeBech32Address,
   type NodeDatum,
   nodeDatumToMeshData,
@@ -16,13 +19,12 @@ import {
   type TokensHolderFirstDatum,
   tokensHolderFirstDatumToMeshData,
 } from '..'
-import {createUnit, LOVELACE_UNIT} from '../helpers/unit'
 
 export const INIT_LAUNCH_TX_METADATA_LABEL = 0
 
 // TODO: get a better estimate
 // 500 ADA
-export const INIT_LAUNCH_AGENT_ADA = '500_000_000'
+export const INIT_LAUNCH_AGENT_ADA = '500000000'
 
 // The init launch transaction:
 // * spends the starter utxo
@@ -65,11 +67,12 @@ export const addInitLaunch = (
   ]).txOutInlineDatumValue(nodeDatumToMeshData(headNode))
 
   // Mint head node token
-  b.mint('1', contracts.nodePolicy.hash, contracts.nodeValidator.hash)
+  b.mintPlutusScript(contracts.nodePolicy.version)
+    .mint('1', contracts.nodePolicy.hash, contracts.nodeValidator.hash)
     // NOTE: we provide the scripts inline
     //       they were just generated prior to this transaction
     //       and aren't deployed to ref script carriers
-    .mintingScript(contracts.nodePolicy.hex)
+    .mintingScript(applyCborEncoding(contracts.nodePolicy.hex))
     // node policy redeemer is ignored
     .mintRedeemerValue([])
 
@@ -98,14 +101,15 @@ export const addInitLaunch = (
   ).txOutInlineDatumValue(tokensHolderFirstDatumToMeshData(tokensHolderDatum))
 
   // Mint first project tokens holder token
-  b.mint(
-    '1',
-    contracts.tokensHolderPolicy.hash,
-    contracts.tokensHolderFirstValidator.hash,
-  ) // NOTE: we provide the scripts inline
+  b.mintPlutusScript(contracts.tokensHolderPolicy.version)
+    .mint(
+      '1',
+      contracts.tokensHolderPolicy.hash,
+      contracts.tokensHolderFirstValidator.hash,
+    ) // NOTE: we provide the scripts inline
     //       they were just generated prior to this transaction
     //       and aren't deployed to ref script carriers
-    .mintingScript(contracts.tokensHolderPolicy.hex)
+    .mintingScript(applyCborEncoding(contracts.tokensHolderPolicy.hex))
     // tokens holder policy redeemer is ignored
     .mintRedeemerValue([])
 
@@ -120,6 +124,7 @@ export const addInitLaunch = (
     config.starter.outputIndex,
     starter.amount,
     starter.address,
+    starter.scriptRef ? starter.scriptRef.length / 2 : 0,
   )
 
   // The launch owner must sign the transaction
