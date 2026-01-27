@@ -15,12 +15,13 @@ import {
   makeBech32Address,
   type NodeDatum,
   nodeDatumToMeshData,
-  type ProjectInfo,
+  type ProjectInfoTxMetadata,
   type TokensHolderFirstDatum,
   tokensHolderFirstDatumToMeshData,
 } from '..'
 
-export const INIT_LAUNCH_TX_METADATA_LABEL = 0
+// NOTE: it's important that we use a label that's unlikely to overlap
+export const INIT_LAUNCH_TX_METADATA_LABEL = 13331
 
 // TODO: get a better estimate
 // 500 ADA
@@ -34,7 +35,7 @@ export const INIT_LAUNCH_AGENT_ADA = '500000000'
 export const addInitLaunch = (
   b: MeshTxBuilder,
   config: LaunchpadConfig,
-  projectInfo: ProjectInfo,
+  projectInfo: ProjectInfoTxMetadata,
   contracts: GeneratedContracts,
   agentBech32Address: string,
   starter: TxOutput,

@@ -107,6 +107,7 @@ model Launch {
   projectWhitepaperUrl         String?
   projectTermsAndConditionsUrl String?
   projectAdditionalUrl         String?
+  // TODO: remove
   projectSocialLinks           String[]
   projectPresaleTierName       String?
 

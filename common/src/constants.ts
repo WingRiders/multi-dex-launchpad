@@ -22,3 +22,5 @@ export const PLUTUS_SCRIPT_VERSION_TO_LANGUAGE: Record<
   [PlutusScriptVersion.PlutusScriptV2]: 'V2',
   [PlutusScriptVersion.PlutusScriptV3]: 'V3',
 }
+
+export const SPLIT_BPS_BASE = 10_000
