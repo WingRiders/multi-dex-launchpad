@@ -29,7 +29,7 @@ export const makeBech32Address = (
       ? buildBaseAddress(
           networkId,
           paymentKeyHash as Hash28ByteBase16,
-          stakeKeyHash,
+          stakeKeyHash as Hash28ByteBase16,
         )
       : buildEnterpriseAddress(networkId, paymentKeyHash as Hash28ByteBase16)
   )
