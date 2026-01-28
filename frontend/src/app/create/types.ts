@@ -3,21 +3,8 @@ import type {
   ProjectInformation,
   Specification,
   TokenInformation,
+  UserAccess,
 } from './schemas'
-
-type BaseTierData = {
-  startTime: Date
-  minCommitment: bigint
-  maxCommitment: bigint
-}
-
-export type UserAccess = {
-  defaultTier?: BaseTierData
-  presaleTier?: BaseTierData & {
-    nftPolicyId: string
-  }
-  endTime: Date
-}
 
 export enum LaunchDraftStage {
   PROJECT_INFORMATION = 0,

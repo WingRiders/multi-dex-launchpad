@@ -1,7 +1,10 @@
+import {POLICY_ID_LENGTH} from '@meshsdk/core'
 import {
   MAX_LENGTHS,
   SPLIT_BPS_BASE,
 } from '@wingriders/multi-dex-launchpad-common'
+import {isAfter} from 'date-fns'
+import {compact} from 'es-toolkit'
 import z from 'zod'
 import {SUPPORTED_RAISING_TOKENS_UNITS} from './constants'
 
@@ -149,3 +152,65 @@ export const specificationSchema = z
   )
 
 export type Specification = z.infer<typeof specificationSchema>
+
+const baseTierSchema = z
+  .object({
+    startTime: z
+      .date()
+      .min(new Date(), 'Start time for the tier must be in the future'),
+    minCommitment: z
+      .bigint({error: 'Enter minimum commitment'})
+      .min(0n, 'Minimum commitment must be greater than 0'),
+    maxCommitment: z
+      .bigint()
+      .gt(0n, 'Maximum commitment must be greater than 0')
+      .nullable(),
+  })
+  .refine(
+    ({minCommitment, maxCommitment}) =>
+      maxCommitment == null || maxCommitment >= minCommitment,
+    {
+      path: ['maxCommitment'],
+      error:
+        'Maximum commitment must be greater than or equal to minimum commitment',
+    },
+  )
+
+export const userAccessSchema = z
+  .object({
+    defaultTier: baseTierSchema.optional(),
+    presaleTier: baseTierSchema
+      .safeExtend({
+        nftPolicyId: z
+          .string()
+          .regex(
+            /^([0-9a-fA-F]{2})*$/,
+            'Enter a valid policy ID of the tier NFT (must be a hex string)',
+          )
+          .length(
+            POLICY_ID_LENGTH,
+            `Enter a valid policy ID of the tier NFT (must be ${POLICY_ID_LENGTH} characters long)`,
+          ),
+      })
+      .optional(),
+    endTime: z.date(),
+  })
+  .refine(
+    ({defaultTier, presaleTier}) => defaultTier != null || presaleTier != null,
+    {
+      error:
+        'Your token launch must have at least one tier. Add either a public tier or a presale tier.',
+    },
+  )
+  .refine(
+    ({defaultTier, presaleTier, endTime}) =>
+      compact([defaultTier?.startTime, presaleTier?.startTime]).every(
+        (tierStartTime) => isAfter(endTime, tierStartTime),
+      ),
+    {
+      path: ['endTime'],
+      error: 'End time must be after the start time of all tiers',
+    },
+  )
+
+export type UserAccess = z.infer<typeof userAccessSchema>
