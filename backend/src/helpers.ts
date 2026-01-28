@@ -11,11 +11,13 @@ export const originPoint = {
     height: 4490511,
   },
   preprod: {
-    // TODO Set when the first launchpad is created
+    // First launchpad https://preprod.cexplorer.io/tx/644c8fb4ba95d390cdbfb038c0a3850035dc3cab6fc0073f358c4e8e1c08a9c6
+    // In block https://preprod.cexplorer.io/block/457ef74b4b2f298946cf2b2daafebcf22ba7b69bbfc4dfe7e89db9af45ddafa1
     // Origin point need to be 1 block before that
-    id: 'c6170f3fe6744a6b9f06c7aefb093e32e7c1804bb1fb2e9a02653e92b7eb020b',
-    slot: 108345461,
-    height: 4162219,
+    // https://preprod.cexplorer.io/block/585901a44ecfa55429b10b12763c08f00a687c800f2cf719c9de57d737fa069f
+    id: '585901a44ecfa55429b10b12763c08f00a687c800f2cf719c9de57d737fa069f',
+    slot: 113846266,
+    height: 4365014,
   },
 }[config.NETWORK]
 
