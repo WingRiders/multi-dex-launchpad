@@ -4,8 +4,9 @@ import {Suspense} from 'react'
 import {LaunchesSection} from '@/app/launches-section'
 import {PageContainer} from '@/components/page-container'
 import {Button} from '@/components/ui/button'
+import {CurrentDraft} from './create/current-draft'
 
-const Dashboard = async () => {
+const Dashboard = () => {
   return (
     <PageContainer>
       <div className="flex items-center justify-between">
@@ -23,6 +24,8 @@ const Dashboard = async () => {
         created across multiple decentralized exchanges, including WingRiders
         and SundaeSwap, at the end of each token launch.
       </p>
+      <CurrentDraft />
+
       <Suspense
         fallback={
           <div className="mt-40 flex items-center justify-center">
