@@ -1,4 +1,4 @@
-import {type Data, resolveScriptHash} from '@meshsdk/core'
+import {applyCborEncoding, type Data, resolveScriptHash} from '@meshsdk/core'
 import {parseDatumCbor, toPlutusData} from '@meshsdk/core-cst'
 import {applyParamsToScript as applyParamsToScriptLib} from '@wingriders/apply-params-to-script'
 import {
@@ -22,7 +22,7 @@ export const applyParamsToScript = async (
     scriptCborBytes,
   )
 
-  const hex = parametrizedScriptBytes.toHex()
+  const hex = applyCborEncoding(parametrizedScriptBytes.toHex())
   const version = PLUTUS_SCRIPT_VERSION_TO_LANGUAGE[script.version]
   const hash = resolveScriptHash(hex, version)
 

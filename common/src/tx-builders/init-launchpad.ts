@@ -1,19 +1,21 @@
+import {SLOT_CONFIG_NETWORK, slotToBeginUnixTime} from '@meshsdk/common'
 import {
   type Asset,
-  applyCborEncoding,
   deserializeAddress,
   type MeshTxBuilder,
   type TxOutput,
 } from '@meshsdk/core'
+import {scriptHashToBech32} from '@meshsdk/core-cst'
 import {
   createUnit,
+  encodingLaunchTxMetadata,
   ensure,
   type GeneratedContracts,
   type LaunchpadConfig,
   type LaunchTxMetadata,
   LOVELACE_UNIT,
-  makeBech32Address,
   type NodeDatum,
+  networkToNetworkId,
   nodeDatumToMeshData,
   type ProjectInfoTxMetadata,
   type TokensHolderFirstDatum,
@@ -39,8 +41,8 @@ export const addInitLaunch = (
   contracts: GeneratedContracts,
   agentBech32Address: string,
   starter: TxOutput,
-  lowerTimeLimit: number,
-  upperTimeLimit: number,
+  lowerTimeLimitSlot: number,
+  upperTimeLimitSlot: number,
 ) => {
   const network = b.meshTxBuilderBody.network
   ensure(
@@ -49,12 +51,18 @@ export const addInitLaunch = (
     'The network must be a supported one',
   )
 
+  const getScriptAddress = (scriptHash: string) =>
+    scriptHashToBech32(scriptHash, undefined, networkToNetworkId[network])
+
   // Set the time limits
-  b.invalidBefore(lowerTimeLimit)
-  b.invalidHereafter(upperTimeLimit)
+  b.invalidBefore(lowerTimeLimitSlot)
+  b.invalidHereafter(upperTimeLimitSlot)
 
   // Head node
-  const createdTime = upperTimeLimit
+  const createdTime = slotToBeginUnixTime(
+    upperTimeLimitSlot,
+    SLOT_CONFIG_NETWORK[network],
+  )
   const committed = 0
   const headNode: NodeDatum = {key: null, next: null, createdTime, committed}
   const nodeToken: Asset = {
@@ -62,7 +70,7 @@ export const addInitLaunch = (
     quantity: '1',
   }
   const nodeAda: Asset = {unit: LOVELACE_UNIT, quantity: config.nodeAda}
-  b.txOut(makeBech32Address(network, contracts.nodeValidator.hash), [
+  b.txOut(getScriptAddress(contracts.nodeValidator.hash), [
     nodeToken,
     nodeAda,
   ]).txOutInlineDatumValue(nodeDatumToMeshData(headNode))
@@ -73,7 +81,7 @@ export const addInitLaunch = (
     // NOTE: we provide the scripts inline
     //       they were just generated prior to this transaction
     //       and aren't deployed to ref script carriers
-    .mintingScript(applyCborEncoding(contracts.nodePolicy.hex))
+    .mintingScript(contracts.nodePolicy.hex)
     // node policy redeemer is ignored
     .mintRedeemerValue([])
 
@@ -96,10 +104,11 @@ export const addInitLaunch = (
     unit: LOVELACE_UNIT,
     quantity: config.collateral,
   }
-  b.txOut(
-    makeBech32Address(network, contracts.tokensHolderFirstValidator.hash),
-    [holderToken, projectTokens, collateral],
-  ).txOutInlineDatumValue(tokensHolderFirstDatumToMeshData(tokensHolderDatum))
+  b.txOut(getScriptAddress(contracts.tokensHolderFirstValidator.hash), [
+    holderToken,
+    projectTokens,
+    collateral,
+  ]).txOutInlineDatumValue(tokensHolderFirstDatumToMeshData(tokensHolderDatum))
 
   // Mint first project tokens holder token
   b.mintPlutusScript(contracts.tokensHolderPolicy.version)
@@ -110,7 +119,7 @@ export const addInitLaunch = (
     ) // NOTE: we provide the scripts inline
     //       they were just generated prior to this transaction
     //       and aren't deployed to ref script carriers
-    .mintingScript(applyCborEncoding(contracts.tokensHolderPolicy.hex))
+    .mintingScript(contracts.tokensHolderPolicy.hex)
     // tokens holder policy redeemer is ignored
     .mintRedeemerValue([])
 
@@ -132,7 +141,10 @@ export const addInitLaunch = (
   b.requiredSignerHash(deserializeAddress(config.ownerBech32Address).pubKeyHash)
 
   const launchMetadata: LaunchTxMetadata = {config, projectInfo}
-  b.metadataValue(INIT_LAUNCH_TX_METADATA_LABEL, launchMetadata)
+  b.metadataValue(
+    INIT_LAUNCH_TX_METADATA_LABEL,
+    encodingLaunchTxMetadata(launchMetadata),
+  )
 
   return b
 }

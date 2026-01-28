@@ -1,4 +1,5 @@
 export * from './mesh-data'
+export * from './metadata'
 export * from './network'
 export * from './schemas'
 export * from './script'

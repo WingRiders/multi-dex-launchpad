@@ -4,6 +4,7 @@ import {
   DAO_FEE_DENOMINATOR,
   DAO_FEE_NUMERATOR,
   LAUNCH_COLLATERAL,
+  MAX_LENGTHS,
   type Network,
   NODE_ADA,
   OIL_ADA,
@@ -54,14 +55,14 @@ export const txInputSchema = z.object({
 })
 
 export const projectInfoTxMetadataSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  url: z.url(),
-  logoUrl: z.url(),
-  tokenomicsUrl: z.url(),
-  whitepaperUrl: z.url().optional(),
-  termsAndConditionsUrl: z.url().optional(),
-  additionalUrl: z.url().optional(),
+  title: z.string().max(MAX_LENGTHS.title),
+  description: z.string().max(MAX_LENGTHS.description),
+  url: z.url().max(MAX_LENGTHS.url),
+  logoUrl: z.url().max(MAX_LENGTHS.logoUrl),
+  tokenomicsUrl: z.url().max(MAX_LENGTHS.url),
+  whitepaperUrl: z.url().max(MAX_LENGTHS.url).optional(),
+  termsAndConditionsUrl: z.url().max(MAX_LENGTHS.url).optional(),
+  additionalUrl: z.url().max(MAX_LENGTHS.url).optional(),
 })
 export type ProjectInfoTxMetadata = z.infer<typeof projectInfoTxMetadataSchema>
 
