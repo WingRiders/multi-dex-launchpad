@@ -82,22 +82,27 @@ export const getLaunchpadConfigTxMetadataSchema = ({
     .object({
       ownerBech32Address: bech32AddressSchema,
       splitBps: z.int().nonnegative().max(SPLIT_BPS_BASE),
-      wrPoolValidatorHash: scriptHashSchema.refine((v) => {
-        v === WR_POOL_VALIDATOR_HASH[network]
-      }),
-      wrFactoryValidatorHash: scriptHashSchema.refine((v) => {
-        v === WR_FACTORY_VALIDATOR_HASH[network]
-      }),
-      wrPoolCurrencySymbol: scriptHashSchema.refine((v) => {
-        v === WR_POOL_SYMBOL[network]
-      }),
-      sundaePoolScriptHash: scriptHashSchema.refine((v) => {
-        v === SUNDAE_POOL_SCRIPT_HASH[network]
-      }),
+      wrPoolValidatorHash: scriptHashSchema.refine(
+        (v) => v === WR_POOL_VALIDATOR_HASH[network],
+        {error: `Must be equal to ${WR_POOL_VALIDATOR_HASH[network]}`},
+      ),
+      wrFactoryValidatorHash: scriptHashSchema.refine(
+        (v) => v === WR_FACTORY_VALIDATOR_HASH[network],
+        {error: `Must be equal to ${WR_FACTORY_VALIDATOR_HASH[network]}`},
+      ),
+      wrPoolCurrencySymbol: scriptHashSchema.refine(
+        (v) => v === WR_POOL_SYMBOL[network],
+        {error: `Must be equal to ${WR_POOL_SYMBOL[network]}`},
+      ),
+      sundaePoolScriptHash: scriptHashSchema.refine(
+        (v) => v === SUNDAE_POOL_SCRIPT_HASH[network],
+        {error: `Must be equal to ${SUNDAE_POOL_SCRIPT_HASH[network]}`},
+      ),
       sundaeFeeTolerance: quantitySchema,
-      sundaeSettingsCurrencySymbol: scriptHashSchema.refine((v) => {
-        v === SUNDAE_SETTINGS_SYMBOL[network]
-      }),
+      sundaeSettingsCurrencySymbol: scriptHashSchema.refine(
+        (v) => v === SUNDAE_SETTINGS_SYMBOL[network],
+        {error: `Must be equal to ${SUNDAE_SETTINGS_SYMBOL[network]}`},
+      ),
       startTime: z.int().nonnegative(),
       endTime: z.int().nonnegative(),
       projectToken: unitSchema,
@@ -110,34 +115,49 @@ export const getLaunchpadConfigTxMetadataSchema = ({
       daoFeeNumerator: z
         .int()
         .nonnegative()
-        .refine((v) => v === DAO_FEE_NUMERATOR),
+        .refine((v) => v === DAO_FEE_NUMERATOR, {
+          error: `Must be equal to ${DAO_FEE_NUMERATOR}`,
+        }),
       daoFeeDenominator: z
         .int()
         .nonnegative()
-        .refine((v) => v === DAO_FEE_DENOMINATOR),
-      daoFeeReceiverBech32Address: bech32AddressSchema.refine((v) => {
-        v === daoFeeReceiverBech32Address
-      }),
+        .refine((v) => v === DAO_FEE_DENOMINATOR, {
+          error: `Must be equal to ${DAO_FEE_DENOMINATOR}`,
+        }),
+      daoFeeReceiverBech32Address: bech32AddressSchema.refine(
+        (v) => v === daoFeeReceiverBech32Address,
+        {error: `Must be equal to ${daoFeeReceiverBech32Address}`},
+      ),
       daoAdminPubKeyHash: pubKeyHashSchema.refine(
         (v) => v === daoAdminPubKeyHash,
+        {error: `Must be equal to ${daoAdminPubKeyHash}`},
       ),
-      collateral: quantitySchema.refine((v) => v === LAUNCH_COLLATERAL),
+      collateral: quantitySchema.refine((v) => v === LAUNCH_COLLATERAL, {
+        error: `Must be equal to ${LAUNCH_COLLATERAL}`,
+      }),
       vestingPeriodDuration: z
         .int()
         .nonnegative()
-        .refine((v) => v === VESTING_PERIOD_DURATION),
+        .refine((v) => v === VESTING_PERIOD_DURATION, {
+          error: `Must be equal to ${VESTING_PERIOD_DURATION}`,
+        }),
       vestingPeriodInstallments: z
         .int()
         .nonnegative()
-        .refine((v) => v === VESTING_PERIOD_INSTALLMENTS),
+        .refine((v) => v === VESTING_PERIOD_INSTALLMENTS, {
+          error: `Must be equal to ${VESTING_PERIOD_INSTALLMENTS}`,
+        }),
       vestingPeriodDurationToFirstUnlock: z
         .int()
         .nonnegative()
-        .refine((v) => v === VESTING_PERIOD_DURATION_TO_FIRST_UNLOCK),
+        .refine((v) => v === VESTING_PERIOD_DURATION_TO_FIRST_UNLOCK, {
+          error: `Must be equal to ${VESTING_PERIOD_DURATION_TO_FIRST_UNLOCK}`,
+        }),
       // NOTE: must be equal to end time
       vestingPeriodStart: z.int().nonnegative(),
       vestingValidatorHash: scriptHashSchema.refine(
         (v) => v === VESTING_VALIDATOR_HASH,
+        {error: `Must be equal to ${VESTING_VALIDATOR_HASH}`},
       ),
       presaleTierCs: scriptHashSchema,
       presaleTierStartTime: z.int().nonnegative(),
@@ -146,10 +166,17 @@ export const getLaunchpadConfigTxMetadataSchema = ({
       defaultTierMinCommitment: quantitySchema,
       presaleTierMaxCommitment: quantitySchema,
       defaultTierMaxCommitment: quantitySchema,
-      nodeAda: quantitySchema.refine((v) => v === NODE_ADA),
-      commitFoldFeeAda: quantitySchema.refine((v) => v === COMMIT_FOLD_FEE_ADA),
+      nodeAda: quantitySchema.refine((v) => v === NODE_ADA, {
+        error: `Must be equal to ${NODE_ADA}`,
+      }),
+      commitFoldFeeAda: quantitySchema.refine(
+        (v) => v === COMMIT_FOLD_FEE_ADA,
+        {error: `Must be equal to ${COMMIT_FOLD_FEE_ADA}`},
+      ),
       starter: txInputSchema,
-      oilAda: quantitySchema.refine((v) => v === OIL_ADA),
+      oilAda: quantitySchema.refine((v) => v === OIL_ADA, {
+        error: `Must be equal to ${OIL_ADA}`,
+      }),
     })
     .refine((c) => c.vestingPeriodStart === c.endTime, {
       error: 'vestingPeriodStart must be equal to endTime',
