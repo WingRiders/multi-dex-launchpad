@@ -1,5 +1,5 @@
 import {mConStr0, parseAssetUnit} from '@meshsdk/common'
-import type {Quantity, TxInput, Unit} from '@meshsdk/core'
+import type {TxInput, Unit} from '@meshsdk/core'
 import {bech32AddressToMeshData, txInputToMeshData} from '../helpers/mesh-data'
 
 export type NodeConfig = {
@@ -15,26 +15,26 @@ export type NodeConfig = {
   failProofValidatorHash: string
   // Policy ID of the presale tier token
   presaleTierCs: string
-  presaleTierMinCommitment: Quantity
-  presaleTierMaxCommitment: Quantity
+  presaleTierMinCommitment: bigint
+  presaleTierMaxCommitment: bigint
   presaleTierStartTime: number // POSIXTime
-  defaultTierMinCommitment: Quantity
-  defaultTierMaxCommitment: Quantity
+  defaultTierMinCommitment: bigint
+  defaultTierMaxCommitment: bigint
   defaultStartTime: number // POSIXTime
   startTime: number // POSIXTime
   endTime: number // POSIXTime
-  projectMinCommitment: Quantity
-  projectMaxCommitment: Quantity
-  totalTokens: Quantity
+  projectMinCommitment: bigint
+  projectMaxCommitment: bigint
+  totalTokens: bigint
   projectToken: Unit
   raisingToken: Unit
   ownerBech32Address: string
   daoAdminPubKeyHash: string
   daoFeeReceiverBech32Address: string
-  collateral: Quantity
-  nodeAda: Quantity
-  oilAda: Quantity
-  commitFoldFeeAda: Quantity
+  collateral: bigint
+  nodeAda: bigint
+  oilAda: bigint
+  commitFoldFeeAda: bigint
 }
 
 export const nodeConfigToMeshData = (config: NodeConfig) => {
@@ -52,17 +52,17 @@ export const nodeConfigToMeshData = (config: NodeConfig) => {
     config.failProofSymbol,
     config.failProofValidatorHash,
     config.presaleTierCs,
-    BigInt(config.presaleTierMinCommitment),
-    BigInt(config.presaleTierMaxCommitment),
+    config.presaleTierMinCommitment,
+    config.presaleTierMaxCommitment,
     config.presaleTierStartTime,
-    BigInt(config.defaultTierMinCommitment),
-    BigInt(config.defaultTierMaxCommitment),
+    config.defaultTierMinCommitment,
+    config.defaultTierMaxCommitment,
     config.defaultStartTime,
     config.startTime,
     config.endTime,
-    BigInt(config.projectMinCommitment),
-    BigInt(config.projectMaxCommitment),
-    BigInt(config.totalTokens),
+    config.projectMinCommitment,
+    config.projectMaxCommitment,
+    config.totalTokens,
     projectToken.policyId,
     projectToken.assetName,
     raisingToken.policyId,
@@ -70,9 +70,9 @@ export const nodeConfigToMeshData = (config: NodeConfig) => {
     bech32AddressToMeshData(config.ownerBech32Address),
     config.daoAdminPubKeyHash,
     bech32AddressToMeshData(config.daoFeeReceiverBech32Address),
-    BigInt(config.collateral),
-    BigInt(config.nodeAda),
-    BigInt(config.oilAda),
-    BigInt(config.commitFoldFeeAda),
+    config.collateral,
+    config.nodeAda,
+    config.oilAda,
+    config.commitFoldFeeAda,
   ])
 }

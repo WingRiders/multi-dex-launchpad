@@ -38,10 +38,18 @@ export const txHashSchema = hexStringSchema.length(64)
 
 const MAX_INT64 = 9223372036854775807n
 
-export const quantitySchema = z
-  .string()
-  .regex(/^\d+$/, 'Must be an integer string')
-  .refine((v) => BigInt(v) <= MAX_INT64)
+export const bigintQuantitySchema = z.bigint().min(0n).max(MAX_INT64)
+
+export const makeMetadataStringSchema = <T extends z.ZodString | z.ZodURL>(
+  base: T,
+  {max}: {max?: number} = {},
+) =>
+  z
+    .union([base, z.array(base)])
+    .transform((v) => (Array.isArray(v) ? v.join('') : v))
+    .refine((v) => max == null || v.length <= max, {
+      error: `Must be less than or equal to ${max} characters`,
+    })
 
 // Mesh units are 'lovelace' | (policy id + asset name)
 export const unitSchema = z.union([
@@ -55,14 +63,22 @@ export const txInputSchema = z.object({
 })
 
 export const projectInfoTxMetadataSchema = z.object({
-  title: z.string().max(MAX_LENGTHS.title),
-  description: z.string().max(MAX_LENGTHS.description),
-  url: z.url().max(MAX_LENGTHS.url),
-  logoUrl: z.url().max(MAX_LENGTHS.logoUrl),
-  tokenomicsUrl: z.url().max(MAX_LENGTHS.url),
-  whitepaperUrl: z.url().max(MAX_LENGTHS.url).optional(),
-  termsAndConditionsUrl: z.url().max(MAX_LENGTHS.url).optional(),
-  additionalUrl: z.url().max(MAX_LENGTHS.url).optional(),
+  title: makeMetadataStringSchema(z.string(), {max: MAX_LENGTHS.title}),
+  description: makeMetadataStringSchema(z.string(), {
+    max: MAX_LENGTHS.description,
+  }),
+  url: makeMetadataStringSchema(z.url(), {max: MAX_LENGTHS.url}),
+  logoUrl: makeMetadataStringSchema(z.url(), {max: MAX_LENGTHS.logoUrl}),
+  tokenomicsUrl: makeMetadataStringSchema(z.url(), {max: MAX_LENGTHS.url}),
+  whitepaperUrl: makeMetadataStringSchema(z.url(), {
+    max: MAX_LENGTHS.url,
+  }).optional(),
+  termsAndConditionsUrl: makeMetadataStringSchema(z.url(), {
+    max: MAX_LENGTHS.url,
+  }).optional(),
+  additionalUrl: makeMetadataStringSchema(z.url(), {
+    max: MAX_LENGTHS.url,
+  }).optional(),
 })
 export type ProjectInfoTxMetadata = z.infer<typeof projectInfoTxMetadataSchema>
 
@@ -99,7 +115,7 @@ export const getLaunchpadConfigTxMetadataSchema = ({
         (v) => v === SUNDAE_POOL_SCRIPT_HASH[network],
         {error: `Must be equal to ${SUNDAE_POOL_SCRIPT_HASH[network]}`},
       ),
-      sundaeFeeTolerance: quantitySchema,
+      sundaeFeeTolerance: bigintQuantitySchema,
       sundaeSettingsCurrencySymbol: scriptHashSchema.refine(
         (v) => v === SUNDAE_SETTINGS_SYMBOL[network],
         {error: `Must be equal to ${SUNDAE_SETTINGS_SYMBOL[network]}`},
@@ -108,10 +124,10 @@ export const getLaunchpadConfigTxMetadataSchema = ({
       endTime: z.int().nonnegative(),
       projectToken: unitSchema,
       raisingToken: unitSchema,
-      projectMinCommitment: quantitySchema,
-      projectMaxCommitment: quantitySchema,
-      totalTokens: quantitySchema,
-      tokensToDistribute: quantitySchema,
+      projectMinCommitment: bigintQuantitySchema,
+      projectMaxCommitment: bigintQuantitySchema,
+      totalTokens: bigintQuantitySchema,
+      tokensToDistribute: bigintQuantitySchema,
       raisedTokensPoolPartPercentage: z.int().nonnegative().max(100),
       daoFeeNumerator: z
         .int()
@@ -133,7 +149,7 @@ export const getLaunchpadConfigTxMetadataSchema = ({
         (v) => v === daoAdminPubKeyHash,
         {error: `Must be equal to ${daoAdminPubKeyHash}`},
       ),
-      collateral: quantitySchema.refine((v) => v === LAUNCH_COLLATERAL, {
+      collateral: bigintQuantitySchema.refine((v) => v === LAUNCH_COLLATERAL, {
         error: `Must be equal to ${LAUNCH_COLLATERAL}`,
       }),
       vestingPeriodDuration: z
@@ -163,19 +179,19 @@ export const getLaunchpadConfigTxMetadataSchema = ({
       presaleTierCs: scriptHashSchema,
       presaleTierStartTime: z.int().nonnegative(),
       defaultStartTime: z.int().nonnegative(),
-      presaleTierMinCommitment: quantitySchema,
-      defaultTierMinCommitment: quantitySchema,
-      presaleTierMaxCommitment: quantitySchema,
-      defaultTierMaxCommitment: quantitySchema,
-      nodeAda: quantitySchema.refine((v) => v === NODE_ADA, {
+      presaleTierMinCommitment: bigintQuantitySchema,
+      defaultTierMinCommitment: bigintQuantitySchema,
+      presaleTierMaxCommitment: bigintQuantitySchema,
+      defaultTierMaxCommitment: bigintQuantitySchema,
+      nodeAda: bigintQuantitySchema.refine((v) => v === NODE_ADA, {
         error: `Must be equal to ${NODE_ADA}`,
       }),
-      commitFoldFeeAda: quantitySchema.refine(
+      commitFoldFeeAda: bigintQuantitySchema.refine(
         (v) => v === COMMIT_FOLD_FEE_ADA,
         {error: `Must be equal to ${COMMIT_FOLD_FEE_ADA}`},
       ),
       starter: txInputSchema,
-      oilAda: quantitySchema.refine((v) => v === OIL_ADA, {
+      oilAda: bigintQuantitySchema.refine((v) => v === OIL_ADA, {
         error: `Must be equal to ${OIL_ADA}`,
       }),
     })

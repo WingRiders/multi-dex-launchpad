@@ -1,5 +1,5 @@
 import {mConStr0, parseAssetUnit} from '@meshsdk/common'
-import type {Quantity, TxInput, Unit} from '@meshsdk/core'
+import type {TxInput, Unit} from '@meshsdk/core'
 import {bech32AddressToMeshData, txInputToMeshData} from '../helpers/mesh-data'
 
 export type TokensHolderFinalConfig = {
@@ -8,7 +8,7 @@ export type TokensHolderFinalConfig = {
   wrPoolValidatorHash: string
   wrFactoryValidatorHash: string
   sundaePoolScriptHash: string
-  sundaeFeeTolerance: Quantity
+  sundaeFeeTolerance: bigint
   sundaeSettingsCurrencySymbol: string
   poolProofValidatorHash: string
   vestingValidatorHash: string
@@ -33,7 +33,7 @@ export const tokensHolderFinalConfigToMeshData = (
     config.wrPoolValidatorHash,
     config.wrFactoryValidatorHash,
     config.sundaePoolScriptHash,
-    BigInt(config.sundaeFeeTolerance),
+    config.sundaeFeeTolerance,
     config.sundaeSettingsCurrencySymbol,
     config.poolProofValidatorHash,
     config.vestingValidatorHash,

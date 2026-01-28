@@ -33,7 +33,7 @@ describe('applyParamsToScript (Mesh / CSL)', () => {
     },
     {
       name: 'bigint',
-      params: [BigInt('12345678901234567890')],
+      params: [12345678901234567890n],
       // Expected values differ from cab, because cab uses non-canonical encoding because of incorrect MAX_INT64
       expectedHash: 'e13ac41d7d9ca921245a16d86cc9f3465e8c1d1fe04f8c71584ba72b',
       expectedHex:

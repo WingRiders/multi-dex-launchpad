@@ -69,7 +69,10 @@ export const addInitLaunch = (
     unit: createUnit(contracts.nodePolicy.hash, contracts.nodeValidator.hash),
     quantity: '1',
   }
-  const nodeAda: Asset = {unit: LOVELACE_UNIT, quantity: config.nodeAda}
+  const nodeAda: Asset = {
+    unit: LOVELACE_UNIT,
+    quantity: config.nodeAda.toString(),
+  }
   b.txOut(getScriptAddress(contracts.nodeValidator.hash), [
     nodeToken,
     nodeAda,
@@ -98,11 +101,11 @@ export const addInitLaunch = (
   }
   const projectTokens: Asset = {
     unit: config.projectToken,
-    quantity: config.totalTokens,
+    quantity: config.totalTokens.toString(),
   }
   const collateral: Asset = {
     unit: LOVELACE_UNIT,
-    quantity: config.collateral,
+    quantity: config.collateral.toString(),
   }
   b.txOut(getScriptAddress(contracts.tokensHolderFirstValidator.hash), [
     holderToken,

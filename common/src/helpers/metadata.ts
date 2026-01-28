@@ -43,21 +43,6 @@ const encodeLaunchpadConfigMetadata = (config: LaunchpadConfig) => ({
     config.daoFeeReceiverBech32Address,
   ),
 
-  // Numbers
-  sundaeFeeTolerance: BigInt(config.sundaeFeeTolerance),
-  projectMinCommitment: BigInt(config.projectMinCommitment),
-  projectMaxCommitment: BigInt(config.projectMaxCommitment),
-  totalTokens: BigInt(config.totalTokens),
-  tokensToDistribute: BigInt(config.tokensToDistribute),
-  collateral: BigInt(config.collateral),
-  presaleTierMinCommitment: BigInt(config.presaleTierMinCommitment),
-  defaultTierMinCommitment: BigInt(config.defaultTierMinCommitment),
-  presaleTierMaxCommitment: BigInt(config.presaleTierMaxCommitment),
-  defaultTierMaxCommitment: BigInt(config.defaultTierMaxCommitment),
-  nodeAda: BigInt(config.nodeAda),
-  commitFoldFeeAda: BigInt(config.commitFoldFeeAda),
-  oilAda: BigInt(config.oilAda),
-
   // Hex strings
   wrPoolValidatorHash: Buffer.from(config.wrPoolValidatorHash, 'hex'),
   wrFactoryValidatorHash: Buffer.from(config.wrFactoryValidatorHash, 'hex'),

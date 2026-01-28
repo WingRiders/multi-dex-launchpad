@@ -1,5 +1,5 @@
 import {mConStr0, parseAssetUnit} from '@meshsdk/common'
-import type {Quantity, TxInput, Unit} from '@meshsdk/core'
+import type {TxInput, Unit} from '@meshsdk/core'
 import {bech32AddressToMeshData, txInputToMeshData} from '../helpers/mesh-data'
 
 export type RewardsFoldConfig = {
@@ -15,10 +15,10 @@ export type RewardsFoldConfig = {
   raisingToken: Unit
   // Policy ID of the presale tier token
   presaleTierCs: string
-  tokensToDistribute: Quantity
+  tokensToDistribute: bigint
   endTime: number // POSIXTime
-  oilAda: Quantity
-  commitFoldFeeAda: Quantity
+  oilAda: bigint
+  commitFoldFeeAda: bigint
   // if 0, only sundae pool is created
   // if 10_000, only wr pool is created
   // if 0 < splitBps < 10_000, splitBps determines what goes to Wr, the rest goes to Sundae
@@ -28,7 +28,7 @@ export type RewardsFoldConfig = {
   daoFeeDenominator: number
   daoFeeReceiverBech32Address: string
   raisedTokensPoolPartPercentage: number
-  collateral: Quantity
+  collateral: bigint
 }
 
 export const rewardsFoldConfigToMeshData = (config: RewardsFoldConfig) => {
@@ -48,15 +48,15 @@ export const rewardsFoldConfigToMeshData = (config: RewardsFoldConfig) => {
     raisingToken.policyId,
     raisingToken.assetName,
     config.presaleTierCs,
-    BigInt(config.tokensToDistribute),
+    config.tokensToDistribute,
     config.endTime,
-    BigInt(config.oilAda),
-    BigInt(config.commitFoldFeeAda),
+    config.oilAda,
+    config.commitFoldFeeAda,
     config.splitBps,
     config.daoFeeNumerator,
     config.daoFeeDenominator,
     bech32AddressToMeshData(config.daoFeeReceiverBech32Address),
     config.raisedTokensPoolPartPercentage,
-    BigInt(config.collateral),
+    config.collateral,
   ])
 }

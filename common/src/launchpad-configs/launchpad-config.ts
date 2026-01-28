@@ -1,4 +1,4 @@
-import type {Quantity, TxInput, Unit} from '@meshsdk/core'
+import type {TxInput, Unit} from '@meshsdk/core'
 
 /**
  * One aggregate config type that covers all the options of individual config
@@ -37,7 +37,7 @@ export type LaunchpadConfig = {
   // The max amount of ada it is tolerable to pay to create a Sundae pool
   // Note that the actual amount is hopefully less and is controlled by the Sundae settings utxo.
   // In case the settings specify a value above the tolerance, no Sundae pool is created.
-  sundaeFeeTolerance: Quantity
+  sundaeFeeTolerance: bigint
 
   // The currency symbol of the Sundae settings NFT.
   sundaeSettingsCurrencySymbol: string
@@ -56,17 +56,17 @@ export type LaunchpadConfig = {
 
   // The min possible amount of tokens the launchpad can raise.
   // In case less raised tokens are collected, the launch is considered failed and tokens are returned back.
-  projectMinCommitment: Quantity
+  projectMinCommitment: bigint
 
   // The maximum amount of tokens the launchpad can raise.
   // Can be set to max int64 value to essentially remove the cap.
-  projectMaxCommitment: Quantity
+  projectMaxCommitment: bigint
 
   // The total number of the project tokens committed to the launchpad.
-  totalTokens: Quantity
+  totalTokens: bigint
 
   // The number of the project tokens to distribute among the launchpad users.
-  tokensToDistribute: Quantity
+  tokensToDistribute: bigint
 
   // The percentage of the raised tokens to place into the pool.
   raisedTokensPoolPartPercentage: number
@@ -88,7 +88,7 @@ export type LaunchpadConfig = {
   // Must be at least 2 ada per used DEX plus 2 ada for the dao fee utxo
   // The rest is returned if the launch is successful.
   // If the launch is failed, the collateral is split between the commit fold owner and the dao fee receiver
-  collateral: Quantity
+  collateral: bigint
 
   // The tx out ref of the utxo that has to be spent to uniquely identify a launch
   starter: TxInput
@@ -120,25 +120,25 @@ export type LaunchpadConfig = {
   defaultStartTime: number // POSIXTime
 
   // The min user commitment of the presale tier
-  presaleTierMinCommitment: Quantity
+  presaleTierMinCommitment: bigint
 
   // The min user commitment of the default tier
-  defaultTierMinCommitment: Quantity
+  defaultTierMinCommitment: bigint
 
   // The max user commitment of the presale tier
-  presaleTierMaxCommitment: Quantity
+  presaleTierMaxCommitment: bigint
 
   // The max user commitment of the  tier
-  defaultTierMaxCommitment: Quantity
+  defaultTierMaxCommitment: bigint
 
   // The amount of ada a commitment node must hold.
   // This ada is used up to compensate the folds and to create a user rewards holder.
-  nodeAda: Quantity
+  nodeAda: bigint
 
   // The amount of ada the commit fold gets per each folded node.
-  commitFoldFeeAda: Quantity
+  commitFoldFeeAda: bigint
 
   // The min amount of ada various utxos are expected to held.
   // This includes the rewards holder, dao fee, and final project tokens holder.
-  oilAda: Quantity
+  oilAda: bigint
 }

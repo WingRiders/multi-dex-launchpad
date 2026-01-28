@@ -43,12 +43,12 @@ export const DAO_ADMIN_PUB_KEY_HASH = {
   preprod: 'b8256741a8a955dc727f29398514a2a32b6e6c0497cf1c3a3fa2deb5',
 }
 
-export const NODE_ADA = '2000000'
-export const COMMIT_FOLD_FEE_ADA = '2000000'
-export const OIL_ADA = '6000000'
+export const NODE_ADA = 2_000_000n
+export const COMMIT_FOLD_FEE_ADA = 2_000_000n
+export const OIL_ADA = 6_000_000n
 
 // 1000 ADA
-export const LAUNCH_COLLATERAL = '1000000000'
+export const LAUNCH_COLLATERAL = 1_000_000_000n
 
 export const VESTING_PERIOD_DURATION = 1
 export const VESTING_PERIOD_DURATION_TO_FIRST_UNLOCK = 1
