@@ -1,11 +1,6 @@
 import type {Unit} from '@meshsdk/core'
 import type {IsNever, Simplify, TaggedUnion} from 'type-fest'
-import type {ProjectInformation} from './schemas'
-
-export type TokenInformation = {
-  projectTokenUnit: Unit
-  quantityForSale: bigint
-}
+import type {ProjectInformation, TokenInformation} from './schemas'
 
 export type Specification = {
   raisingTokenUnit: Unit

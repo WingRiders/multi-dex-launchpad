@@ -24,3 +24,11 @@ export const createUnit = (policyId: string, assetName: string): Unit => {
 
   return `${policyId}${assetName}`
 }
+
+export const isHumanReadable = (value: string): boolean =>
+  !!value && /^[a-zA-Z0-9!"#$%&'()*+,./:;<=>?@[\] ^_`{|}~-]*$/.test(value)
+
+export const decodeAssetName = (assetName: string): string => {
+  const decodedAssetName = Buffer.from(assetName, 'hex').toString()
+  return isHumanReadable(decodedAssetName) ? decodedAssetName : assetName
+}

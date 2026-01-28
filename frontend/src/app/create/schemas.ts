@@ -84,3 +84,21 @@ export const projectInformationSchema = z.object({
 })
 
 export type ProjectInformation = z.infer<typeof projectInformationSchema>
+
+export const tokenInformationSchema = z
+  .object({
+    projectTokenToSale: z.object({
+      unit: z.string(),
+      quantity: z.bigint(),
+    }),
+  })
+  .refine(
+    ({projectTokenToSale}) =>
+      projectTokenToSale.unit != null && projectTokenToSale.quantity != null,
+    {
+      path: ['assetInputValue'],
+      error: 'Select a project token and enter a quantity for sale',
+    },
+  )
+
+export type TokenInformation = z.infer<typeof tokenInformationSchema>

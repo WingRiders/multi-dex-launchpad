@@ -1,5 +1,6 @@
 import {create} from 'zustand'
 import {persist} from 'zustand/middleware'
+import {serializedStorage} from '@/store/storage'
 import {isLaunchDraftStageAtLeast} from './helpers'
 import {
   type DraftStageDiscriminatedData,
@@ -56,6 +57,7 @@ export const useCreateLaunchStore = create<CreateLaunchState>()(
     }),
     {
       name: 'create-launch',
+      storage: serializedStorage,
       onRehydrateStorage: () => {
         return (state) => {
           if (state) state.isHydrated = true
