@@ -1,11 +1,9 @@
-import {expectTypeOf} from 'bun:test'
 import z from 'zod'
 import {
   COMMIT_FOLD_FEE_ADA,
   DAO_FEE_DENOMINATOR,
   DAO_FEE_NUMERATOR,
   LAUNCH_COLLATERAL,
-  type LaunchpadConfig,
   type Network,
   NODE_ADA,
   OIL_ADA,
@@ -157,9 +155,6 @@ export const getLaunchpadConfigTxMetadataSchema = ({
       error: 'vestingPeriodStart must be equal to endTime',
       path: ['vestingPeriodStart'],
     })
-expectTypeOf<
-  z.infer<ReturnType<typeof getLaunchpadConfigTxMetadataSchema>>
->().toEqualTypeOf<LaunchpadConfig>()
 
 export const getLaunchTxMetadataSchema = (
   opts: LaunchTxMetadataSchemaOptions,

@@ -7,7 +7,6 @@
     "frontend"
   ],
   "scripts": {
-    "postinstall": "scripts/fix-libsodium.sh",
     "build": "bun run --filter '*' build",
     "check": "bun run --filter '*' check",
     "fix": "bun run --filter '*' fix",

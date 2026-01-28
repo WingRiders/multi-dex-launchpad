@@ -9,7 +9,7 @@
     "build": "tsgo",
     "check": "bun biome check . && bun run tsgo --noEmit",
     "fix": "bun biome check . --write",
-    "test": "bun test"
+    "test": "bun test && bun run tsgo --noEmit"
   },
   "dependencies": {
     "@meshsdk/common": "^1.9.0-beta.93",
