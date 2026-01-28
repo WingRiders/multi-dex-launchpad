@@ -1,4 +1,6 @@
-import type {LanguageVersion} from '@meshsdk/common'
+import type {LanguageVersion, Unit} from '@meshsdk/common'
+import type {Network} from './helpers/network'
+import {LOVELACE_UNIT} from './helpers/unit'
 
 export const SCRIPT_HASH_LENGTH = 28
 
@@ -30,4 +32,17 @@ export const MAX_LENGTHS = {
   description: 300,
   url: 100,
   logoUrl: 300,
+}
+
+export const SUPPORTED_RAISING_TOKENS_BY_NETWORK: Record<Network, Unit[]> = {
+  preprod: [
+    LOVELACE_UNIT,
+    '648823ffdad1610b4162f4dbc87bd47f6f9cf45d772ddef661eff19869555344', // iUSD
+    '648823ffdad1610b4162f4dbc87bd47f6f9cf45d772ddef661eff198446a6564', // Djed
+  ],
+  mainnet: [
+    LOVELACE_UNIT,
+    'f66d78b4a3cb3d37afa0ec36461e51ecbde00f26c8f0a68f94b6988069555344', // iUSD
+    '8db269c3ec630e06ae29f74bc39edd1f87c819f1056206e879a1cd61446a65644d6963726f555344', // Djed
+  ],
 }

@@ -1,15 +1,9 @@
-import type {Unit} from '@meshsdk/core'
 import type {IsNever, Simplify, TaggedUnion} from 'type-fest'
-import type {ProjectInformation, TokenInformation} from './schemas'
-
-export type Specification = {
-  raisingTokenUnit: Unit
-  projectMinCommitment: bigint
-  projectMaxCommitment: bigint
-  raisedTokensPoolPartPercentage: number
-  projectTokensToPool: bigint
-  splitBps: number
-}
+import type {
+  ProjectInformation,
+  Specification,
+  TokenInformation,
+} from './schemas'
 
 type BaseTierData = {
   startTime: Date

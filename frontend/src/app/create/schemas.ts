@@ -1,5 +1,11 @@
-import {MAX_LENGTHS} from '@wingriders/multi-dex-launchpad-common'
+import {
+  MAX_LENGTHS,
+  SPLIT_BPS_BASE,
+} from '@wingriders/multi-dex-launchpad-common'
 import z from 'zod'
+import {SUPPORTED_RAISING_TOKENS_UNITS} from './constants'
+
+export const MIN_RAISED_TOKENS_POOL_PART_PERCENTAGE = 1
 
 const emptyStringToUndefined = <S extends z.ZodTypeAny>(schema: S) =>
   z.union([schema, z.literal('')]).transform((value) => {
@@ -102,3 +108,44 @@ export const tokenInformationSchema = z
   )
 
 export type TokenInformation = z.infer<typeof tokenInformationSchema>
+
+export const specificationSchema = z
+  .object({
+    raisingTokenUnit: z.enum(
+      SUPPORTED_RAISING_TOKENS_UNITS,
+      'Select a token to be raised',
+    ),
+    projectMinCommitment: z
+      .bigint({error: 'Enter minimum amount to raise'})
+      .gt(0n, 'Minimum amount to raise must be greater than 0'),
+    projectMaxCommitment: z
+      .bigint()
+      .gt(0n, 'Maximum amount to raise must be greater than 0')
+      .nullable(),
+    raisedTokensPoolPartPercentage: z
+      .int()
+      .min(
+        MIN_RAISED_TOKENS_POOL_PART_PERCENTAGE,
+        `Select a percentage that is at least ${MIN_RAISED_TOKENS_POOL_PART_PERCENTAGE}%`,
+      )
+      .max(100),
+    projectTokensToPool: z
+      .bigint()
+      .gt(
+        0n,
+        'Project tokens committed to liquidity pool(s) must be greater than 0',
+      ),
+    splitBps: z.int().min(0).max(SPLIT_BPS_BASE),
+  })
+  .refine(
+    ({projectMinCommitment, projectMaxCommitment}) =>
+      projectMaxCommitment == null ||
+      projectMaxCommitment >= projectMinCommitment,
+    {
+      path: ['projectMaxCommitment'],
+      error:
+        'Maximum amount to raise must be greater than or equal to minimum amount to raise',
+    },
+  )
+
+export type Specification = z.infer<typeof specificationSchema>
