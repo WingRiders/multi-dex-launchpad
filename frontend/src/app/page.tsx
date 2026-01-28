@@ -1,12 +1,22 @@
-import {Loader2Icon} from 'lucide-react'
+import {Loader2Icon, PlusIcon} from 'lucide-react'
+import Link from 'next/link'
 import {Suspense} from 'react'
 import {LaunchesSection} from '@/app/launches-section'
 import {PageContainer} from '@/components/page-container'
+import {Button} from '@/components/ui/button'
 
 const Dashboard = async () => {
   return (
     <PageContainer>
-      <h1 className="font-bold text-4xl">Multi DEX Launchpad</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-bold text-4xl">Multi DEX Launchpad</h1>
+        <Button asChild>
+          <Link href="/create">
+            <PlusIcon className="size-4" />
+            Create a new launch
+          </Link>
+        </Button>
+      </div>
       <p className="mt-4 text-muted-foreground">
         A fully on-chain, permissionless, and trustless launchpad platform that
         is completely open-source. Multiple liquidity pools are automatically

@@ -24,3 +24,10 @@ export const PLUTUS_SCRIPT_VERSION_TO_LANGUAGE: Record<
 }
 
 export const SPLIT_BPS_BASE = 10_000
+
+export const MAX_LENGTHS = {
+  title: 64,
+  description: 300,
+  url: 100,
+  logoUrl: 300,
+}
