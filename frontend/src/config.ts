@@ -13,6 +13,7 @@ const envSchemas = {
     .string()
     .default('false')
     .transform((v) => v === 'true'),
+  NEXT_PUBLIC_AGENT_ADDRESS: z.string(),
 }
 
 type Env = {

@@ -23,7 +23,7 @@ const waitForWalletExtension = async (walletId: string) => {
   return false
 }
 
-type ConnectedWallet = {
+export type ConnectedWallet = {
   wallet: BrowserWallet
   address: string
 }

@@ -1,7 +1,6 @@
 import {revalidateLogic} from '@tanstack/react-form'
 import type {SetNullable} from '@wingriders/multi-dex-launchpad-common'
-import {addDays, min as minDate} from 'date-fns'
-import {compact} from 'es-toolkit'
+import {addDays} from 'date-fns'
 import type {OverrideProperties} from 'type-fest'
 import {useShallow} from 'zustand/shallow'
 import {Button} from '@/components/ui/button'
@@ -15,7 +14,7 @@ import {
 } from '@/components/ui/field'
 import {useAppForm, withFieldGroup} from '@/forms/context'
 import {formatDateTime} from '@/helpers/format'
-import {isLaunchDraftStageAfter} from './helpers'
+import {getLaunchStartTime, isLaunchDraftStageAfter} from './helpers'
 import {type UserAccess, userAccessSchema} from './schemas'
 import {Stepper, useStepper} from './stepper'
 import {useCreateLaunchStore} from './store'
@@ -123,15 +122,7 @@ export const UserAccessForm = () => {
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <form.Subscribe
-              selector={(state) => {
-                const tiersStartTimes = compact([
-                  state.values.defaultTier?.startTime,
-                  state.values.presaleTier?.startTime,
-                ])
-                return tiersStartTimes.length > 0
-                  ? minDate(tiersStartTimes)
-                  : null
-              }}
+              selector={(state) => getLaunchStartTime(state.values)}
             >
               {(launchStartTime) => (
                 <Field>

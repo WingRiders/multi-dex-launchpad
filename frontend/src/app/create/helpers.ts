@@ -1,3 +1,6 @@
+import type {Unit, UTxO} from '@meshsdk/core'
+import {min as minDate} from 'date-fns'
+import {compact} from 'es-toolkit'
 import type {
   AllDraftStagesAfter,
   CompleteDataForDraftStage,
@@ -32,3 +35,38 @@ export const isLaunchDraftStageAtLeast = <
   CompleteDataForDraftStage<PrevLaunchDraftStage<TStage>> & {
     stage: TStage | AllDraftStagesAfter<TStage>
   } => obj.stage >= stageToCompare
+
+export const getLaunchStartTime = (userAccess: {
+  defaultTier?: {startTime: Date}
+  presaleTier?: {startTime: Date}
+}) => {
+  const tiersStartTimes = compact([
+    userAccess.defaultTier?.startTime,
+    userAccess.presaleTier?.startTime,
+  ])
+  return tiersStartTimes.length > 0 ? minDate(tiersStartTimes) : null
+}
+
+export const getLaunchStartTimeForce = (userAccess: {
+  defaultTier?: {startTime: Date}
+  presaleTier?: {startTime: Date}
+}) => {
+  const startTime = getLaunchStartTime(userAccess)
+  if (startTime == null) throw new Error('No start times found')
+  return startTime
+}
+
+export const findStarterUtxo = (utxos: UTxO[], projectTokenUnit: Unit) => {
+  return utxos.reduce<UTxO | undefined>((acc, current) => {
+    const projectTokenQuantity = current.output.amount.find(
+      ({unit}) => unit === projectTokenUnit,
+    )?.quantity
+    if (projectTokenQuantity == null) return acc
+    if (acc == null) return current
+
+    return projectTokenQuantity >
+      acc.output.amount.find(({unit}) => unit === projectTokenUnit)!.quantity
+      ? current
+      : acc
+  }, undefined)
+}

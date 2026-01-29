@@ -34,6 +34,10 @@ export const MAX_LENGTHS = {
   logoUrl: 300,
 }
 
+// Token with such policy cannot be minted
+export const DISABLED_TIER_CS =
+  '03d9bf874aa50cb845f4dcf011a223ed4b1ccd51b485990baa79d676'
+
 export const SUPPORTED_RAISING_TOKENS_BY_NETWORK: Record<Network, Unit[]> = {
   preprod: [
     LOVELACE_UNIT,

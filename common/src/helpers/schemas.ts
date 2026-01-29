@@ -36,7 +36,7 @@ export const pubKeyHashSchema = hexStringSchema.length(56)
 
 export const txHashSchema = hexStringSchema.length(64)
 
-const MAX_INT64 = 9223372036854775807n
+export const MAX_INT64 = 9223372036854775807n
 
 export const bigintQuantitySchema = z.bigint().min(0n).max(MAX_INT64)
 

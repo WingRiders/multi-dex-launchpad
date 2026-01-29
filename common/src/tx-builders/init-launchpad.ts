@@ -27,7 +27,7 @@ export const INIT_LAUNCH_TX_METADATA_LABEL = 13331
 
 // TODO: get a better estimate
 // 500 ADA
-export const INIT_LAUNCH_AGENT_ADA = '500000000'
+export const INIT_LAUNCH_AGENT_LOVELACE = 500_000_000n
 
 // The init launch transaction:
 // * spends the starter utxo
@@ -128,7 +128,7 @@ export const addInitLaunch = (
 
   // Send funds to the agent so it can deploy all utxos
   b.txOut(agentBech32Address, [
-    {unit: LOVELACE_UNIT, quantity: INIT_LAUNCH_AGENT_ADA},
+    {unit: LOVELACE_UNIT, quantity: INIT_LAUNCH_AGENT_LOVELACE.toString()},
   ])
 
   // Spend the starter

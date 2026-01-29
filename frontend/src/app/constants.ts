@@ -22,3 +22,5 @@ export const SUPPORTED_DEXES_INFO: Record<
     color: '#AB46DA',
   },
 }
+
+export const SUNDAE_FEE_TOLERANCE = 0n
