@@ -1,6 +1,11 @@
 import {networks} from '@wingriders/multi-dex-launchpad-common'
 import {z} from 'zod'
 
+const transformParameterStoreValueToOptional = <T extends string>(
+  value: T | undefined,
+): Exclude<T, '-1'> | undefined =>
+  value === '-1' ? undefined : (value as Exclude<T, '-1'>)
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
@@ -10,7 +15,10 @@ const envSchema = z.object({
     .default('info'),
   MODE: z.enum(['agent', 'server', 'all']).default('all'),
   SERVER_PORT: z.coerce.number().positive(),
-  WALLET_MNEMONIC: z.string().optional(),
+  WALLET_MNEMONIC: z
+    .string()
+    .optional()
+    .transform(transformParameterStoreValueToOptional),
   WALLET_ACCOUNT_INDEX: z.coerce.number().nonnegative().optional(),
   NETWORK: z.enum(networks),
   DATABASE_URL: z.string(),
