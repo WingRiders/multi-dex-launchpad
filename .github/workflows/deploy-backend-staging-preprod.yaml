@@ -1,0 +1,46 @@
+name: 'Staging preprod: Deploy Backend'
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'common/**'
+      - 'backend/**'
+      - '.github/workflows/deploy.yml'
+      - '.github/workflows/deploy-backend-staging-preprod.yaml'
+
+concurrency: backend_staging
+
+jobs:
+  deploy-agent:
+    if: github.repository == 'WingRiders/multi-dex-launchpad'
+    uses: ./.github/workflows/deploy.yml
+    concurrency: backend_staging_preprod
+    with:
+      environment: preprod
+      service: multi-dex-launchpad-backend-agent
+      deploy: true
+      working_directory: .
+      dockerfile: backend/Dockerfile
+      ecr_repository_suffix: multi-dex-launchpad-backend
+    secrets:
+      aws-region: ${{ secrets.AWS_REGION }}
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
+  deploy-server:
+      needs: deploy-agent
+      uses: ./.github/workflows/deploy.yml
+      concurrency: backend_staging_preprod
+      with:
+        environment: preprod
+        service: multi-dex-launchpad-backend-server
+        deploy: true
+        working_directory: .
+        dockerfile: backend/Dockerfile
+        ecr_repository_suffix: multi-dex-launchpad-backend
+      secrets:
+        aws-region: ${{ secrets.AWS_REGION }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
