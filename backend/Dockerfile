@@ -38,6 +38,7 @@ COPY --from=install /app/backend/package.json ./backend/package.json
 COPY --from=install /app/backend/node_modules ./backend/node_modules
 COPY backend/src ./backend/src
 COPY backend/prisma ./backend/prisma
+COPY backend/.env.prod ./backend/.env
 
 ENV NODE_ENV=production
 
