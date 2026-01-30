@@ -1,5 +1,10 @@
-import {toAddress} from '@meshsdk/core-cst'
-import type {LaunchpadConfig, LaunchTxMetadata, ProjectInfoTxMetadata} from '..'
+import type {Unit} from '@meshsdk/common'
+import {
+  isLovelaceUnit,
+  type LaunchpadConfig,
+  type LaunchTxMetadata,
+  type ProjectInfoTxMetadata,
+} from '..'
 
 const METADATA_MAX_STR_LENGTH = 64
 
@@ -29,8 +34,8 @@ export const encodingLaunchTxMetadata = ({
   projectInfo: encodeProjectInfoMetadata(projectInfo),
 })
 
-const encodeBech32Address = (address: string): Buffer =>
-  Buffer.from(toAddress(address).toBytes(), 'hex')
+const encodeUnit = (unit: Unit) =>
+  isLovelaceUnit(unit) ? unit : Buffer.from(unit, 'hex')
 
 // Mesh supports encoding object (not Map) to metadata (@see metadataObjToMap)
 // But strings need to be pre-processed.
@@ -38,8 +43,8 @@ const encodeLaunchpadConfigMetadata = (config: LaunchpadConfig) => ({
   ...config,
 
   // Addresses
-  ownerBech32Address: encodeBech32Address(config.ownerBech32Address),
-  daoFeeReceiverBech32Address: encodeBech32Address(
+  ownerBech32Address: splitMetadatumString(config.ownerBech32Address),
+  daoFeeReceiverBech32Address: splitMetadatumString(
     config.daoFeeReceiverBech32Address,
   ),
 
@@ -52,8 +57,8 @@ const encodeLaunchpadConfigMetadata = (config: LaunchpadConfig) => ({
     config.sundaeSettingsCurrencySymbol,
     'hex',
   ),
-  projectToken: Buffer.from(config.projectToken, 'hex'),
-  raisingToken: Buffer.from(config.raisingToken, 'hex'),
+  projectToken: encodeUnit(config.projectToken),
+  raisingToken: encodeUnit(config.raisingToken),
   daoAdminPubKeyHash: Buffer.from(config.daoAdminPubKeyHash, 'hex'),
   vestingValidatorHash: Buffer.from(config.vestingValidatorHash, 'hex'),
   presaleTierCs: Buffer.from(config.presaleTierCs, 'hex'),
