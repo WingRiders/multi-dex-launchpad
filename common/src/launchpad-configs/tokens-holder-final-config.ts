@@ -1,5 +1,5 @@
-import {mConStr0, parseAssetUnit} from '@meshsdk/common'
-import type {TxInput, Unit} from '@meshsdk/core'
+import {mConStr0, parseAssetUnit, type TxInput} from '@meshsdk/common'
+import type {Unit} from '@meshsdk/core'
 import {bech32AddressToMeshData, txInputToMeshData} from '../helpers/mesh-data'
 
 export type TokensHolderFinalConfig = {
@@ -12,9 +12,9 @@ export type TokensHolderFinalConfig = {
   sundaeSettingsCurrencySymbol: string
   poolProofValidatorHash: string
   vestingValidatorHash: string
-  vestingPeriodDuration: number // POSIXTime
-  vestingPeriodDurationToFirstUnlock: number // POSIXTime
-  vestingPeriodInstallments: number
+  vestingPeriodDuration: bigint // POSIXTime
+  vestingPeriodDurationToFirstUnlock: bigint // POSIXTime
+  vestingPeriodInstallments: bigint
   vestingPeriodStart: number // POSIXTime
   daoFeeReceiverBech32Address: string
   raisingToken: Unit

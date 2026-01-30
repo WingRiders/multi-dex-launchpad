@@ -1,5 +1,5 @@
-import {mConStr0, parseAssetUnit} from '@meshsdk/common'
-import type {TxInput, Unit} from '@meshsdk/core'
+import {mConStr0, parseAssetUnit, type TxInput} from '@meshsdk/common'
+import type {Unit} from '@meshsdk/core'
 import {bech32AddressToMeshData, txInputToMeshData} from '../helpers/mesh-data'
 
 export type RewardsFoldConfig = {
@@ -24,8 +24,8 @@ export type RewardsFoldConfig = {
   // if 0 < splitBps < 10_000, splitBps determines what goes to Wr, the rest goes to Sundae
   // NOTE: we don't ensure it's in the [0, 10_000] in the contracts, it's left to off-chain config creation
   splitBps: number
-  daoFeeNumerator: number
-  daoFeeDenominator: number
+  daoFeeNumerator: bigint
+  daoFeeDenominator: bigint
   daoFeeReceiverBech32Address: string
   raisedTokensPoolPartPercentage: number
   collateral: bigint

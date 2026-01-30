@@ -218,12 +218,7 @@ const CreateLaunchDialogContent = ({
 
           const launchpadContracts = await generateLaunchpadContracts(
             launchpadConfig,
-            {
-              poolProofValidatorHash: constantContracts.poolProofValidator.hash,
-              poolProofSymbol: constantContracts.poolProofPolicy.hash,
-              failProofValidatorHash: constantContracts.failProofValidator.hash,
-              failProofSymbol: constantContracts.failProofPolicy.hash,
-            },
+            constantContracts,
           )
 
           const txBuilder = await initTxBuilder({wallet: wallet.wallet})

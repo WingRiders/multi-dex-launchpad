@@ -28,8 +28,8 @@ export const launchpadConstants: LaunchpadConstants = {
 }
 
 // TODO: revisit all the constants
-export const DAO_FEE_NUMERATOR = 5
-export const DAO_FEE_DENOMINATOR = 1000
+export const DAO_FEE_NUMERATOR = 5n
+export const DAO_FEE_DENOMINATOR = 1000n
 
 export const DAO_FEE_RECEIVER_BECH32_ADDRESS = {
   mainnet: 'todo',
@@ -50,9 +50,9 @@ export const OIL_ADA = 6_000_000n
 // 1000 ADA
 export const LAUNCH_COLLATERAL = 1_000_000_000n
 
-export const VESTING_PERIOD_DURATION = 1
-export const VESTING_PERIOD_DURATION_TO_FIRST_UNLOCK = 1
-export const VESTING_PERIOD_INSTALLMENTS = 1
+export const VESTING_PERIOD_DURATION = 1n
+export const VESTING_PERIOD_DURATION_TO_FIRST_UNLOCK = 1n
+export const VESTING_PERIOD_INSTALLMENTS = 1n
 
 export const VESTING_VALIDATOR_HASH = getScriptFromExport(
   artifacts.vestingValidator,

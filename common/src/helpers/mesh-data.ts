@@ -1,10 +1,9 @@
-import {mConStr0, mConStr1} from '@meshsdk/common'
+import {mConStr0, mConStr1, type TxInput} from '@meshsdk/common'
 import {
   type Data,
   deserializeAddress,
   mPubKeyAddress,
   mScriptAddress,
-  type TxInput,
 } from '@meshsdk/core'
 
 export const bech32AddressToMeshData = (address: string): Data => {

@@ -1,4 +1,5 @@
-import type {TxInput, Unit} from '@meshsdk/core'
+import type {TxInput} from '@meshsdk/common'
+import type {Unit} from '@meshsdk/core'
 
 /**
  * One aggregate config type that covers all the options of individual config
@@ -72,10 +73,10 @@ export type LaunchpadConfig = {
   raisedTokensPoolPartPercentage: number
 
   // Controls the dao fee collected in raised tokens
-  daoFeeNumerator: number
+  daoFeeNumerator: bigint
 
   // Controls the dao fee collected in raised tokens
-  daoFeeDenominator: number
+  daoFeeDenominator: bigint
 
   // Controls the address where the dao fee is sent
   daoFeeReceiverBech32Address: string
@@ -94,13 +95,13 @@ export type LaunchpadConfig = {
   starter: TxInput
 
   // Configures the duration period of the vesting utxo which holds the owner's shares
-  vestingPeriodDuration: number // POSIXTime
+  vestingPeriodDuration: bigint // POSIXTime
 
   // Configures the duration period to first unlock of the vesting utxo which holds the owner's shares
-  vestingPeriodDurationToFirstUnlock: number // POSIXTime
+  vestingPeriodDurationToFirstUnlock: bigint // POSIXTime
 
   // Configures the number of installments of the vesting utxo which holds the owner's shares
-  vestingPeriodInstallments: number
+  vestingPeriodInstallments: bigint
 
   // Configures the start of the vesting utxo which holds the owner's shares
   vestingPeriodStart: number // POSIXTime

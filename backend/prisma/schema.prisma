@@ -102,14 +102,10 @@ model Launch {
   projectDescription           String
   projectUrl                   String
   projectLogoUrl               String
-  projectTierInfoUrl           String?
   projectTokenomicsUrl         String
   projectWhitepaperUrl         String?
   projectTermsAndConditionsUrl String?
   projectAdditionalUrl         String?
-  // TODO: remove
-  projectSocialLinks           String[]
-  projectPresaleTierName       String?
 
   // Ref script carriers for generated contracts
   // constant contracts ref carriers are not saved in the db REVIEW: maybe we should?
@@ -254,7 +250,7 @@ model Launch {
   // Must be at least 2 ada per used DEX plus 2 ada for the dao fee utxo
   // The rest is returned if the launch is successful.
   // If the launch is failed, the collateral is split between the commit fold owner and the dao fee receiver
-  collateral                         Int
+  collateral                         BigInt
   // The tx out ref of the utxo that has to be spent to uniquely identify a launch
   starterTxHash                      String
   starterOutputIndex                 BigInt

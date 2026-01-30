@@ -40,16 +40,13 @@ export const MAX_INT64 = 9223372036854775807n
 
 export const bigintQuantitySchema = z.bigint().min(0n).max(MAX_INT64)
 
-export const makeMetadataStringSchema = <T extends z.ZodString | z.ZodURL>(
-  base: T,
-  {max}: {max?: number} = {},
-) =>
+// NOTE: use .pipe(z.string()....) for additional validation
+export const metadataStringSchema = () =>
   z
-    .union([base, z.array(base)])
+    // NOTE: max string size is 64 bytes
+    // REVIEW: that would be hex string, so max character count is 128, right?
+    .union([z.string().max(128), z.array(z.string().max(128))])
     .transform((v) => (Array.isArray(v) ? v.join('') : v))
-    .refine((v) => max == null || v.length <= max, {
-      error: `Must be less than or equal to ${max} characters`,
-    })
 
 // Mesh units are 'lovelace' | (policy id + asset name)
 export const unitSchema = z.union([
@@ -59,26 +56,26 @@ export const unitSchema = z.union([
 
 export const txInputSchema = z.object({
   txHash: txHashSchema,
-  outputIndex: z.number().nonnegative(),
+  outputIndex: z.bigint().nonnegative().transform(Number),
 })
 
 export const projectInfoTxMetadataSchema = z.object({
-  title: makeMetadataStringSchema(z.string(), {max: MAX_LENGTHS.title}),
-  description: makeMetadataStringSchema(z.string(), {
-    max: MAX_LENGTHS.description,
-  }),
-  url: makeMetadataStringSchema(z.url(), {max: MAX_LENGTHS.url}),
-  logoUrl: makeMetadataStringSchema(z.url(), {max: MAX_LENGTHS.logoUrl}),
-  tokenomicsUrl: makeMetadataStringSchema(z.url(), {max: MAX_LENGTHS.url}),
-  whitepaperUrl: makeMetadataStringSchema(z.url(), {
-    max: MAX_LENGTHS.url,
-  }).optional(),
-  termsAndConditionsUrl: makeMetadataStringSchema(z.url(), {
-    max: MAX_LENGTHS.url,
-  }).optional(),
-  additionalUrl: makeMetadataStringSchema(z.url(), {
-    max: MAX_LENGTHS.url,
-  }).optional(),
+  title: metadataStringSchema().pipe(z.string().max(MAX_LENGTHS.title)),
+  description: metadataStringSchema().pipe(
+    z.string().max(MAX_LENGTHS.description),
+  ),
+  url: metadataStringSchema().pipe(z.url().max(MAX_LENGTHS.url)),
+  logoUrl: metadataStringSchema().pipe(z.url().max(MAX_LENGTHS.url)),
+  tokenomicsUrl: metadataStringSchema().pipe(z.url().max(MAX_LENGTHS.url)),
+  whitepaperUrl: metadataStringSchema()
+    .pipe(z.url().max(MAX_LENGTHS.url))
+    .optional(),
+  termsAndConditionsUrl: metadataStringSchema()
+    .pipe(z.url().max(MAX_LENGTHS.url))
+    .optional(),
+  additionalUrl: metadataStringSchema()
+    .pipe(z.url().max(MAX_LENGTHS.url))
+    .optional(),
 })
 export type ProjectInfoTxMetadata = z.infer<typeof projectInfoTxMetadataSchema>
 
@@ -87,6 +84,9 @@ export type LaunchTxMetadataSchemaOptions = {
   daoFeeReceiverBech32Address: string
   daoAdminPubKeyHash: string
 }
+
+const bech32AddressMetadataSchema =
+  metadataStringSchema().pipe(bech32AddressSchema)
 
 // NOTE: instead of z.literal(xxx) we use z.type().refine(v => v === xxx)
 //       so the types remain wide enough, otherwise they won't match LaunchpadConfig
@@ -97,8 +97,12 @@ export const getLaunchpadConfigTxMetadataSchema = ({
 }: LaunchTxMetadataSchemaOptions) =>
   z
     .object({
-      ownerBech32Address: bech32AddressSchema,
-      splitBps: z.int().nonnegative().max(SPLIT_BPS_BASE),
+      ownerBech32Address: bech32AddressMetadataSchema,
+      splitBps: z
+        .bigint()
+        .nonnegative()
+        .max(BigInt(SPLIT_BPS_BASE))
+        .transform(Number),
       wrPoolValidatorHash: scriptHashSchema.refine(
         (v) => v === WR_POOL_VALIDATOR_HASH[network],
         {error: `Must be equal to ${WR_POOL_VALIDATOR_HASH[network]}`},
@@ -120,28 +124,32 @@ export const getLaunchpadConfigTxMetadataSchema = ({
         (v) => v === SUNDAE_SETTINGS_SYMBOL[network],
         {error: `Must be equal to ${SUNDAE_SETTINGS_SYMBOL[network]}`},
       ),
-      startTime: z.int().nonnegative(),
-      endTime: z.int().nonnegative(),
+      startTime: z.bigint().nonnegative().transform(Number),
+      endTime: z.bigint().nonnegative().transform(Number),
       projectToken: unitSchema,
       raisingToken: unitSchema,
       projectMinCommitment: bigintQuantitySchema,
       projectMaxCommitment: bigintQuantitySchema,
       totalTokens: bigintQuantitySchema,
       tokensToDistribute: bigintQuantitySchema,
-      raisedTokensPoolPartPercentage: z.int().nonnegative().max(100),
+      raisedTokensPoolPartPercentage: z
+        .bigint()
+        .nonnegative()
+        .max(100n)
+        .transform(Number),
       daoFeeNumerator: z
-        .int()
+        .bigint()
         .nonnegative()
         .refine((v) => v === DAO_FEE_NUMERATOR, {
           error: `Must be equal to ${DAO_FEE_NUMERATOR}`,
         }),
       daoFeeDenominator: z
-        .int()
+        .bigint()
         .nonnegative()
         .refine((v) => v === DAO_FEE_DENOMINATOR, {
           error: `Must be equal to ${DAO_FEE_DENOMINATOR}`,
         }),
-      daoFeeReceiverBech32Address: bech32AddressSchema.refine(
+      daoFeeReceiverBech32Address: bech32AddressMetadataSchema.refine(
         (v) => v === daoFeeReceiverBech32Address,
         {error: `Must be equal to ${daoFeeReceiverBech32Address}`},
       ),
@@ -153,32 +161,32 @@ export const getLaunchpadConfigTxMetadataSchema = ({
         error: `Must be equal to ${LAUNCH_COLLATERAL}`,
       }),
       vestingPeriodDuration: z
-        .int()
+        .bigint()
         .nonnegative()
         .refine((v) => v === VESTING_PERIOD_DURATION, {
           error: `Must be equal to ${VESTING_PERIOD_DURATION}`,
         }),
       vestingPeriodInstallments: z
-        .int()
+        .bigint()
         .nonnegative()
         .refine((v) => v === VESTING_PERIOD_INSTALLMENTS, {
           error: `Must be equal to ${VESTING_PERIOD_INSTALLMENTS}`,
         }),
       vestingPeriodDurationToFirstUnlock: z
-        .int()
+        .bigint()
         .nonnegative()
         .refine((v) => v === VESTING_PERIOD_DURATION_TO_FIRST_UNLOCK, {
           error: `Must be equal to ${VESTING_PERIOD_DURATION_TO_FIRST_UNLOCK}`,
         }),
       // NOTE: must be equal to end time
-      vestingPeriodStart: z.int().nonnegative(),
+      vestingPeriodStart: z.bigint().nonnegative().transform(Number),
       vestingValidatorHash: scriptHashSchema.refine(
         (v) => v === VESTING_VALIDATOR_HASH,
         {error: `Must be equal to ${VESTING_VALIDATOR_HASH}`},
       ),
       presaleTierCs: scriptHashSchema,
-      presaleTierStartTime: z.int().nonnegative(),
-      defaultStartTime: z.int().nonnegative(),
+      presaleTierStartTime: z.bigint().nonnegative().transform(Number),
+      defaultStartTime: z.bigint().nonnegative().transform(Number),
       presaleTierMinCommitment: bigintQuantitySchema,
       defaultTierMinCommitment: bigintQuantitySchema,
       presaleTierMaxCommitment: bigintQuantitySchema,

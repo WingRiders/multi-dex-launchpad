@@ -1,5 +1,5 @@
 import {resolvePaymentKeyHash} from '@meshsdk/core'
-import {type Contract, SPLIT_BPS_BASE} from '..'
+import {type ConstantContracts, type Contract, SPLIT_BPS_BASE} from '..'
 import {applyParamsToScriptExport} from '../helpers/script'
 import {commitFoldConfigToMeshData} from '../launchpad-configs/commit-fold-config'
 import {commitFoldPolicyConfigToMeshData} from '../launchpad-configs/commit-fold-policy-config'
@@ -29,20 +29,15 @@ export type GeneratedContracts = {
 
 export const generateLaunchpadContracts = async (
   launchpadConfig: LaunchpadConfig,
-  constantScriptHashes: {
-    failProofSymbol: string
-    failProofValidatorHash: string
-    poolProofSymbol: string
-    poolProofValidatorHash: string
-  },
+  constantScriptHashes: ConstantContracts,
 ): Promise<GeneratedContracts> => {
   const rewardsHolderValidator = await applyParamsToScriptExport(
     artifacts.parametricRewardsHolderValidator,
     [
       rewardsHolderConfigToMeshData({
-        poolProofValidatorHash: constantScriptHashes.poolProofValidatorHash,
-        poolProofSymbol: constantScriptHashes.poolProofSymbol,
-        usesWr: launchpadConfig.splitBps > 0,
+        poolProofValidatorHash: constantScriptHashes.poolProofValidator.hash,
+        poolProofSymbol: constantScriptHashes.poolProofPolicy.hash,
+        usesWr: launchpadConfig.splitBps > 0n,
         usesSundae: launchpadConfig.splitBps < SPLIT_BPS_BASE,
         endTime: launchpadConfig.endTime,
       }),
@@ -118,7 +113,7 @@ export const generateLaunchpadContracts = async (
         sundaeFeeTolerance: launchpadConfig.sundaeFeeTolerance,
         sundaeSettingsCurrencySymbol:
           launchpadConfig.sundaeSettingsCurrencySymbol,
-        poolProofValidatorHash: constantScriptHashes.poolProofValidatorHash,
+        poolProofValidatorHash: constantScriptHashes.failProofValidator.hash,
         vestingValidatorHash: launchpadConfig.vestingValidatorHash,
         vestingPeriodDuration: launchpadConfig.vestingPeriodDuration,
         vestingPeriodDurationToFirstUnlock:
@@ -191,8 +186,8 @@ export const generateLaunchpadContracts = async (
         commitFoldValidatorHash: commitFoldValidator.hash,
         tokensHolderSymbol: tokensHolderPolicy.hash,
         tokensHolderValidatorHash: tokensHolderFinalValidator.hash,
-        failProofSymbol: constantScriptHashes.failProofSymbol,
-        failProofValidatorHash: constantScriptHashes.failProofValidatorHash,
+        failProofSymbol: constantScriptHashes.failProofPolicy.hash,
+        failProofValidatorHash: constantScriptHashes.failProofValidator.hash,
         presaleTierCs: launchpadConfig.presaleTierCs,
         presaleTierMinCommitment: launchpadConfig.presaleTierMinCommitment,
         presaleTierMaxCommitment: launchpadConfig.presaleTierMaxCommitment,

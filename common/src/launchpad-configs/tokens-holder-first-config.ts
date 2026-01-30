@@ -1,5 +1,4 @@
-import {mConStr0} from '@meshsdk/common'
-import type {TxInput} from '@meshsdk/core'
+import {mConStr0, type TxInput} from '@meshsdk/common'
 import {bech32AddressToMeshData, txInputToMeshData} from '../helpers/mesh-data'
 
 export type TokensHolderFirstConfig = {

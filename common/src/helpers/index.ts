@@ -1,3 +1,4 @@
+export * from './addresses'
 export * from './collateral'
 export * from './mesh-data'
 export * from './metadata'

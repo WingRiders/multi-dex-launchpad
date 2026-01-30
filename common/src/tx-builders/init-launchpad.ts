@@ -134,7 +134,7 @@ export const addInitLaunch = (
   // Spend the starter
   b.txIn(
     config.starter.txHash,
-    config.starter.outputIndex,
+    Number(config.starter.outputIndex),
     starter.amount,
     starter.address,
     starter.scriptRef ? starter.scriptRef.length / 2 : 0,

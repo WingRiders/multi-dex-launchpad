@@ -1,5 +1,5 @@
-import {mConStr0, parseAssetUnit} from '@meshsdk/common'
-import type {TxInput, Unit} from '@meshsdk/core'
+import {mConStr0, parseAssetUnit, type TxInput} from '@meshsdk/common'
+import type {Unit} from '@meshsdk/core'
 import {bech32AddressToMeshData, txInputToMeshData} from '../helpers/mesh-data'
 
 export type NodeConfig = {

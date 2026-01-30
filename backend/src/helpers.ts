@@ -1,6 +1,8 @@
 import type {Point, Value} from '@cardano-ogmios/schema'
 import type {Asset} from '@meshsdk/common'
+import type {InputJsonValue} from '@prisma/client/runtime/client'
 import {createUnit, LOVELACE_UNIT} from '@wingriders/multi-dex-launchpad-common'
+import superjson from 'superjson'
 import {config} from './config'
 
 export const originPoint = {
@@ -42,3 +44,7 @@ export const ogmiosValueToMeshAssets = (
       }
     }),
   )
+
+export const serializeValue = (value: Value): InputJsonValue =>
+  // trust me
+  superjson.serialize(value) as object as InputJsonValue
