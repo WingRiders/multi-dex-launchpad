@@ -4,7 +4,7 @@ import {
   networkToNetworkId,
 } from '@wingriders/multi-dex-launchpad-common'
 import {config} from '../config'
-import {fetcher, ogmiosSubmitter} from './providers'
+import {getFetcher, ogmiosProvider} from './providers'
 
 let wallet: MeshWallet | undefined
 let walletChangeAddress: string | undefined
@@ -18,8 +18,8 @@ export const initWallet = async () => {
   )
   wallet = new MeshWallet({
     networkId: networkToNetworkId[config.NETWORK],
-    fetcher,
-    submitter: ogmiosSubmitter,
+    fetcher: getFetcher(),
+    submitter: ogmiosProvider,
     key: {type: 'mnemonic', words: config.WALLET_MNEMONIC.split(' ')},
     accountIndex: config.WALLET_ACCOUNT_INDEX,
   })

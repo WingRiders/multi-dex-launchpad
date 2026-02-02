@@ -20,7 +20,7 @@ import {ogmiosValueToMeshAssets} from '../helpers'
 import {logger} from '../logger'
 import {getAddressTrackedUtxos} from './ogmios/chain-sync'
 import {submitTx} from './ogmios/tx-submission-client'
-import {evaluator, ogmiosSubmitter} from './providers'
+import {ogmiosProvider} from './providers'
 import {getWallet, getWalletChangeAddress, getWalletPubKeyHash} from './wallet'
 
 export const deployConstantContracts = async (): Promise<string | null> => {
@@ -73,8 +73,8 @@ export const deployContracts = async (
   const b = makeBuilder(
     getWalletChangeAddress(),
     config.NETWORK,
-    ogmiosSubmitter,
-    evaluator,
+    ogmiosProvider,
+    ogmiosProvider,
   )
   // NOTE: we assume only utxos on the change address
   //       are allowed to be spent

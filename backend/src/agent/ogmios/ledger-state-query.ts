@@ -22,3 +22,6 @@ export const getNetworkTip = async () =>
 
 export const getLedgerTip = async () =>
   (await getLedgerStateQueryClient()).ledgerTip()
+
+export const getUtxos = async (addresses: string[]) =>
+  (await getLedgerStateQueryClient()).utxo({addresses})
