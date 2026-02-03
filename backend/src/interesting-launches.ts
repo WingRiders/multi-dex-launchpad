@@ -93,11 +93,6 @@ export const trackInterestingLaunch = (
     launch,
     contracts,
   }
-  launchScriptHashes[contracts.rewardsHolderValidator.hash] = {
-    type: 'rewardsHolder',
-    launch,
-    contracts,
-  }
   launchScriptHashes[contracts.tokensHolderFirstValidator.hash] = {
     type: 'firstProjectTokensHolder',
     launch,
@@ -195,6 +190,11 @@ export const resetInterestingLaunches = async () => {
       launch: null,
       contracts: null,
     },
+    [CONSTANT_CONTRACTS.rewardsHolderValidator.hash]: {
+      type: 'rewardsHolder',
+      launch: null,
+      contracts: null,
+    },
     [CONSTANT_CONTRACTS.refScriptCarrierValidator.hash]: {
       type: 'refScriptCarrier',
       launch: null,
@@ -243,7 +243,7 @@ export const resetInterestingLaunches = async () => {
   )
 }
 
-// TODO: ensure() that maybe?
+// TODO: actually handle launches with multiple assets
 // Here we assume there are no 2 launches with equal or flipped units
 // i.e. for all launches X and Y the following never holds:
 //          X.unitA == Y.unitB AND

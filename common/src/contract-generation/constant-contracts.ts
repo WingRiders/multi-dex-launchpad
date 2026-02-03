@@ -1,6 +1,7 @@
 import {applyParamsToScriptExport, getScriptFromExport} from '../helpers/script'
 import {poolProofConfigToMeshData} from '../launchpad-configs/pool-proof-config'
 import {poolProofPolicyConfigToMeshData} from '../launchpad-configs/pool-proof-policy-config'
+import {rewardsHolderConfigToMeshData} from '../launchpad-configs/rewards-holder-config'
 import * as artifacts from '../on-chain/artifacts'
 import type {ConstantContracts} from '../on-chain/types'
 
@@ -23,6 +24,15 @@ export const generateConstantContracts = async (
     artifacts.parametricPoolProofValidator,
     [poolProofConfigToMeshData({poolProofSymbol: poolProofPolicy.hash})],
   )
+  const rewardsHolderValidator = await applyParamsToScriptExport(
+    artifacts.parametricRewardsHolderValidator,
+    [
+      rewardsHolderConfigToMeshData({
+        poolProofValidatorHash: poolProofValidator.hash,
+        poolProofSymbol: poolProofPolicy.hash,
+      }),
+    ],
+  )
   const refScriptCarrierValidator = getScriptFromExport(
     artifacts.refScriptCarrierValidator,
   )
@@ -31,6 +41,7 @@ export const generateConstantContracts = async (
     failProofValidator,
     poolProofPolicy,
     poolProofValidator,
+    rewardsHolderValidator,
     refScriptCarrierValidator,
   }
 }

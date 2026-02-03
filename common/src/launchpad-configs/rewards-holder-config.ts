@@ -1,21 +1,11 @@
-import {mBool, mConStr0} from '@meshsdk/common'
+import {mConStr0} from '@meshsdk/common'
 import type {Data} from '@meshsdk/core'
 
 export type RewardsHolderConfig = {
   poolProofValidatorHash: string
   poolProofSymbol: string
-  usesWr: boolean
-  usesSundae: boolean
-  endTime: number // POSIXTime
 }
 
 export const rewardsHolderConfigToMeshData = (
   config: RewardsHolderConfig,
-): Data =>
-  mConStr0([
-    config.poolProofValidatorHash,
-    config.poolProofSymbol,
-    mBool(config.usesWr),
-    mBool(config.usesSundae),
-    config.endTime,
-  ])
+): Data => mConStr0([config.poolProofValidatorHash, config.poolProofSymbol])

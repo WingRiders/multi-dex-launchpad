@@ -30,6 +30,22 @@ export type NodeKey = {
 
 const nodeKeyToMeshData = (key: NodeKey) => mConStr0([key.hash, key.index])
 
+const nodeKeyCborSchema = z
+  .object({
+    constructor: z.literal(0n),
+    fields: z.tuple([
+      z.object({bytes: pubKeyHashSchema}),
+      z.object({int: z.bigint()}),
+    ]),
+  })
+  .transform(
+    (res) =>
+      ({
+        hash: res.fields[0].bytes,
+        index: Number(res.fields[1].int),
+      }) as NodeKey,
+  )
+
 // Maybe<pair<pubkeyhash, integer>>
 export const maybeNodeKeyToMeshData = (maybeKey: NodeKey | null) =>
   maybeToMeshData(maybeKey, nodeKeyToMeshData)
@@ -102,12 +118,18 @@ export const rewardsFoldDatumToMeshData = (datum: RewardsFoldDatum) =>
     datum.commitFoldOwner,
   ])
 
+// NOTE: at least one of usesWr and usesSundae must be true
 export type RewardsHolderDatum = {
   owner: NodeKey
   projectSymbol: string
   projectToken: string
   raisingSymbol: string
   raisingToken: string
+  // on-chain it's int
+  usesWr: boolean
+  // on-chain it's int
+  usesSundae: boolean
+  endTime: number // POSIXTime
 }
 
 export const rewardsHolderDatumToMeshData = (datum: RewardsHolderDatum) =>
@@ -117,7 +139,50 @@ export const rewardsHolderDatumToMeshData = (datum: RewardsHolderDatum) =>
     datum.projectToken,
     datum.raisingSymbol,
     datum.raisingToken,
+    datum.usesWr ? 1 : 0,
+    datum.usesSundae ? 1 : 0,
+    datum.endTime,
   ])
+
+export const rewardsHolderDatumCborSchema = z
+  .object({
+    constructor: z.literal(0n),
+    fields: z.tuple([
+      // owner
+      nodeKeyCborSchema,
+      // projectSymbol
+      z.object({bytes: policyIdSchema}),
+      // projectToken
+      z.object({bytes: assetNameSchema}),
+      // raisingSymbol
+      z.object({bytes: policyIdSchema}),
+      // raisingToken
+      z.object({bytes: assetNameSchema}),
+      // usesWr
+      z.object({int: z.union([z.literal(0n), z.literal(1n)])}),
+      // usesSundae
+      z.object({int: z.union([z.literal(0n), z.literal(1n)])}),
+      // endTime
+      z.object({int: z.bigint()}),
+    ]),
+  })
+  .refine(
+    (res) => res.fields[5].int === 1n || res.fields[6].int === 1n,
+    'At least one of usesWr and usesSundae must be true (1 on-chain)',
+  )
+  .transform(
+    (res) =>
+      ({
+        owner: res.fields[0],
+        projectSymbol: res.fields[1].bytes,
+        projectToken: res.fields[2].bytes,
+        raisingSymbol: res.fields[3].bytes,
+        raisingToken: res.fields[4].bytes,
+        usesWr: res.fields[5].int === 1n,
+        usesSundae: res.fields[6].int === 1n,
+        endTime: Number(res.fields[7].int),
+      }) as RewardsHolderDatum,
+  )
 
 export type PoolProofDatum = {
   projectSymbol: string
@@ -166,8 +231,9 @@ export const decodeDatum = <T extends ZodType>(
   datumCbor: string,
 ): z.core.output<T> | null =>
   Result.try(() => {
-    // NOTE: throws on invalid cbor
+    // throws on invalid cbor
     const datum = deserializeDatum(datumCbor)
+    // throws on failed parsing
     const parsed = cborSchema.parse(datum)
     return parsed
   }).unwrapOr(null)

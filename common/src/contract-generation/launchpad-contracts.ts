@@ -1,5 +1,5 @@
 import {resolvePaymentKeyHash} from '@meshsdk/core'
-import {type ConstantContracts, type Contract, SPLIT_BPS_BASE} from '..'
+import type {ConstantContracts, Contract} from '..'
 import {applyParamsToScriptExport} from '../helpers/script'
 import {commitFoldConfigToMeshData} from '../launchpad-configs/commit-fold-config'
 import {commitFoldPolicyConfigToMeshData} from '../launchpad-configs/commit-fold-policy-config'
@@ -37,9 +37,6 @@ export const generateLaunchpadContracts = async (
       rewardsHolderConfigToMeshData({
         poolProofValidatorHash: constantScriptHashes.poolProofValidator.hash,
         poolProofSymbol: constantScriptHashes.poolProofPolicy.hash,
-        usesWr: launchpadConfig.splitBps > 0n,
-        usesSundae: launchpadConfig.splitBps < SPLIT_BPS_BASE,
-        endTime: launchpadConfig.endTime,
       }),
     ],
   )

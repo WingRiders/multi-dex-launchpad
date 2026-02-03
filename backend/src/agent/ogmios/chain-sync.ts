@@ -29,6 +29,7 @@ import {
   INIT_LAUNCH_TX_METADATA_LABEL,
   isGeneratedPolicyType,
   poolProofDatumCborSchema,
+  rewardsHolderDatumCborSchema,
   sundaePoolDatumCborSchema,
   tryDeserializeAddress,
   wrPoolDatumCborSchema,
@@ -218,15 +219,10 @@ const parseSpentTxOutputs = (slot: number, transactions: Transaction[]) => {
 
 const refScriptCarrierUtxoTypeFromValidatorHashType = (
   refScriptType: GeneratedValidator | GeneratedPolicy,
-): LaunchUtxoType | null => {
+): LaunchUtxoType => {
   switch (refScriptType) {
     case 'node':
       return 'nodeValidatorRefScriptCarrier'
-    // NOTE: we do not deploy nor track the rewards holder validator ref script carrier
-    //       it's on the users to supply the script in the tx for now
-    // TODO: make it into a constant validator
-    case 'rewardsHolder':
-      return null
     case 'firstProjectTokensHolder':
       return 'firstProjectTokensHolderValidatorRefScriptCarrier'
     case 'finalProjectTokensHolder':
@@ -407,7 +403,7 @@ const parseTrackableTxOutputs = (slot: number, transactions: Transaction[]) => {
         })
         break
       }
-      // Pool proofs have dex and assets the datum to identify the launch
+      // Pool proofs have dex and assets in the datum to identify the launch
       case 'poolProof': {
         ensure(
           txOutput.datum != null,
@@ -433,6 +429,25 @@ const parseTrackableTxOutputs = (slot: number, transactions: Transaction[]) => {
         })
         break
       }
+      // Rewards holders have the assets in the datum to identify the launch
+      case 'rewardsHolder': {
+        // We skip rewards holders with no/hash datums
+        if (!txOutput.datum) continue
+        const datum = decodeDatum(rewardsHolderDatumCborSchema, txOutput.datum)
+        // We also skip rewards holders with invalid datums
+        if (!datum) continue
+        const projectUnit = createUnit(datum.projectSymbol, datum.projectToken)
+        const raisingUnit = createUnit(datum.raisingSymbol, datum.raisingToken)
+        const launch = interestingLaunchByUnits(projectUnit, raisingUnit)
+        if (!launch) continue
+        pushSyncEvent({
+          type: 'launchTxOutput',
+          launchTxHash: launch.txHash,
+          txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+          outputType: 'rewardsHolder',
+        })
+        break
+      }
       // Ref script carriers have reference scripts to identify the launch
       case 'refScriptCarrier': {
         const refScript = txOutput.script
@@ -444,20 +459,9 @@ const parseTrackableTxOutputs = (slot: number, transactions: Transaction[]) => {
         // otherwise the hashes are wrong
         const hash = resolveScriptHash(applyCborEncoding(cborHex), version)
         const lookup = launchScriptHashes[hash]
-        if (!lookup || !lookup.launch || lookup.type === 'rewardsHolder')
-          continue
-        // NOTE: null is only possible for a rewards holder
-        //       as it's the only generated contract we do not deploy
-        //       it should not appear on a ref script carrier
-        //       even if it does, we explicitly skip it
-        // TODO: make it into a constant validator
+        if (!lookup || !lookup.launch) continue
         const outputType = refScriptCarrierUtxoTypeFromValidatorHashType(
           lookup.type,
-        )
-        ensure(
-          outputType != null,
-          {lookup, txHash, txOutput},
-          'Invalid ref script carrier type',
         )
         pushSyncEvent({
           type: 'launchTxOutput',

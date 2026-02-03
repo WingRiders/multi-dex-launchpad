@@ -7,6 +7,7 @@ export type ConstantContracts = {
   failProofValidator: Contract
   poolProofPolicy: Contract
   poolProofValidator: Contract
+  rewardsHolderValidator: Contract
   refScriptCarrierValidator: Contract
 }
 
@@ -16,10 +17,10 @@ export type ConstantValidator =
   | 'refScriptCarrier'
   | 'wrPool'
   | 'sundaePool'
+  | 'rewardsHolder'
 
 export type GeneratedValidator =
   | 'node'
-  | 'rewardsHolder'
   | 'firstProjectTokensHolder'
   | 'finalProjectTokensHolder'
   | 'commitFold'
