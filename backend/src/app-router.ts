@@ -1,3 +1,4 @@
+import type {UTxO} from '@meshsdk/common'
 import {initTRPC} from '@trpc/server'
 import type {RouterRecord} from '@trpc/server/unstable-core-do-not-import'
 import {launchTimeStatuses} from '@wingriders/multi-dex-launchpad-common'
@@ -10,6 +11,11 @@ import {
 } from './agent/endpoints/healthcheck'
 import {submitTx} from './agent/ogmios/tx-submission-client'
 import {getLaunch, getLaunches} from './endpoints/launch'
+import {
+  getFirstProjectTokensHolderRefScriptUtxo,
+  getNodePolicyRefScriptUtxo,
+  getNodeValidatorRefScriptUtxo,
+} from './endpoints/ref-scripts'
 import {getTokenMetadata, getTokensMetadata} from './endpoints/token-metadata'
 
 export const t = initTRPC.create({
@@ -47,6 +53,42 @@ export const createServerRouter = () =>
         }),
       )
       .query(({input}) => getLaunch(input.txHash)),
+    nodeToSpend: publicProcedure
+      .input(
+        z.object({
+          launchTxHash: z.string(),
+          ownerPubKeyHash: z.string(),
+        }),
+      )
+      .query(() => {
+        // TODO: implement this
+        const mockedResponse: UTxO = {
+          input: {
+            txHash: 'txHash',
+            outputIndex: 0,
+          },
+          output: {
+            address: 'addr',
+            amount: [],
+          },
+        }
+        return mockedResponse
+      }),
+    nodeValidatorRef: publicProcedure
+      .input(z.object({launchTxHash: z.string()}))
+      .query(({input: {launchTxHash}}) =>
+        getNodeValidatorRefScriptUtxo(launchTxHash),
+      ),
+    nodePolicyRef: publicProcedure
+      .input(z.object({launchTxHash: z.string()}))
+      .query(({input: {launchTxHash}}) =>
+        getNodePolicyRefScriptUtxo(launchTxHash),
+      ),
+    firstProjectTokensHolderRef: publicProcedure
+      .input(z.object({launchTxHash: z.string()}))
+      .query(({input: {launchTxHash}}) =>
+        getFirstProjectTokensHolderRefScriptUtxo(launchTxHash),
+      ),
   })
 
 export const createAgentRouter = () =>

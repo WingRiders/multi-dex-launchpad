@@ -21,3 +21,10 @@ export type Dex = (typeof dexes)[number]
 export type SetNullable<T, K extends keyof T> = {
   [P in keyof T]: P extends K ? T[P] | null : T[P]
 }
+
+export type RefSCriptUTxO = {
+  txHash: string
+  outputIndex: number
+  scriptHash: string
+  scriptSize: number
+}

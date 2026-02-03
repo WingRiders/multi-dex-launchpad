@@ -13,7 +13,7 @@ import {
   parseAssetUnit,
   resolveScriptHash,
 } from '@meshsdk/core'
-import type {JsonValue} from '@prisma/client/runtime/client'
+import type {InputJsonValue, JsonValue} from '@prisma/client/runtime/client'
 import {
   createUnit,
   DAO_ADMIN_PUB_KEY_HASH,
@@ -142,21 +142,20 @@ export const getAddressTrackedUtxos = (bech32Address: string): TxOutput[] =>
 // Does NOT track the interesting launches
 const pushSyncEvent = (event: SyncEvent) => {
   syncEventBuffer.push(event)
-  const newTrackedTxOutputs: TxOutputCreateManyInput[] = []
-  if ('txOutput' in event) newTrackedTxOutputs.push(event.txOutput)
-  trackedUtxos.push(
-    ...newTrackedTxOutputs.map((utxo) => ({
-      txHash: utxo.txHash,
-      slot: utxo.slot,
-      outputIndex: utxo.outputIndex,
-      address: utxo.address,
-      datum: utxo.datum || null,
-      datumHash: utxo.datumHash || null,
-      value: utxo.value as JsonValue,
+  if ('txOutput' in event)
+    trackedUtxos.push({
+      txHash: event.txOutput.txHash,
+      slot: event.txOutput.slot,
+      outputIndex: event.txOutput.outputIndex,
+      address: event.txOutput.address,
+      datum: event.txOutput.datum ?? null,
+      datumHash: event.txOutput.datumHash ?? null,
+      value: event.txOutput.value as JsonValue,
       spentTxHash: null,
       spentSlot: null,
-    })),
-  )
+      scriptHash: event.txOutput.scriptHash ?? null,
+      scriptSize: event.txOutput.scriptSize ?? null,
+    })
 }
 
 // Reset the tracked utxos cache.
@@ -316,14 +315,28 @@ const makeTxOutput = (
   txHash: string,
   outputIndex: number,
   txOutput: TransactionOutput,
-) => ({
+): Required<TxOutputCreateManyInput> => ({
   txHash,
   slot,
   outputIndex,
+  spentTxHash: null,
+  spentSlot: null,
   address: txOutput.address,
-  datum: txOutput.datum,
-  datumHash: txOutput.datumHash,
-  value: serializeValue(txOutput.value),
+  datum: txOutput.datum ?? null,
+  datumHash: txOutput.datumHash ?? null,
+  value: serializeValue(txOutput.value) as InputJsonValue,
+  ...(txOutput.script?.cbor != null && txOutput.script.language !== 'native'
+    ? (() => {
+        const script = applyCborEncoding(txOutput.script.cbor)
+        return {
+          scriptHash: resolveScriptHash(
+            script,
+            ogmiosPlutusVersionToMeshVersion[txOutput.script.language],
+          ),
+          scriptSize: script.length / 2,
+        }
+      })()
+    : {scriptHash: null, scriptSize: null}),
 })
 
 // Pushes sync events

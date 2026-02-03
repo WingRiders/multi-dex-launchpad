@@ -28,6 +28,9 @@ model TxOutput {
   datum     String?
   datumHash String?
 
+  scriptHash String?
+  scriptSize Int?
+
   // policy id -> asset name -> quantity
   // comes from Ogmios, serialized with superjson
   value Json
