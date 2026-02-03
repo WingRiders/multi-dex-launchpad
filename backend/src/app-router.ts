@@ -9,8 +9,8 @@ import {
   getServerHealthcheck,
 } from './agent/endpoints/healthcheck'
 import {submitTx} from './agent/ogmios/tx-submission-client'
+import {getLaunch, getLaunches} from './endpoints/launch'
 import {getTokenMetadata, getTokensMetadata} from './endpoints/token-metadata'
-import {mockedLaunch, mockedLaunches} from './mocked-data'
 
 export const t = initTRPC.create({
   transformer: superjson,
@@ -39,31 +39,14 @@ export const createServerRouter = () =>
           })
           .optional(),
       )
-      .query(async ({input: {timeStatus} = {}}) => {
-        const now = Date.now()
-        return mockedLaunches.filter((launch) => {
-          switch (timeStatus) {
-            case 'past':
-              return launch.endTime.getTime() < now
-            case 'active':
-              return (
-                launch.startTime.getTime() <= now &&
-                launch.endTime.getTime() >= now
-              )
-            case 'upcoming':
-              return launch.startTime.getTime() > now
-            default:
-              return true
-          }
-        })
-      }),
+      .query(async ({input}) => getLaunches(input?.timeStatus)),
     launch: publicProcedure
       .input(
         z.object({
           txHash: z.string(),
         }),
       )
-      .query(() => mockedLaunch),
+      .query(({input}) => getLaunch(input.txHash)),
   })
 
 export const createAgentRouter = () =>
