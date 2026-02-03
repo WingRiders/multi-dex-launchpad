@@ -11,8 +11,12 @@ import {useCreateLaunchStore} from './store'
 import {LaunchDraftStage} from './types'
 
 export const ProjectInformationForm = () => {
-  const {draft, saveStageData} = useCreateLaunchStore(
-    useShallow(({draft, saveStageData}) => ({draft, saveStageData})),
+  const {draft, saveStageData, createDraft} = useCreateLaunchStore(
+    useShallow(({draft, saveStageData, createDraft}) => ({
+      draft,
+      saveStageData,
+      createDraft,
+    })),
   )
 
   const stepper = useStepper()
@@ -35,6 +39,9 @@ export const ProjectInformationForm = () => {
   const form = useAppForm({
     defaultValues: defaultFormValues,
     onSubmit: ({value}) => {
+      if (!draft) {
+        createDraft()
+      }
       saveStageData({
         stage: LaunchDraftStage.PROJECT_INFORMATION,
         projectInformation: value,

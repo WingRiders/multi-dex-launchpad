@@ -176,7 +176,7 @@ const CreateLaunchDialogContent = ({
             vestingPeriodDurationToFirstUnlock:
               VESTING_PERIOD_DURATION_TO_FIRST_UNLOCK,
             vestingPeriodInstallments: VESTING_PERIOD_INSTALLMENTS,
-            vestingPeriodStart: launchStartTime.getTime(),
+            vestingPeriodStart: userAccess.endTime.getTime(),
             vestingValidatorHash: VESTING_VALIDATOR_HASH,
             presaleTierCs:
               userAccess.presaleTier?.nftPolicyId ?? DISABLED_TIER_CS,
@@ -211,9 +211,9 @@ const CreateLaunchDialogContent = ({
           }
 
           const constantContracts = await generateConstantContracts({
-            wrPoolValidatorHash: WR_FACTORY_VALIDATOR_HASH[network],
-            wrPoolSymbol: WR_POOL_SYMBOL[network],
-            sundaePoolScriptHash: SUNDAE_POOL_SCRIPT_HASH[network],
+            wrPoolValidatorHash: launchpadConfig.wrPoolValidatorHash,
+            wrPoolSymbol: launchpadConfig.wrPoolCurrencySymbol,
+            sundaePoolScriptHash: launchpadConfig.sundaePoolScriptHash,
           })
 
           const launchpadContracts = await generateLaunchpadContracts(

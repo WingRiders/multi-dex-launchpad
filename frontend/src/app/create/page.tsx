@@ -2,7 +2,6 @@
 
 import {ArrowLeftIcon, Loader2Icon} from 'lucide-react'
 import Link from 'next/link'
-import {useEffect} from 'react'
 import {useShallow} from 'zustand/shallow'
 import {ClientOnly} from '@/components/client-only'
 import {PageContainer} from '@/components/page-container'
@@ -43,11 +42,9 @@ const CreatePage = () => {
 }
 
 const CreatePageContent = () => {
-  const {draft, createDraft, isHydrated} = useCreateLaunchStore(
-    useShallow(({draft, createDraft, isHydrated}) => ({
+  const {draft} = useCreateLaunchStore(
+    useShallow(({draft}) => ({
       draft,
-      createDraft,
-      isHydrated,
     })),
   )
 
@@ -57,12 +54,6 @@ const CreatePageContent = () => {
       isWalletConnecting,
     })),
   )
-
-  useEffect(() => {
-    if (!draft && isHydrated) {
-      createDraft()
-    }
-  }, [createDraft, draft, isHydrated])
 
   if (!isWalletConnected) {
     return isWalletConnecting ? (
@@ -90,11 +81,16 @@ const CreatePageContent = () => {
           <Stepper.Navigation>
             {methods.all.map((step) => {
               const isAtLeastAtThisStage =
-                draft &&
-                isLaunchDraftStageAtLeast(
-                  draft,
-                  launchDraftStageStringToEnum[step.id],
-                )
+                (draft &&
+                  isLaunchDraftStageAtLeast(
+                    draft,
+                    launchDraftStageStringToEnum[step.id],
+                  )) ||
+                (!draft &&
+                  step.id ===
+                    launchDraftStageToString[
+                      LaunchDraftStage.PROJECT_INFORMATION
+                    ])
 
               return (
                 <Stepper.Step
