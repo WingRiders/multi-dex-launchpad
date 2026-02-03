@@ -21,11 +21,13 @@ import {
   decodeDatum,
   ensure,
   failProofDatumCborSchema,
+  type GeneratedPolicy,
   type GeneratedValidator,
   generateLaunchpadContracts,
   getLaunchTxMetadataSchema,
   INIT_LAUNCH_AGENT_LOVELACE,
   INIT_LAUNCH_TX_METADATA_LABEL,
+  isGeneratedPolicyType,
   poolProofDatumCborSchema,
   sundaePoolDatumCborSchema,
   tryDeserializeAddress,
@@ -47,7 +49,7 @@ import {
 } from '../../helpers'
 import {
   interestingLaunchByUnits,
-  launchValidatorHashes,
+  launchScriptHashes,
   resetInterestingLaunches,
   trackInterestingLaunch,
 } from '../../interesting-launches'
@@ -216,7 +218,7 @@ const parseSpentTxOutputs = (slot: number, transactions: Transaction[]) => {
 }
 
 const refScriptCarrierUtxoTypeFromValidatorHashType = (
-  refScriptType: GeneratedValidator,
+  refScriptType: GeneratedValidator | GeneratedPolicy,
 ): LaunchUtxoType | null => {
   switch (refScriptType) {
     case 'node':
@@ -234,15 +236,28 @@ const refScriptCarrierUtxoTypeFromValidatorHashType = (
       return 'commitFoldValidatorRefScriptCarrier'
     case 'rewardsFold':
       return 'rewardsFoldValidatorRefScriptCarrier'
-    default:
+    case 'nodePolicy':
+      return 'nodePolicyRefScriptCarrier'
+    case 'projectTokensHolderPolicy':
+      return 'projectTokensHolderPolicyRefScriptCarrier'
+    case 'commitFoldPolicy':
+      return 'commitFoldPolicyRefScriptCarrier'
+    case 'rewardsFoldPolicy':
+      return 'rewardsFoldPolicyRefScriptCarrier'
+    default: {
+      const _: never = refScriptType
       ensure(false, {refScriptType}, 'Unknown ref script type')
+    }
   }
 }
 
 const passesValidityToken = (
-  {contracts, type}: (typeof launchValidatorHashes)[string],
+  {contracts, type}: (typeof launchScriptHashes)[string],
   value: Value,
 ): boolean => {
+  // The policies should've been already rejected by that point
+  if (isGeneratedPolicyType(type)) return false
+
   // These contracts don't require a validity token
   if (
     type === 'refScriptCarrier' ||
@@ -292,8 +307,10 @@ const passesValidityToken = (
     case 'sundaePool':
       // TODO: sundae token
       return true
-    default:
+    default: {
+      const _: never = type
       ensure(false, {type}, 'Unknown validator type')
+    }
   }
 }
 
@@ -338,10 +355,14 @@ const parseTrackableTxOutputs = (slot: number, transactions: Transaction[]) => {
     // For all other utxos we check if that script hash is either
     // - a constant script we track
     // - is associated with an interesting launch
-    const lookup = launchValidatorHashes[address.scriptHash]
+    const lookup = launchScriptHashes[address.scriptHash]
     // if there's no hit, we skip to the next txOutput
     if (!lookup) continue
     const {type, launch} = lookup
+
+    // We should not be seeing utxos with policies as their validators
+    // Is case we do, we skip those, they're definitely incorrect
+    if (isGeneratedPolicyType(type)) continue
 
     // We make sure the utxos have a validity token if applicable
     // otherwise we might track invalid/unspendable utxos
@@ -375,7 +396,7 @@ const parseTrackableTxOutputs = (slot: number, transactions: Transaction[]) => {
           'Fail proof must have valid inline datum',
         )
         const nodeValidatorHash = datum.scriptHash
-        const lookup = launchValidatorHashes[nodeValidatorHash]
+        const lookup = launchScriptHashes[nodeValidatorHash]
         // If we don't track the stored hash as a node
         // for an interesting launch, we skip the utxo
         if (lookup?.type !== 'node') continue
@@ -423,7 +444,7 @@ const parseTrackableTxOutputs = (slot: number, transactions: Transaction[]) => {
         // For some reason we need to double encode the script
         // otherwise the hashes are wrong
         const hash = resolveScriptHash(applyCborEncoding(cborHex), version)
-        const lookup = launchValidatorHashes[hash]
+        const lookup = launchScriptHashes[hash]
         if (!lookup || !lookup.launch || lookup.type === 'rewardsHolder')
           continue
         // NOTE: null is only possible for a rewards holder
@@ -495,8 +516,10 @@ const parseTrackableTxOutputs = (slot: number, transactions: Transaction[]) => {
         })
         break
       }
-      default:
+      default: {
+        const _: never = type
         ensure(false, {type}, 'Unreachable validator hash type')
+      }
     }
   }
 }
@@ -1073,8 +1096,10 @@ const saveLaunchTxOutputsFields = async (
         })
         break
       }
-      default:
+      default: {
+        const _: never = outputType
         ensure(false, {outputType}, 'Unexpected output type')
+      }
     }
   }
 }

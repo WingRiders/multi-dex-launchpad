@@ -388,8 +388,10 @@ const parsedSchemaToMultisigScript = (
       return {type: 'MultisigAfter', value: Number(res.fields[0].int)}
     case 6n:
       return {type: 'MultisigScript', value: res.fields[0].bytes}
-    default:
+    default: {
+      const _: never = res
       ensure(false, 'Unreachable')
+    }
   }
 }
 

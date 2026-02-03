@@ -4,6 +4,7 @@ import {
   createUnit,
   ensure,
   type GeneratedContracts,
+  type GeneratedPolicy,
   type GeneratedValidator,
   generateLaunchpadContracts,
   SUNDAE_POOL_SCRIPT_HASH,
@@ -60,12 +61,12 @@ let interestingLaunches: {
 // NOTE: invalid to use before the first reset
 // Tracks constant script validator hashes
 // and validator hashes associated with interesting launches
-export let launchValidatorHashes: Record<
+export let launchScriptHashes: Record<
   // utxo script hash
   string,
   | {
       // generated contracts carry the launch info
-      type: GeneratedValidator
+      type: GeneratedValidator | GeneratedPolicy
       launch: InterestingLaunch
       contracts: GeneratedContracts
     }
@@ -82,33 +83,53 @@ export const trackInterestingLaunch = (
   contracts: GeneratedContracts,
 ) => {
   interestingLaunches.push({launch, contracts})
-  launchValidatorHashes[contracts.nodeValidator.hash] = {
+  launchScriptHashes[contracts.nodeValidator.hash] = {
     type: 'node',
     launch,
     contracts,
   }
-  launchValidatorHashes[contracts.rewardsHolderValidator.hash] = {
+  launchScriptHashes[contracts.nodePolicy.hash] = {
+    type: 'nodePolicy',
+    launch,
+    contracts,
+  }
+  launchScriptHashes[contracts.rewardsHolderValidator.hash] = {
     type: 'rewardsHolder',
     launch,
     contracts,
   }
-  launchValidatorHashes[contracts.tokensHolderFirstValidator.hash] = {
+  launchScriptHashes[contracts.tokensHolderFirstValidator.hash] = {
     type: 'firstProjectTokensHolder',
     launch,
     contracts,
   }
-  launchValidatorHashes[contracts.tokensHolderFinalValidator.hash] = {
+  launchScriptHashes[contracts.tokensHolderPolicy.hash] = {
+    type: 'projectTokensHolderPolicy',
+    launch,
+    contracts,
+  }
+  launchScriptHashes[contracts.tokensHolderFinalValidator.hash] = {
     type: 'finalProjectTokensHolder',
     launch,
     contracts,
   }
-  launchValidatorHashes[contracts.commitFoldValidator.hash] = {
+  launchScriptHashes[contracts.commitFoldValidator.hash] = {
     type: 'commitFold',
     launch,
     contracts,
   }
-  launchValidatorHashes[contracts.rewardsFoldValidator.hash] = {
+  launchScriptHashes[contracts.commitFoldPolicy.hash] = {
+    type: 'commitFoldPolicy',
+    launch,
+    contracts,
+  }
+  launchScriptHashes[contracts.rewardsFoldValidator.hash] = {
     type: 'rewardsFold',
+    launch,
+    contracts,
+  }
+  launchScriptHashes[contracts.rewardsFoldPolicy.hash] = {
+    type: 'rewardsFoldPolicy',
     launch,
     contracts,
   }
@@ -163,7 +184,7 @@ export const resetInterestingLaunches = async () => {
   })
 
   interestingLaunches = []
-  launchValidatorHashes = {
+  launchScriptHashes = {
     [CONSTANT_CONTRACTS.failProofValidator.hash]: {
       type: 'failProof',
       launch: null,
@@ -214,7 +235,7 @@ export const resetInterestingLaunches = async () => {
   logger.debug(
     {
       interestingLaunches: interestingLaunches.map((l) => l.launch.txHash),
-      launchValidatorHashes: Object.entries(launchValidatorHashes).map(
+      launchValidatorHashes: Object.entries(launchScriptHashes).map(
         ([hash, {type}]) => ({hash, type}),
       ),
     },

@@ -79,6 +79,7 @@ export const parseOgmiosMetadatum = (
         parseOgmiosMetadatum(v),
       ]),
     )
+  const _: never = metadatum
   ensure(false, {metadatum}, 'Unreachable metadatum')
 }
 

@@ -24,3 +24,17 @@ export type GeneratedValidator =
   | 'finalProjectTokensHolder'
   | 'commitFold'
   | 'rewardsFold'
+
+export type GeneratedPolicy =
+  | 'nodePolicy'
+  | 'projectTokensHolderPolicy'
+  | 'commitFoldPolicy'
+  | 'rewardsFoldPolicy'
+
+export const isGeneratedPolicyType = (
+  type: ConstantValidator | GeneratedPolicy | GeneratedValidator,
+): type is GeneratedPolicy =>
+  type === 'nodePolicy' ||
+  type === 'projectTokensHolderPolicy' ||
+  type === 'commitFoldPolicy' ||
+  type === 'rewardsFoldPolicy'
