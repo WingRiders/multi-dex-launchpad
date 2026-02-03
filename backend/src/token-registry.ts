@@ -49,7 +49,7 @@ const githubTokenMetadataSchema = z
     ticker: githubTokenMetadataFieldSchema(z.string()).optional(),
     url: githubTokenMetadataFieldSchema(z.string()).optional(),
     logo: githubTokenMetadataFieldSchema(z.string()).optional(),
-    decimals: githubTokenMetadataFieldSchema(z.number()).optional(),
+    decimals: githubTokenMetadataFieldSchema(z.int()).optional(),
   })
   .transform(({subject, name, description, ticker, url, logo, decimals}) => ({
     subject,

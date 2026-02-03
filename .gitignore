@@ -21,6 +21,10 @@ generated
 !.env.example
 !.env.prod
 
+# Data files in CLI tool
+/backend/src/cli/data/*.json5
+!/backend/src/cli/data/*.example.json5
+
 dist
 dist-ssr
 

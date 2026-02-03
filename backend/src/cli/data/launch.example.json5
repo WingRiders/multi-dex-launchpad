@@ -1,0 +1,31 @@
+{
+  launchpadConfig: {
+    ownerBech32Address: 'addr_test1qzuz2e6p4z54thrj0u5nnpg5523jkmnvqjtu78p6873daddnq89ztzv3zmk7lyr9krkt4dpdaw37x5v3daf5muspw0rqwhnlz5',
+    splitBps: 5000, // 50% to WR / Sundae
+    sundaeFeeTolerance: '30000000', // 30 ada
+    projectToken: '659ab0b5658687c2e74cd10dba8244015b713bf503b90557769d77a757696e67526964657273', // tWRT
+    raisingToken: 'lovelace',
+    projectMinCommitment: '1000000', // 1 ada
+    projectMaxCommitment: '1000000000', // 1000 ada
+    totalTokens: '10000000', // 10 tWRT
+    tokensToDistribute: '5000000', // 5 tWRT
+    raisedTokensPoolPartPercentage: 50,
+    presaleTierCs: '659ab0b5658687c2e74cd10dba8244015b713bf503b90557769d77a7',
+    presaleTierMinCommitment: '1000000', // 1 ada
+    defaultTierMinCommitment: '1000000', // 1 ada
+    presaleTierMaxCommitment: '1000000000', // 1000 ada
+    defaultTierMaxCommitment: '1000000000', // 1000 ada
+  },
+  projectInfo: {
+    title: 'Operation Moon Avocado ',
+    description: 'A highly scientific experiment to determine how fast an avocado can reach the moon.',
+    url: 'https://moonavocado.example',
+    logoUrl: 'ipfs://bafybeia6nvocy6d3xsjbl53ojsoyczhrgtvkyagoimnvuxzs4cr4zazb2q',
+    tokenomicsUrl: 'https://moonavocado.example/tokenomics',
+    socialLinks: [
+      'https://twitter.com/moonavocado',
+      'https://discord.gg/moonavocado',
+    ],
+  },
+  agentBech32Address: 'addr_test1qzuz2e6p4z54thrj0u5nnpg5523jkmnvqjtu78p6873daddnq89ztzv3zmk7lyr9krkt4dpdaw37x5v3daf5muspw0rqwhnlz5',
+}
