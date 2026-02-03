@@ -1,7 +1,10 @@
+import type {Value} from '@cardano-ogmios/schema'
+import type {InputJsonValue} from '@prisma/client/runtime/client'
 import {
   createUnit,
   type LaunchpadConfig,
 } from '@wingriders/multi-dex-launchpad-common'
+import superjson from 'superjson'
 import type {Launch} from '../../prisma/generated/client'
 
 export const prismaLaunchToLaunchConfig = (
@@ -55,3 +58,7 @@ export const prismaLaunchToLaunchConfig = (
   commitFoldFeeAda: launch.commitFoldFeeAda,
   oilAda: launch.oilAda,
 })
+
+export const serializeValue = (value: Value): InputJsonValue =>
+  // trust me
+  superjson.serialize(value) as object as InputJsonValue

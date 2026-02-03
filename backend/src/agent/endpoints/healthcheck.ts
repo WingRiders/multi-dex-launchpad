@@ -1,6 +1,6 @@
 import {TRPCError} from '@trpc/server'
 import {prisma} from '../../db/prisma-client'
-import {tipToSlot} from '../../helpers'
+import {tipToSlot} from '../ogmios/helpers'
 import {getLedgerTip, getNetworkTip} from '../ogmios/ledger-state-query'
 import {isTxSubmissionClientInitialized as isTxSubmissionClientInitializedFn} from '../ogmios/tx-submission-client'
 

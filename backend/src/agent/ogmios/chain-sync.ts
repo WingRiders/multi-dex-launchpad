@@ -41,13 +41,8 @@ import type {
   TxOutputCreateManyInput,
 } from '../../../prisma/generated/models'
 import {config} from '../../config'
+import {serializeValue} from '../../db/helpers'
 import {prisma} from '../../db/prisma-client'
-import {
-  ogmiosPlutusVersionToMeshVersion,
-  originPoint,
-  parseOgmiosMetadatum,
-  serializeValue,
-} from '../../helpers'
 import {
   interestingLaunchByUnits,
   interestingLaunches,
@@ -59,6 +54,11 @@ import {logger} from '../../logger'
 import {CONSTANT_CONTRACTS} from '../constants'
 import {processLaunches} from '../launch-processing'
 import {getWalletChangeAddress, getWalletPubKeyHash} from '../wallet'
+import {
+  ogmiosPlutusVersionToMeshVersion,
+  originPoint,
+  parseOgmiosMetadatum,
+} from './helpers'
 import {getOgmiosContext} from './ogmios'
 
 // Buffering is suitable when doing the initial sync
