@@ -9,3 +9,18 @@ export type ConstantContracts = {
   poolProofValidator: Contract
   refScriptCarrierValidator: Contract
 }
+
+export type ConstantValidator =
+  | 'failProof'
+  | 'poolProof'
+  | 'refScriptCarrier'
+  | 'wrPool'
+  | 'sundaePool'
+
+export type GeneratedValidator =
+  | 'node'
+  | 'rewardsHolder'
+  | 'firstProjectTokensHolder'
+  | 'finalProjectTokensHolder'
+  | 'commitFold'
+  | 'rewardsFold'

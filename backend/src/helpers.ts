@@ -1,7 +1,16 @@
-import type {Point, Value} from '@cardano-ogmios/schema'
-import type {Asset} from '@meshsdk/common'
+import type {
+  MetadatumDetailedSchema,
+  Plutus,
+  Point,
+  Value,
+} from '@cardano-ogmios/schema'
+import type {Asset, LanguageVersion} from '@meshsdk/common'
 import type {InputJsonValue} from '@prisma/client/runtime/client'
-import {createUnit, LOVELACE_UNIT} from '@wingriders/multi-dex-launchpad-common'
+import {
+  createUnit,
+  ensure,
+  LOVELACE_UNIT,
+} from '@wingriders/multi-dex-launchpad-common'
 import superjson from 'superjson'
 import {config} from './config'
 
@@ -48,3 +57,36 @@ export const ogmiosValueToMeshAssets = (
 export const serializeValue = (value: Value): InputJsonValue =>
   // trust me
   superjson.serialize(value) as object as InputJsonValue
+
+// Returns:
+// type t =
+//   | bigint
+//   | string
+//   | t[]
+//   | Record<t, t>
+// The TS returns unknown because recursive type aliases are not allowed
+export const parseOgmiosMetadatum = (
+  metadatum: MetadatumDetailedSchema,
+): unknown => {
+  if ('int' in metadatum) return metadatum.int
+  if ('string' in metadatum) return metadatum.string
+  if ('bytes' in metadatum) return metadatum.bytes
+  if ('list' in metadatum) return metadatum.list.map(parseOgmiosMetadatum)
+  if ('map' in metadatum)
+    return Object.fromEntries(
+      metadatum.map.map(({k, v}) => [
+        parseOgmiosMetadatum(k),
+        parseOgmiosMetadatum(v),
+      ]),
+    )
+  ensure(false, {metadatum}, 'Unreachable metadatum')
+}
+
+export const ogmiosPlutusVersionToMeshVersion: Record<
+  Plutus['language'],
+  LanguageVersion
+> = {
+  'plutus:v1': 'V1',
+  'plutus:v2': 'V2',
+  'plutus:v3': 'V3',
+}

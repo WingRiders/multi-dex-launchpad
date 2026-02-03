@@ -27,6 +27,8 @@ export const hexStringSchema = z
 
 export const scriptHashSchema = hexStringSchema.length(56)
 
+export const policyIdSchema = z.union([scriptHashSchema, z.literal('')])
+
 export const assetNameSchema = hexStringSchema.max(64)
 
 // TODO: that can be better
@@ -184,7 +186,7 @@ export const getLaunchpadConfigTxMetadataSchema = ({
         (v) => v === VESTING_VALIDATOR_HASH,
         {error: `Must be equal to ${VESTING_VALIDATOR_HASH}`},
       ),
-      presaleTierCs: scriptHashSchema,
+      presaleTierCs: policyIdSchema,
       presaleTierStartTime: z.bigint().nonnegative().transform(Number),
       defaultStartTime: z.bigint().nonnegative().transform(Number),
       presaleTierMinCommitment: bigintQuantitySchema,

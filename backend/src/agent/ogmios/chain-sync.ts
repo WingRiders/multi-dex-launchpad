@@ -4,33 +4,53 @@ import type {
   MetadatumDetailedSchema,
   Point,
   Transaction,
+  TransactionOutput,
   TransactionOutputReference,
+  Value,
 } from '@cardano-ogmios/schema'
-import {deserializeAddress, parseAssetUnit} from '@meshsdk/core'
+import {
+  applyCborEncoding,
+  parseAssetUnit,
+  resolveScriptHash,
+} from '@meshsdk/core'
 import type {JsonValue} from '@prisma/client/runtime/client'
 import {
+  createUnit,
   DAO_ADMIN_PUB_KEY_HASH,
   DAO_FEE_RECEIVER_BECH32_ADDRESS,
+  decodeDatum,
   ensure,
-  type GeneratedContracts,
+  failProofDatumCborSchema,
+  type GeneratedValidator,
   generateLaunchpadContracts,
   getLaunchTxMetadataSchema,
   INIT_LAUNCH_AGENT_LOVELACE,
   INIT_LAUNCH_TX_METADATA_LABEL,
+  poolProofDatumCborSchema,
+  sundaePoolDatumCborSchema,
   tryDeserializeAddress,
+  wrPoolDatumCborSchema,
 } from '@wingriders/multi-dex-launchpad-common'
-import {Result} from 'better-result'
 import z from 'zod'
 import type {Block, TxOutput} from '../../../prisma/generated/client'
 import type {
   LaunchCreateManyInput,
-  NodeCreateManyInput,
   TxOutputCreateManyInput,
 } from '../../../prisma/generated/models'
 import {config} from '../../config'
-import {prismaLaunchToLaunchConfig} from '../../db/helpers'
 import {prisma} from '../../db/prisma-client'
-import {originPoint, serializeValue} from '../../helpers'
+import {
+  ogmiosPlutusVersionToMeshVersion,
+  originPoint,
+  parseOgmiosMetadatum,
+  serializeValue,
+} from '../../helpers'
+import {
+  interestingLaunchByUnits,
+  launchValidatorHashes,
+  resetInterestingLaunches,
+  trackInterestingLaunch,
+} from '../../interesting-launches'
 import {logger} from '../../logger'
 import {CONSTANT_CONTRACTS} from '../constants'
 import {getWalletChangeAddress, getWalletPubKeyHash} from '../wallet'
@@ -39,14 +59,46 @@ import {getOgmiosContext} from './ogmios'
 // Buffering is suitable when doing the initial sync
 const BUFFER_SIZE = 10_000
 
+type LaunchUtxoType =
+  | 'nodeValidatorRefScriptCarrier'
+  | 'nodePolicyRefScriptCarrier'
+  | 'firstProjectTokensHolderValidatorRefScriptCarrier'
+  | 'projectTokensHolderPolicyRefScriptCarrier'
+  | 'finalProjectTokensHolderValidatorRefScriptCarrier'
+  | 'commitFoldValidatorRefScriptCarrier'
+  | 'commitFoldPolicyRefScriptCarrier'
+  | 'rewardsFoldValidatorRefScriptCarrier'
+  | 'rewardsFoldPolicyRefScriptCarrier'
+  | 'rewardsHolderValidatorRefScriptCarrier'
+  | 'node'
+  | 'rewardsHolder'
+  | 'firstProjectTokensHolder'
+  | 'finalProjectTokensHolder'
+  | 'commitFold'
+  | 'rewardsFold'
+  | 'failProof'
+  | 'wrPoolProof'
+  | 'sundaePoolProof'
+  | 'wrPool'
+  | 'sundaePool'
+
+// NOTE: TxOutputCreateManyInput fields must be named txOutput
+//       TxOutputCreateManyInput[] fields must be named txOutputs
+//       see `pushSyncEvent` for details
 type SyncEvent =
   | {
       type: 'block'
       data: Block
     }
   | {
-      type: 'txOutput'
-      data: TxOutputCreateManyInput
+      type: 'agentTxOutput'
+      txOutput: TxOutputCreateManyInput
+    }
+  | {
+      type: 'launchTxOutput'
+      launchTxHash: string
+      txOutput: TxOutputCreateManyInput
+      outputType: LaunchUtxoType
     }
   | {
       type: 'spentTxOutput'
@@ -61,118 +113,13 @@ type SyncEvent =
   | {
       type: 'initLaunch'
       launch: LaunchCreateManyInput
-      txOutputs: TxOutputCreateManyInput[]
-      node: NodeCreateManyInput
     }
 
-let syncEventBuffer: SyncEvent[] = []
-
-// When we aggregate launches, we track them in cache.
-// Once a launch stops being interesting, it's no longer tracked.
-// The tracking stops on the next flushing, not immediately.
-// Interesting launches provide access to their contracts so the transactions can be parsed.
-//
-// A launch is defined as interesting if it has at least one associated unspent utxo
-// or at least one of those utxos hasn't been created yet.
-// Only spent utxos count towards making a launch not interesting.
-//
-// - node validator ref script carrier
-// - node policy ref script carrier
-// - first project tokens holder validator ref script carrier
-// - project tokens holder policy ref script carrier
-// - final project tokens holder validator ref script carrier
-// - commit fold validator ref script carrier
-// - commit fold policy ref script carrier
-// - rewards fold validator ref script carrier
-// - rewards fold policy ref script carrier
-// - rewards holder validator ref script carrier
-//
-// - nodes
-// - rewards holders
-//
-// - commit fold
-// - rewards fold
-// - first project tokens holder
-// - final project tokens holder
-//
-// These, however, do not affect whether the launch is interesting
-// - fail proof      <- unspendable
-// - pool proofs     <- unspendable
-// - wr/sundae pools <- samsaricly rebirthed every time they die
-let interestingLaunches: {
-  launch: {txHash: string}
-  contracts: GeneratedContracts
-}[] = []
-
-const resetInterestingLaunches = async () => {
-  ensure(
-    syncEventBuffer.length === 0,
-    {syncEventBuffer},
-    'Sync event buffer must be empty to reset the interesting launches cache',
-  )
-  const launches = await prisma.launch.findMany({
-    // Non-interesting launches have all their important utxos spent
-    // Interesting launches are NOT those
-    where: {
-      NOT: {
-        AND: [
-          {nodeValidatorRefScriptCarrier: {spentSlot: {not: null}}},
-          {nodePolicyRefScriptCarrier: {spentSlot: {not: null}}},
-          {
-            firstProjectTokensHolderValidatorRefScriptCarrier: {
-              spentSlot: {not: null},
-            },
-          },
-          {
-            projectTokensHolderPolicyRefScriptCarrier: {
-              spentSlot: {not: null},
-            },
-          },
-          {
-            finalProjectTokensHolderValidatorRefScriptCarrier: {
-              spentSlot: {not: null},
-            },
-          },
-          {
-            commitFoldValidatorRefScriptCarrier: {spentSlot: {not: null}},
-          },
-          {commitFoldPolicyRefScriptCarrier: {spentSlot: {not: null}}},
-          {
-            rewardsFoldValidatorRefScriptCarrier: {spentSlot: {not: null}},
-          },
-          {rewardsFoldPolicyRefScriptCarrier: {spentSlot: {not: null}}},
-          {
-            rewardsHolderValidatorRefScriptCarrier: {spentSlot: {not: null}},
-          },
-          {nodes: {some: {txOut: {spentSlot: {not: null}}}}},
-          {rewardsHolders: {some: {txOut: {spentSlot: {not: null}}}}},
-          {commitFold: {spentSlot: {not: null}}},
-          {rewardsFold: {spentSlot: {not: null}}},
-          {firstProjectTokensHolder: {spentSlot: {not: null}}},
-          {finalProjectTokensHolder: {spentSlot: {not: null}}},
-        ],
-      },
-    },
-  })
-
-  interestingLaunches = []
-  for (const launch of launches) {
-    const contracts = await generateLaunchpadContracts(
-      prismaLaunchToLaunchConfig(launch),
-      CONSTANT_CONTRACTS,
-    )
-    interestingLaunches.push({launch: {txHash: launch.txHash}, contracts})
-  }
-  logger.debug(
-    {
-      interestingLaunches: interestingLaunches.map((l) => l.launch.txHash),
-    },
-    'Reset interesting launches',
-  )
-}
+export let syncEventBuffer: SyncEvent[] = []
 
 // TODO: we might want to switch to a set/map?
 let trackedUtxos: TxOutput[] = []
+// Scans all tracked utxos in O(n) and returns true if the utxo is tracked
 const isUtxoTracked = (utxo: TransactionOutputReference): boolean => {
   for (const trackedUtxo of trackedUtxos)
     if (
@@ -184,11 +131,33 @@ const isUtxoTracked = (utxo: TransactionOutputReference): boolean => {
   return false
 }
 
+// Scans all tracked utxos in O(n) and returns the utxos associated with the given address
 export const getAddressTrackedUtxos = (bech32Address: string): TxOutput[] =>
   trackedUtxos.filter((utxo) => utxo.address === bech32Address)
 
+// Pushes to the sync event buffer, tracks utxos
+// Does NOT track the interesting launches
+const pushSyncEvent = (event: SyncEvent) => {
+  syncEventBuffer.push(event)
+  const newTrackedTxOutputs: TxOutputCreateManyInput[] = []
+  if ('txOutput' in event) newTrackedTxOutputs.push(event.txOutput)
+  trackedUtxos.push(
+    ...newTrackedTxOutputs.map((utxo) => ({
+      txHash: utxo.txHash,
+      slot: utxo.slot,
+      outputIndex: utxo.outputIndex,
+      address: utxo.address,
+      datum: utxo.datum || null,
+      datumHash: utxo.datumHash || null,
+      value: utxo.value as JsonValue,
+      spentTxHash: null,
+      spentSlot: null,
+    })),
+  )
+}
+
 // Reset the tracked utxos cache.
-// Must be called after the buffers are emptied.
+// Must be called after the buffers are emptied (or at the start of the sync).
 const resetTrackedUtxos = async () => {
   ensure(
     syncEventBuffer.length === 0,
@@ -203,7 +172,7 @@ const resetTrackedUtxos = async () => {
 
 // Aggregation logic is here
 const processBlock = async (block: BlockPraos) => {
-  syncEventBuffer.push({
+  pushSyncEvent({
     type: 'block',
     data: {
       slot: block.slot,
@@ -215,11 +184,12 @@ const processBlock = async (block: BlockPraos) => {
   // The order is important: we want to parse launch initializations as soon as possible
   // otherwise we might miss transactions;
   // we also want to parse spent tx outputs last as not to miss anything
-  parseAgentTxOutputs(block.slot, block.transactions || [])
-  parseInitLaunch(block.slot, block.transactions || [])
+  await parseInitLaunch(block.slot, block.transactions || [])
+  parseTrackableTxOutputs(block.slot, block.transactions || [])
   parseSpentTxOutputs(block.slot, block.transactions || [])
 }
 
+// Pushes sync events
 const parseSpentTxOutputs = (slot: number, transactions: Transaction[]) => {
   const spent: {
     utxos: TransactionOutputReference[]
@@ -240,73 +210,281 @@ const parseSpentTxOutputs = (slot: number, transactions: Transaction[]) => {
     }
   }
   if (spent.length > 0)
-    syncEventBuffer.push({
+    pushSyncEvent({
       type: 'spentTxOutput',
       data: {spentSlot: slot, spent},
     })
 }
 
-const parseAgentTxOutputs = (slot: number, transactions: Transaction[]) => {
-  for (const tx of transactions) {
-    const toAgent = tx.outputs
-      .map((out, i) => [out, i] as const)
-      .filter(([out, _]) =>
-        Result.try(
-          () =>
-            // Throws on base58 addresses
-            deserializeAddress(out.address).pubKeyHash ===
-            getWalletPubKeyHash(),
-        ).unwrapOr(false),
-      )
-      .map(([out, i]) => ({
-        slot,
-        txHash: tx.id,
-        address: out.address,
-        outputIndex: i,
-        datum: out.datum,
-        datumHash: out.datumHash,
-        value: serializeValue(out.value),
-      }))
-    trackedUtxos.push(
-      ...toAgent.map((out) => ({
-        ...out,
-        slot,
-        spentTxHash: null,
-        spentSlot: null,
-        datum: out.datum || null,
-        datumHash: out.datumHash || null,
-        value: out.value as JsonValue,
-      })),
-    )
-    syncEventBuffer.push(
-      ...toAgent.map((out) => ({
-        type: 'txOutput' as const,
-        data: out,
-      })),
-    )
+const refScriptCarrierUtxoTypeFromValidatorHashType = (
+  refScriptType: GeneratedValidator,
+): LaunchUtxoType => {
+  switch (refScriptType) {
+    case 'node':
+      return 'nodeValidatorRefScriptCarrier'
+    case 'rewardsHolder':
+      return 'rewardsHolderValidatorRefScriptCarrier'
+    case 'firstProjectTokensHolder':
+      return 'firstProjectTokensHolderValidatorRefScriptCarrier'
+    case 'finalProjectTokensHolder':
+      return 'finalProjectTokensHolderValidatorRefScriptCarrier'
+    case 'commitFold':
+      return 'commitFoldValidatorRefScriptCarrier'
+    case 'rewardsFold':
+      return 'rewardsFoldValidatorRefScriptCarrier'
+    default:
+      ensure(false, {refScriptType}, 'Unknown ref script type')
   }
 }
 
-// Returns:
-// type t =
-//   | bigint
-//   | string
-//   | t[]
-//   | Record<t, t>
-// The TS returns unknown because recursive type aliases are not allowed
-const parseOgmiosMetadatum = (metadatum: MetadatumDetailedSchema): unknown => {
-  if ('int' in metadatum) return metadatum.int
-  if ('string' in metadatum) return metadatum.string
-  if ('bytes' in metadatum) return metadatum.bytes
-  if ('list' in metadatum) return metadatum.list.map(parseOgmiosMetadatum)
-  if ('map' in metadatum)
-    return Object.fromEntries(
-      metadatum.map.map(({k, v}) => [
-        parseOgmiosMetadatum(k),
-        parseOgmiosMetadatum(v),
-      ]),
-    )
-  ensure(false, {metadatum}, 'Unreachable metadatum')
+const passesValidityToken = (
+  {contracts, type}: (typeof launchValidatorHashes)[string],
+  value: Value,
+): boolean => {
+  // These contracts don't require a validity token
+  if (
+    type === 'refScriptCarrier' ||
+    type === 'rewardsHolder' ||
+    type === 'finalProjectTokensHolder'
+  )
+    return true
+
+  switch (type) {
+    case 'node':
+      return (
+        value[contracts.nodePolicy.hash]?.[contracts.nodeValidator.hash] === 1n
+      )
+    case 'firstProjectTokensHolder':
+      return (
+        value[contracts.tokensHolderPolicy.hash]?.[
+          contracts.tokensHolderFirstValidator.hash
+        ] === 1n
+      )
+    case 'commitFold':
+      return (
+        value[contracts.commitFoldPolicy.hash]?.[
+          contracts.commitFoldValidator.hash
+        ] === 1n
+      )
+    case 'rewardsFold':
+      return (
+        value[contracts.rewardsFoldPolicy.hash]?.[
+          contracts.rewardsFoldValidator.hash
+        ] === 1n
+      )
+    case 'failProof':
+      return (
+        value[CONSTANT_CONTRACTS.failProofPolicy.hash]?.[
+          CONSTANT_CONTRACTS.failProofValidator.hash
+        ] === 1n
+      )
+    case 'poolProof':
+      return (
+        value[CONSTANT_CONTRACTS.poolProofPolicy.hash]?.[
+          CONSTANT_CONTRACTS.poolProofValidator.hash
+        ] === 1n
+      )
+    case 'wrPool':
+      // TODO: wr token
+      return true
+    case 'sundaePool':
+      // TODO: sundae token
+      return true
+    default:
+      ensure(false, {type}, 'Unknown validator type')
+  }
+}
+
+const makeTxOutput = (
+  slot: number,
+  txHash: string,
+  outputIndex: number,
+  txOutput: TransactionOutput,
+) => ({
+  txHash,
+  slot,
+  outputIndex,
+  address: txOutput.address,
+  datum: txOutput.datum,
+  datumHash: txOutput.datumHash,
+  value: serializeValue(txOutput.value),
+})
+
+// Pushes sync events
+const parseTrackableTxOutputs = (slot: number, transactions: Transaction[]) => {
+  const txOuts = transactions.flatMap((tx) =>
+    tx.outputs.map((out, i) => ({
+      txOutput: out,
+      txHash: tx.id,
+      outputIndex: i,
+    })),
+  )
+
+  for (const {txOutput, txHash, outputIndex} of txOuts) {
+    const address = tryDeserializeAddress(txOutput.address)
+    if (!address) continue
+
+    if (address.pubKeyHash === getWalletPubKeyHash()) {
+      // We check agent utxos first and track them
+      pushSyncEvent({
+        type: 'agentTxOutput',
+        txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+      })
+      continue
+    }
+
+    // For all other utxos we check if that script hash is either
+    // - a constant script we track
+    // - is associated with an interesting launch
+    const lookup = launchValidatorHashes[address.scriptHash]
+    // if there's no hit, we skip to the next txOutput
+    if (!lookup) continue
+    const {type, launch} = lookup
+
+    // We make sure the utxos have a validity token if applicable
+    // otherwise we might track invalid/unspendable utxos
+    if (!passesValidityToken(lookup, txOutput.value)) continue
+
+    if (launch) {
+      // For types that have the launch, we can just push the event
+      pushSyncEvent({
+        type: 'launchTxOutput',
+        launchTxHash: launch.txHash,
+        txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+        outputType: type,
+      })
+      continue
+    }
+
+    // The rest trackable utxos are on constant validator addresses
+    // we need additional processing to figure out the launch
+    switch (type) {
+      // Fail proofs have node validator hash in the datum to identify the launch
+      case 'failProof': {
+        ensure(
+          txOutput.datum != null,
+          {txOutput},
+          'Fail proof must have inline datum',
+        )
+        const datum = decodeDatum(failProofDatumCborSchema, txOutput.datum)
+        ensure(
+          datum != null,
+          {txOutput},
+          'Fail proof must have valid inline datum',
+        )
+        const nodeValidatorHash = datum.scriptHash
+        const lookup = launchValidatorHashes[nodeValidatorHash]
+        // If we don't track the stored hash as a node
+        // for an interesting launch, we skip the utxo
+        if (lookup?.type !== 'node') continue
+        pushSyncEvent({
+          type: 'launchTxOutput',
+          launchTxHash: lookup.launch.txHash,
+          txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+          outputType: 'failProof',
+        })
+        break
+      }
+      // Pool proofs have dex and assets the datum to identify the launch
+      case 'poolProof': {
+        ensure(
+          txOutput.datum != null,
+          {txOutput},
+          'Pool proof must have inline datum',
+        )
+        const datum = decodeDatum(poolProofDatumCborSchema, txOutput.datum)
+        ensure(
+          datum != null,
+          {txOutput},
+          'Pool proof must have valid inline datum',
+        )
+        const projectUnit = createUnit(datum.projectSymbol, datum.projectToken)
+        const raisingUnit = createUnit(datum.raisingSymbol, datum.raisingToken)
+        const launch = interestingLaunchByUnits(projectUnit, raisingUnit)
+        if (!launch) continue
+        pushSyncEvent({
+          type: 'launchTxOutput',
+          launchTxHash: launch.txHash,
+          txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+          outputType:
+            datum.dex === 'WingRidersV2' ? 'wrPoolProof' : 'sundaePoolProof',
+        })
+        break
+      }
+      // Ref script carriers have reference scripts to identify the launch
+      case 'refScriptCarrier': {
+        const refScript = txOutput.script
+        if (!refScript) continue
+        if (refScript.language === 'native') continue
+        const cborHex = refScript.cbor
+        const version = ogmiosPlutusVersionToMeshVersion[refScript.language]
+        // For some reason we need to double encode the script
+        // otherwise the hashes are wrong
+        const hash = resolveScriptHash(applyCborEncoding(cborHex), version)
+        const lookup = launchValidatorHashes[hash]
+        if (!lookup || !lookup.launch) continue
+        pushSyncEvent({
+          type: 'launchTxOutput',
+          launchTxHash: lookup.launch.txHash,
+          txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+          outputType: refScriptCarrierUtxoTypeFromValidatorHashType(
+            lookup.type,
+          ),
+        })
+        break
+      }
+      // Wr pools have assets in the datum to identify the launch
+      case 'wrPool': {
+        ensure(
+          txOutput.datum != null,
+          {txOutput},
+          'Wr pool must have inline datum',
+        )
+        const datum = decodeDatum(wrPoolDatumCborSchema, txOutput.datum)
+        ensure(
+          datum != null,
+          {txOutput},
+          'Wr pool must have valid inline datum',
+        )
+        const unitA = createUnit(datum.assetASymbol, datum.assetAToken)
+        const unitB = createUnit(datum.assetBSymbol, datum.assetBToken)
+        const launch = interestingLaunchByUnits(unitA, unitB)
+        if (!launch) continue
+        pushSyncEvent({
+          type: 'launchTxOutput',
+          launchTxHash: launch.txHash,
+          txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+          outputType: 'wrPool',
+        })
+        break
+      }
+      // Sundae pools have assets in the datum to identify the launch
+      case 'sundaePool': {
+        ensure(
+          txOutput.datum != null,
+          {txOutput},
+          'Sundae pool must have inline datum',
+        )
+        const datum = decodeDatum(sundaePoolDatumCborSchema, txOutput.datum)
+        ensure(
+          datum != null,
+          {txOutput},
+          'Sundae pool must have valid inline datum',
+        )
+        const launch = interestingLaunchByUnits(datum.assetA, datum.assetB)
+        if (!launch) continue
+        pushSyncEvent({
+          type: 'launchTxOutput',
+          launchTxHash: launch.txHash,
+          txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+          outputType: 'sundaePool',
+        })
+        break
+      }
+      default:
+        ensure(false, {type}, 'Unreachable validator hash type')
+    }
+  }
 }
 
 const launchTxMetadataSchema = getLaunchTxMetadataSchema({
@@ -319,6 +497,8 @@ const launchTxMetadataSchema = getLaunchTxMetadataSchema({
 // We also verify the configuration is correct here
 // NOTE: We check the tx outputs are created with the correct tokens
 //       Most of the other checks are done by the policies
+//
+// Pushes sync events
 const parseInitLaunch = async (slot: number, transactions: Transaction[]) => {
   for (const tx of transactions) {
     // First we check the tx metadata;
@@ -343,6 +523,7 @@ const parseInitLaunch = async (slot: number, transactions: Transaction[]) => {
 
     // Then we generate the contracts and parse the transaction
     logger.info({txHash: tx.id, launchTxMetadata}, 'Found init launch tx')
+    // TODO: make that sync, there's no reason to have it async
     const launchContracts = await generateLaunchpadContracts(
       launchTxMetadata.data.config,
       CONSTANT_CONTRACTS,
@@ -369,7 +550,7 @@ const parseInitLaunch = async (slot: number, transactions: Transaction[]) => {
       )
       continue
     }
-    const [headNode, headNodeOutputIndex] = nodes[0]!
+    const [headNode, _headNodeOutputIndex] = nodes[0]!
     const nodeTokens =
       headNode.value[launchContracts.nodePolicy.hash]?.[
         launchContracts.nodeValidator.hash
@@ -439,53 +620,20 @@ const parseInitLaunch = async (slot: number, transactions: Transaction[]) => {
     const {assetName: raisingTokenAssetName, policyId: raisingTokenPolicyId} =
       parseAssetUnit(launchTxMetadata.data.config.raisingToken)
 
-    const txOutputs = [
-      // head node
-      {
-        txHash: tx.id,
-        slot,
-        outputIndex: headNodeOutputIndex,
-        address: headNode.address,
-        datum: headNode.datum,
-        datumHash: headNode.datumHash,
-        value: serializeValue(headNode.value),
-      },
-      // first project tokens holder
-      {
-        txHash: tx.id,
-        slot,
-        outputIndex: firstProjectTokensHolderOutputIndex,
-        address: projectTokensHolder.address,
-        datum: projectTokensHolder.datum,
-        datumHash: projectTokensHolder.datumHash,
-        value: serializeValue(projectTokensHolder.value),
-      },
-    ]
     // A new launch is immediately interesting
-    interestingLaunches.push({
-      launch: {txHash: tx.id},
-      contracts: launchContracts,
-    })
-    // We track head node and first project tokens holder
-    trackedUtxos.push(
-      ...txOutputs.map((out) => ({
-        ...out,
-        datum: out.datum || null,
-        datumHash: out.datumHash || null,
-        spentTxHash: null,
-        spentSlot: null,
-        value: out.value as JsonValue,
-      })),
+    trackInterestingLaunch(
+      {
+        txHash: tx.id,
+        projectUnit: launchTxMetadata.data.config.projectToken,
+        raisingUnit: launchTxMetadata.data.config.raisingToken,
+      },
+      launchContracts,
     )
     // We push a new sync event
-    syncEventBuffer.push({
+    // NOTE: we don't track the head node nor the first project tokens holder
+    //       we rely on parseTrackableTxOutputs for that
+    pushSyncEvent({
       type: 'initLaunch',
-      txOutputs,
-      node: {
-        txHash: tx.id,
-        outputIndex: headNodeOutputIndex,
-        launchTxHash: tx.id,
-      },
       launch: {
         txHash: tx.id,
         slot,
@@ -609,12 +757,17 @@ const writeBuffersIfNecessary = async ({
   // chain sync. If block buffer was written but other data not, it could get lost forever.
   if (syncEventBuffer.length >= threshold) {
     const blockBuffer = syncEventBuffer.filter((e) => e.type === 'block')
-    const txOutputBuffer = syncEventBuffer.filter((e) => e.type === 'txOutput')
+    const agentTxOutputBuffer = syncEventBuffer.filter(
+      (e) => e.type === 'agentTxOutput',
+    )
     const spentTxOutputBuffer = syncEventBuffer.filter(
       (e) => e.type === 'spentTxOutput',
     )
     const initLaunchBuffer = syncEventBuffer.filter(
       (e) => e.type === 'initLaunch',
+    )
+    const launchTxOutputBuffer = syncEventBuffer.filter(
+      (e) => e.type === 'launchTxOutput',
     )
 
     const latestBlock = blockBuffer[blockBuffer.length - 1]
@@ -649,9 +802,13 @@ const writeBuffersIfNecessary = async ({
                                    ${blockBuffer.map(({data: {hash}}) => hash)}::text[],
                                    ${blockBuffer.map(({data: {height}}) => height)}::integer[])`
 
-      if (txOutputBuffer.length > 0)
+      const txOutputsInsert = agentTxOutputBuffer
+        .map((e) => e.txOutput)
+        .concat(launchTxOutputBuffer.map((e) => e.txOutput))
+
+      if (txOutputsInsert.length > 0)
         await prisma.txOutput.createMany({
-          data: txOutputBuffer.map((e) => e.data),
+          data: txOutputsInsert,
         })
 
       if (spentTxOutputBuffer.length > 0)
@@ -670,17 +827,13 @@ const writeBuffersIfNecessary = async ({
                 data: {spentSlot, spentTxHash},
               })
 
-      if (initLaunchBuffer.length > 0) {
-        await prisma.txOutput.createMany({
-          data: initLaunchBuffer.flatMap((e) => e.txOutputs),
-        })
+      if (initLaunchBuffer.length > 0)
         await prisma.launch.createMany({
           data: initLaunchBuffer.map((e) => e.launch),
         })
-        await prisma.node.createMany({
-          data: initLaunchBuffer.map((e) => e.node),
-        })
-      }
+
+      if (launchTxOutputBuffer.length > 0)
+        await saveLaunchTxOutputsFields(launchTxOutputBuffer)
     })
 
     logger.info(stats, 'Wrote buffers to DB')
@@ -689,6 +842,238 @@ const writeBuffersIfNecessary = async ({
     touchedDb = true
   }
   return touchedDb
+}
+
+// Does not create new TxOutput in the db.
+// Updates affected launches by setting the relevant fields related to TxOutput.
+// Also creates Node and RewardsHolder if applicable
+const saveLaunchTxOutputsFields = async (
+  launchTxOutputBuffer: (SyncEvent & {type: 'launchTxOutput'})[],
+) => {
+  for (const {launchTxHash, outputType, txOutput} of launchTxOutputBuffer) {
+    switch (outputType) {
+      case 'nodeValidatorRefScriptCarrier': {
+        await prisma.launch.update({
+          data: {
+            nodeValidatorRefScriptCarrierTxHash: txOutput.txHash,
+            nodeValidatorRefScriptCarrierOutputIndex: txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'nodePolicyRefScriptCarrier': {
+        await prisma.launch.update({
+          data: {
+            nodePolicyRefScriptCarrierTxHash: txOutput.txHash,
+            nodePolicyRefScriptCarrierOutputIndex: txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'firstProjectTokensHolderValidatorRefScriptCarrier': {
+        await prisma.launch.update({
+          data: {
+            firstProjectTokensHolderValidatorRefScriptCarrierTxHash:
+              txOutput.txHash,
+            firstProjectTokensHolderValidatorRefScriptCarrierOutputIndex:
+              txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'projectTokensHolderPolicyRefScriptCarrier': {
+        await prisma.launch.update({
+          data: {
+            projectTokensHolderPolicyRefScriptCarrierTxHash: txOutput.txHash,
+            projectTokensHolderPolicyRefScriptCarrierOutputIndex:
+              txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'finalProjectTokensHolderValidatorRefScriptCarrier': {
+        await prisma.launch.update({
+          data: {
+            finalProjectTokensHolderValidatorRefScriptCarrierTxHash:
+              txOutput.txHash,
+            finalProjectTokensHolderValidatorRefScriptCarrierOutputIndex:
+              txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'commitFoldValidatorRefScriptCarrier': {
+        await prisma.launch.update({
+          data: {
+            commitFoldValidatorRefScriptCarrierTxHash: txOutput.txHash,
+            commitFoldValidatorRefScriptCarrierOutputIndex:
+              txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'commitFoldPolicyRefScriptCarrier': {
+        await prisma.launch.update({
+          data: {
+            commitFoldPolicyRefScriptCarrierTxHash: txOutput.txHash,
+            commitFoldPolicyRefScriptCarrierOutputIndex: txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'rewardsFoldValidatorRefScriptCarrier': {
+        await prisma.launch.update({
+          data: {
+            rewardsFoldValidatorRefScriptCarrierTxHash: txOutput.txHash,
+            rewardsFoldValidatorRefScriptCarrierOutputIndex:
+              txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'rewardsFoldPolicyRefScriptCarrier': {
+        await prisma.launch.update({
+          data: {
+            rewardsFoldPolicyRefScriptCarrierTxHash: txOutput.txHash,
+            rewardsFoldPolicyRefScriptCarrierOutputIndex: txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'rewardsHolderValidatorRefScriptCarrier': {
+        await prisma.launch.update({
+          data: {
+            rewardsHolderValidatorRefScriptCarrierTxHash: txOutput.txHash,
+            rewardsHolderValidatorRefScriptCarrierOutputIndex:
+              txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'node': {
+        await prisma.node.create({
+          data: {
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
+            launchTxHash,
+          },
+        })
+        break
+      }
+      case 'rewardsHolder': {
+        await prisma.rewardsHolder.create({
+          data: {
+            launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
+          },
+        })
+        break
+      }
+      case 'firstProjectTokensHolder': {
+        await prisma.launch.update({
+          data: {
+            firstProjectTokensHolderTxHash: txOutput.txHash,
+            firstProjectTokensHolderOutputIndex: txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'finalProjectTokensHolder': {
+        await prisma.launch.update({
+          data: {
+            finalProjectTokensHolderTxHash: txOutput.txHash,
+            finalProjectTokensHolderOutputIndex: txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'commitFold': {
+        await prisma.launch.update({
+          data: {
+            commitFoldTxHash: txOutput.txHash,
+            commitFoldOutputIndex: txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'rewardsFold': {
+        await prisma.launch.update({
+          data: {
+            rewardsFoldTxHash: txOutput.txHash,
+            rewardsFoldOutputIndex: txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'failProof': {
+        await prisma.launch.update({
+          data: {
+            failProofTxHash: txOutput.txHash,
+            failProofOutputIndex: txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'wrPoolProof': {
+        await prisma.launch.update({
+          data: {
+            wrPoolProofTxHash: txOutput.txHash,
+            wrPoolProofOutputIndex: txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'sundaePoolProof': {
+        await prisma.launch.update({
+          data: {
+            sundaePoolProofTxHash: txOutput.txHash,
+            sundaePoolProofOutputIndex: txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'wrPool': {
+        await prisma.launch.update({
+          data: {
+            wrPoolTxHash: txOutput.txHash,
+            wrPoolOutputIndex: txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      case 'sundaePool': {
+        await prisma.launch.update({
+          data: {
+            sundaePoolTxHash: txOutput.txHash,
+            sundaePoolOutputIndex: txOutput.outputIndex,
+          },
+          where: {txHash: launchTxHash},
+        })
+        break
+      }
+      default:
+        ensure(false, {outputType}, 'Unexpected output type')
+    }
+  }
 }
 
 // Find starting point for Ogmios, either 10th latest block (to prevent issues in case of
