@@ -84,7 +84,6 @@ type LaunchUtxoType =
   | 'sundaePool'
 
 // NOTE: TxOutputCreateManyInput fields must be named txOutput
-//       TxOutputCreateManyInput[] fields must be named txOutputs
 //       see `pushSyncEvent` for details
 type SyncEvent =
   | {
