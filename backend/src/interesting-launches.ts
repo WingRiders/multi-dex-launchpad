@@ -54,7 +54,7 @@ export type InterestingLaunch = {
   projectUnit: Unit
   raisingUnit: Unit
 }
-let interestingLaunches: {
+export let interestingLaunches: {
   launch: InterestingLaunch
   contracts: GeneratedContracts
 }[] = []

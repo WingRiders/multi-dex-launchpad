@@ -11,31 +11,34 @@ export type ConstantContracts = {
   refScriptCarrierValidator: Contract
 }
 
-export type ConstantValidator =
-  | 'failProof'
-  | 'poolProof'
-  | 'refScriptCarrier'
-  | 'wrPool'
-  | 'sundaePool'
-  | 'rewardsHolder'
+export const constantValidators = [
+  'failProof',
+  'poolProof',
+  'rewardsHolder',
+  'refScriptCarrier',
+  'wrPool',
+  'sundaePool',
+] as const
+export type ConstantValidator = (typeof constantValidators)[number]
 
-export type GeneratedValidator =
-  | 'node'
-  | 'firstProjectTokensHolder'
-  | 'finalProjectTokensHolder'
-  | 'commitFold'
-  | 'rewardsFold'
+export const generatedValidators = [
+  'node',
+  'firstProjectTokensHolder',
+  'finalProjectTokensHolder',
+  'commitFold',
+  'rewardsFold',
+] as const
+export type GeneratedValidator = (typeof generatedValidators)[number]
 
-export type GeneratedPolicy =
-  | 'nodePolicy'
-  | 'projectTokensHolderPolicy'
-  | 'commitFoldPolicy'
-  | 'rewardsFoldPolicy'
+export const generatedPolicies = [
+  'nodePolicy',
+  'projectTokensHolderPolicy',
+  'commitFoldPolicy',
+  'rewardsFoldPolicy',
+] as const
+export type GeneratedPolicy = (typeof generatedPolicies)[number]
 
 export const isGeneratedPolicyType = (
   type: ConstantValidator | GeneratedPolicy | GeneratedValidator,
 ): type is GeneratedPolicy =>
-  type === 'nodePolicy' ||
-  type === 'projectTokensHolderPolicy' ||
-  type === 'commitFoldPolicy' ||
-  type === 'rewardsFoldPolicy'
+  generatedPolicies.some((policy) => policy === type)

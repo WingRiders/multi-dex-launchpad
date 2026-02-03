@@ -50,12 +50,14 @@ import {
 } from '../../helpers'
 import {
   interestingLaunchByUnits,
+  interestingLaunches,
   launchScriptHashes,
   resetInterestingLaunches,
   trackInterestingLaunch,
 } from '../../interesting-launches'
 import {logger} from '../../logger'
 import {CONSTANT_CONTRACTS} from '../constants'
+import {processLaunches} from '../launch-processing'
 import {getWalletChangeAddress, getWalletPubKeyHash} from '../wallet'
 import {getOgmiosContext} from './ogmios'
 
@@ -1159,6 +1161,17 @@ export const startChainSyncClient = async () => {
         await resetTrackedUtxos()
         await resetInterestingLaunches()
       }
+
+      const isSynced =
+        response.tip !== 'origin' &&
+        response.block.height === response.tip.height
+
+      // If we're synced, we process the launches.
+      // It's important we do that once per each new block
+      // so we don't submit multiple transactions for the same action.
+      // We also must do that after we're done with the new block
+      // so we're up-to-date with the latest launches state.
+      if (isSynced) await processLaunches(interestingLaunches)
 
       return nextBlock()
     },

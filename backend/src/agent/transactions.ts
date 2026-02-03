@@ -20,7 +20,7 @@ import {ogmiosValueToMeshAssets} from '../helpers'
 import {logger} from '../logger'
 import {getAddressTrackedUtxos} from './ogmios/chain-sync'
 import {submitTx} from './ogmios/tx-submission-client'
-import {ogmiosProvider} from './providers'
+import {ogmiosProvider, setFetcherUtxos} from './providers'
 import {getWallet, getWalletChangeAddress, getWalletPubKeyHash} from './wallet'
 
 export const deployConstantContracts = async (): Promise<string | null> => {
@@ -66,7 +66,6 @@ export const txOutputToMeshOutput = (output: TxOutput): UTxO => {
 export const deployContracts = async (
   contracts: Contract[],
 ): Promise<string | null> => {
-  // TODO: ensure the sync is done?
   ensure(contracts.length > 0, "Can't deploy 0 contracts")
   const wallet = getWallet()
 
@@ -76,11 +75,19 @@ export const deployContracts = async (
     ogmiosProvider,
     ogmiosProvider,
   )
+
   // NOTE: we assume only utxos on the change address
   //       are allowed to be spent
-  b.selectUtxosFrom(
-    getAddressTrackedUtxos(getWalletChangeAddress()).map(txOutputToMeshOutput),
+  // REVIEW: did we want to fetch from Ogmios?
+  // TODO: handle utxo selection better
+  //       when submitting multiple txs at the same time
+  //       it's very likely some input utxos have already been spent
+  //       but Ogmios haven't yet shared the info with us
+  const walletUtxos = getAddressTrackedUtxos(getWalletChangeAddress()).map(
+    txOutputToMeshOutput,
   )
+  b.selectUtxosFrom(walletUtxos)
+  setFetcherUtxos(walletUtxos)
 
   const datum: RefScriptCarrierDatum = {
     ownerPubKeyHash: getWalletPubKeyHash(),
