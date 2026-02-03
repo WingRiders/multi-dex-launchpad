@@ -69,7 +69,6 @@ type LaunchUtxoType =
   | 'commitFoldPolicyRefScriptCarrier'
   | 'rewardsFoldValidatorRefScriptCarrier'
   | 'rewardsFoldPolicyRefScriptCarrier'
-  | 'rewardsHolderValidatorRefScriptCarrier'
   | 'node'
   | 'rewardsHolder'
   | 'firstProjectTokensHolder'
@@ -218,12 +217,15 @@ const parseSpentTxOutputs = (slot: number, transactions: Transaction[]) => {
 
 const refScriptCarrierUtxoTypeFromValidatorHashType = (
   refScriptType: GeneratedValidator,
-): LaunchUtxoType => {
+): LaunchUtxoType | null => {
   switch (refScriptType) {
     case 'node':
       return 'nodeValidatorRefScriptCarrier'
+    // NOTE: we do not deploy nor track the rewards holder validator ref script carrier
+    //       it's on the users to supply the script in the tx for now
+    // TODO: make it into a constant validator
     case 'rewardsHolder':
-      return 'rewardsHolderValidatorRefScriptCarrier'
+      return null
     case 'firstProjectTokensHolder':
       return 'firstProjectTokensHolderValidatorRefScriptCarrier'
     case 'finalProjectTokensHolder':
@@ -422,14 +424,26 @@ const parseTrackableTxOutputs = (slot: number, transactions: Transaction[]) => {
         // otherwise the hashes are wrong
         const hash = resolveScriptHash(applyCborEncoding(cborHex), version)
         const lookup = launchValidatorHashes[hash]
-        if (!lookup || !lookup.launch) continue
+        if (!lookup || !lookup.launch || lookup.type === 'rewardsHolder')
+          continue
+        // NOTE: null is only possible for a rewards holder
+        //       as it's the only generated contract we do not deploy
+        //       it should not appear on a ref script carrier
+        //       even if it does, we explicitly skip it
+        // TODO: make it into a constant validator
+        const outputType = refScriptCarrierUtxoTypeFromValidatorHashType(
+          lookup.type,
+        )
+        ensure(
+          outputType != null,
+          {lookup, txHash, txOutput},
+          'Invalid ref script carrier type',
+        )
         pushSyncEvent({
           type: 'launchTxOutput',
           launchTxHash: lookup.launch.txHash,
           txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
-          outputType: refScriptCarrierUtxoTypeFromValidatorHashType(
-            lookup.type,
-          ),
+          outputType,
         })
         break
       }
@@ -944,17 +958,6 @@ const saveLaunchTxOutputsFields = async (
           data: {
             rewardsFoldPolicyRefScriptCarrierTxHash: txOutput.txHash,
             rewardsFoldPolicyRefScriptCarrierOutputIndex: txOutput.outputIndex,
-          },
-          where: {txHash: launchTxHash},
-        })
-        break
-      }
-      case 'rewardsHolderValidatorRefScriptCarrier': {
-        await prisma.launch.update({
-          data: {
-            rewardsHolderValidatorRefScriptCarrierTxHash: txOutput.txHash,
-            rewardsHolderValidatorRefScriptCarrierOutputIndex:
-              txOutput.outputIndex,
           },
           where: {txHash: launchTxHash},
         })

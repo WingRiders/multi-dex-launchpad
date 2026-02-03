@@ -34,7 +34,6 @@ import {logger} from './logger'
 // - commit fold policy ref script carrier
 // - rewards fold validator ref script carrier
 // - rewards fold policy ref script carrier
-// - rewards holder validator ref script carrier
 //
 // - nodes
 // - rewards holders
@@ -152,9 +151,6 @@ export const resetInterestingLaunches = async () => {
             rewardsFoldValidatorRefScriptCarrier: {spentSlot: {not: null}},
           },
           {rewardsFoldPolicyRefScriptCarrier: {spentSlot: {not: null}}},
-          {
-            rewardsHolderValidatorRefScriptCarrier: {spentSlot: {not: null}},
-          },
           {nodes: {some: {txOut: {spentSlot: {not: null}}}}},
           {rewardsHolders: {some: {txOut: {spentSlot: {not: null}}}}},
           {commitFold: {spentSlot: {not: null}}},

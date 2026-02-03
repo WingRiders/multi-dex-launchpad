@@ -50,7 +50,6 @@ model TxOutput {
   launchCommitFoldPolicyRefScriptCarrier                  Launch? @relation("commitFoldPolicyRefScriptCarrier")
   launchRewardsFoldValidatorRefScriptCarrier              Launch? @relation("rewardsFoldValidatorRefScriptCarrier")
   launchRewardsFoldPolicyRefScriptCarrier                 Launch? @relation("rewardsFoldPolicyRefScriptCarrier")
-  launchRewardsHolderValidatorRefScriptCarrier            Launch? @relation("rewardsHolderValidatorRefScriptCarrier")
 
   // tracked utxos
   launchFailProof                Launch?         @relation("failProof")
@@ -144,10 +143,6 @@ model Launch {
   rewardsFoldPolicyRefScriptCarrierTxHash      String?
   rewardsFoldPolicyRefScriptCarrierOutputIndex Int?
   rewardsFoldPolicyRefScriptCarrier            TxOutput? @relation("rewardsFoldPolicyRefScriptCarrier", fields: [rewardsFoldPolicyRefScriptCarrierTxHash, rewardsFoldPolicyRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  rewardsHolderValidatorRefScriptCarrierTxHash      String?
-  rewardsHolderValidatorRefScriptCarrierOutputIndex Int?
-  rewardsHolderValidatorRefScriptCarrier            TxOutput? @relation("rewardsHolderValidatorRefScriptCarrier", fields: [rewardsHolderValidatorRefScriptCarrierTxHash, rewardsHolderValidatorRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
 
   // Tracked utxos
   nodes          Node[]
@@ -299,7 +294,6 @@ model Launch {
   @@unique([commitFoldPolicyRefScriptCarrierTxHash, commitFoldPolicyRefScriptCarrierOutputIndex])
   @@unique([rewardsFoldValidatorRefScriptCarrierTxHash, rewardsFoldValidatorRefScriptCarrierOutputIndex])
   @@unique([rewardsFoldPolicyRefScriptCarrierTxHash, rewardsFoldPolicyRefScriptCarrierOutputIndex])
-  @@unique([rewardsHolderValidatorRefScriptCarrierTxHash, rewardsHolderValidatorRefScriptCarrierOutputIndex])
   // unique tracked utxos
   @@unique([failProofTxHash, failProofOutputIndex])
   @@unique([firstProjectTokensHolderTxHash, firstProjectTokensHolderOutputIndex])
