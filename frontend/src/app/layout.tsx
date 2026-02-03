@@ -26,11 +26,7 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-type RootLayoutProps = {
-  children: React.ReactNode
-}
-
-const RootLayout = ({children}: RootLayoutProps) => {
+const RootLayout = ({children}: LayoutProps<'/'>) => {
   return (
     <html lang="en">
       <head>

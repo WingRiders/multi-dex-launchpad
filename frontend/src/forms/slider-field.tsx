@@ -45,7 +45,7 @@ export const SliderField = ({
         id={field.name}
         name={field.name}
         value={[field.state.value]}
-        onValueChange={([value]) => field.handleChange(value)}
+        onValueChange={([value]) => field.handleChange(value!)}
         onBlur={field.handleBlur}
         aria-invalid={isInvalid}
         min={min}

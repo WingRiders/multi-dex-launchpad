@@ -40,7 +40,7 @@ export const LaunchItem = ({launch}: LaunchItemProps) => {
       </CardHeader>
       <CardContent className="space-y-3">
         <Link
-          href={`/launch/${launch.id}`}
+          href={`/launch/${launch.txHash}`}
           className="block overflow-hidden rounded-lg"
         >
           <Image
@@ -67,7 +67,7 @@ export const LaunchItem = ({launch}: LaunchItemProps) => {
         </div>
         <CardAction>
           <Button asChild>
-            <Link href={`/launch/${launch.id}`}>View details</Link>
+            <Link href={`/launch/${launch.txHash}`}>View details</Link>
           </Button>
         </CardAction>
       </CardFooter>

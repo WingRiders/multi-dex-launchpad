@@ -141,7 +141,7 @@ export const PoolAllocatorField = ({
                   <Slider
                     value={[allocationPercentage]}
                     onValueChange={([value]) =>
-                      handleAllocationChange(dex, value)
+                      handleAllocationChange(dex, value!)
                     }
                     min={MIN_PERCENTAGE}
                     max={MAX_PERCENTAGE}

@@ -97,7 +97,7 @@ const defineStepper = <const Steps extends Stepperize.Step[]>(
         const steps = rest.steps
 
         const stepIndex = utils.getIndex(props.of)
-        const step = steps[stepIndex]
+        const step = steps[stepIndex]!
         const currentIndex = utils.getIndex(current.id)
 
         const isLast = utils.getLast().id === props.of

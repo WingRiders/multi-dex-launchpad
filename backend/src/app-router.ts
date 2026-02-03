@@ -10,7 +10,7 @@ import {
 } from './agent/endpoints/healthcheck'
 import {submitTx} from './agent/ogmios/tx-submission-client'
 import {getTokenMetadata, getTokensMetadata} from './endpoints/token-metadata'
-import {mockedLaunches} from './mocked-data'
+import {mockedLaunch, mockedLaunches} from './mocked-data'
 
 export const t = initTRPC.create({
   transformer: superjson,
@@ -57,6 +57,13 @@ export const createServerRouter = () =>
           }
         })
       }),
+    launch: publicProcedure
+      .input(
+        z.object({
+          txHash: z.string(),
+        }),
+      )
+      .query(() => mockedLaunch),
   })
 
 export const createAgentRouter = () =>
