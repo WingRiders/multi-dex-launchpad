@@ -1,4 +1,4 @@
-import z from 'zod'
+import z, {type ZodType} from 'zod'
 import {
   COMMIT_FOLD_FEE_ADA,
   DAO_FEE_DENOMINATOR,
@@ -49,6 +49,22 @@ export const metadataStringSchema = () =>
     // REVIEW: that would be hex string, so max character count is 128, right?
     .union([z.string().max(128), z.array(z.string().max(128))])
     .transform((v) => (Array.isArray(v) ? v.join('') : v))
+
+export const makeMaybeCborSchema = <T extends ZodType>(inner: T) =>
+  z
+    .union([
+      // Just
+      z.object({
+        constructor: z.literal(0n),
+        fields: z.tuple([inner]),
+      }),
+      // Nothing
+      z.object({
+        constructor: z.literal(1n),
+        fields: z.tuple([]),
+      }),
+    ])
+    .transform((res) => (res.constructor === 0n ? res.fields[0] : null))
 
 // Mesh units are 'lovelace' | (policy id + asset name)
 export const unitSchema = z.union([

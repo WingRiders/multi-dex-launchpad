@@ -1,9 +1,9 @@
 import {describe, expect, it} from 'bun:test'
+import {decodeDatum} from '@/datums/helpers'
 import {
-  decodeDatum,
   sundaePoolDatumCborSchema,
   wrPoolDatumCborSchema,
-} from '@/index'
+} from '@/datums/schemas'
 
 describe('decodeWrPoolDatum', () => {
   it('works with on-chain data', () => {
