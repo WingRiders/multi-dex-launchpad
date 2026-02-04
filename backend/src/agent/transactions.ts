@@ -1,5 +1,3 @@
-import type {Value} from '@cardano-ogmios/schema'
-import type {UTxO} from '@meshsdk/common'
 import {
   addRefScriptCarrier,
   buildTx,
@@ -13,12 +11,10 @@ import {
   WR_POOL_SYMBOL,
   WR_POOL_VALIDATOR_HASH,
 } from '@wingriders/multi-dex-launchpad-common'
-import superjson, {type SuperJSONResult} from 'superjson'
-import type {TxOutput} from '../../prisma/generated/client'
 import {config} from '../config'
+import {prismaTxOutputToMeshOutput} from '../db/helpers'
 import {logger} from '../logger'
 import {getAddressTrackedUtxos} from './ogmios/chain-sync'
-import {ogmiosValueToMeshAssets} from './ogmios/helpers'
 import {submitTx} from './ogmios/tx-submission-client'
 import {offlineEvaluator, ogmiosProvider, setFetcherUtxos} from './providers'
 import {getWallet, getWalletChangeAddress, getWalletPubKeyHash} from './wallet'
@@ -39,28 +35,6 @@ export const deployConstantContracts = async (): Promise<string | null> => {
   if (txHash) logger.info({txHash}, 'Deployed constant contracts')
   else logger.error('Failed to deploy constant contracts')
   return txHash
-}
-
-export const txOutputToMeshOutput = (output: TxOutput): UTxO => {
-  // TODO: ensure the shape
-  const value: Value = superjson.deserialize(
-    output.value as unknown as SuperJSONResult,
-  )
-
-  return {
-    input: {
-      txHash: output.txHash,
-      outputIndex: output.outputIndex,
-    },
-    output: {
-      address: output.address,
-      amount: ogmiosValueToMeshAssets(value, {
-        includeAda: true,
-      }),
-      dataHash: output.datumHash ?? undefined,
-      plutusData: output.datum ?? undefined,
-    },
-  }
 }
 
 export const deployContracts = async (
@@ -84,7 +58,7 @@ export const deployContracts = async (
   //       it's very likely some input utxos have already been spent
   //       but Ogmios haven't yet shared the info with us
   const walletUtxos = getAddressTrackedUtxos(getWalletChangeAddress()).map(
-    txOutputToMeshOutput,
+    prismaTxOutputToMeshOutput,
   )
   b.selectUtxosFrom(walletUtxos)
   setFetcherUtxos(walletUtxos)

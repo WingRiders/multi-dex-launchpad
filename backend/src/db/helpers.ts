@@ -1,11 +1,13 @@
 import type {Value} from '@cardano-ogmios/schema'
+import type {UTxO} from '@meshsdk/common'
 import type {InputJsonValue} from '@prisma/client/runtime/client'
 import {
   createUnit,
   type LaunchpadConfig,
 } from '@wingriders/multi-dex-launchpad-common'
-import superjson from 'superjson'
-import type {Launch} from '../../prisma/generated/client'
+import superjson, {type SuperJSONResult} from 'superjson'
+import type {Launch, TxOutput} from '../../prisma/generated/client'
+import {ogmiosValueToMeshAssets} from '../agent/ogmios/helpers'
 
 export const prismaLaunchToLaunchConfig = (
   launch: Launch,
@@ -62,3 +64,25 @@ export const prismaLaunchToLaunchConfig = (
 export const serializeValue = (value: Value): InputJsonValue =>
   // trust me
   superjson.serialize(value) as object as InputJsonValue
+
+export const prismaTxOutputToMeshOutput = (output: TxOutput): UTxO => {
+  // TODO: ensure the shape
+  const value: Value = superjson.deserialize(
+    output.value as unknown as SuperJSONResult,
+  )
+
+  return {
+    input: {
+      txHash: output.txHash,
+      outputIndex: output.outputIndex,
+    },
+    output: {
+      address: output.address,
+      amount: ogmiosValueToMeshAssets(value, {
+        includeAda: true,
+      }),
+      dataHash: output.datumHash ?? undefined,
+      plutusData: output.datum ?? undefined,
+    },
+  }
+}
