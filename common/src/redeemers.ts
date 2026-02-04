@@ -32,7 +32,7 @@ export type NodeRedeemer =
 export const nodeRedeemerToMeshData = (redeemer: NodeRedeemer) => {
   switch (redeemer.type) {
     case 'insert-node':
-      return mConStr(0, [mConStr(redeemer.tier === 'presale' ? 0 : 1, [])])
+      return mConStr(0, [redeemer.tier === 'presale' ? 0n : 1n])
 
     case 'insert-separators':
       return mConStr(1, [redeemer.offset])

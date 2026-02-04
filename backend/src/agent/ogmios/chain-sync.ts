@@ -8,11 +8,7 @@ import type {
   TransactionOutputReference,
   Value,
 } from '@cardano-ogmios/schema'
-import {
-  applyCborEncoding,
-  parseAssetUnit,
-  resolveScriptHash,
-} from '@meshsdk/core'
+import {applyCborEncoding, resolveScriptHash} from '@meshsdk/core'
 import type {InputJsonValue, JsonValue} from '@prisma/client/runtime/client'
 import {
   createUnit,
@@ -28,6 +24,7 @@ import {
   INIT_LAUNCH_AGENT_LOVELACE,
   INIT_LAUNCH_TX_METADATA_LABEL,
   isGeneratedPolicyType,
+  parseUnit,
   poolProofDatumCborSchema,
   rewardsHolderDatumCborSchema,
   sundaePoolDatumCborSchema,
@@ -670,10 +667,12 @@ const parseInitLaunch = async (slot: number, transactions: Transaction[]) => {
       continue
     }
 
-    const {assetName: projectTokenAssetName, policyId: projectTokenPolicyId} =
-      parseAssetUnit(launchTxMetadata.data.config.projectToken)
-    const {assetName: raisingTokenAssetName, policyId: raisingTokenPolicyId} =
-      parseAssetUnit(launchTxMetadata.data.config.raisingToken)
+    const [projectTokenPolicyId, projectTokenAssetName] = parseUnit(
+      launchTxMetadata.data.config.projectToken,
+    )
+    const [raisingTokenPolicyId, raisingTokenAssetName] = parseUnit(
+      launchTxMetadata.data.config.raisingToken,
+    )
 
     // A new launch is immediately interesting
     trackInterestingLaunch(

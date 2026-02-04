@@ -1,5 +1,6 @@
-import {mConStr0, parseAssetUnit, type TxInput} from '@meshsdk/common'
+import {mConStr0, type TxInput} from '@meshsdk/common'
 import type {Unit} from '@meshsdk/core'
+import {parseUnit} from '../helpers'
 import {bech32AddressToMeshData, txInputToMeshData} from '../helpers/mesh-data'
 
 export type NodeConfig = {
@@ -10,7 +11,7 @@ export type NodeConfig = {
   commitFoldSymbol: string
   commitFoldValidatorHash: string
   tokensHolderSymbol: string
-  tokensHolderValidatorHash: string
+  tokensHolderFirstValidatorHash: string
   failProofSymbol: string
   failProofValidatorHash: string
   // Policy ID of the presale tier token
@@ -38,8 +39,13 @@ export type NodeConfig = {
 }
 
 export const nodeConfigToMeshData = (config: NodeConfig) => {
-  const projectToken = parseAssetUnit(config.projectToken)
-  const raisingToken = parseAssetUnit(config.raisingToken)
+  const [projectTokenPolicyId, projectTokenAssetName] = parseUnit(
+    config.projectToken,
+  )
+  const [raisingTokenPolicyId, raisingTokenAssetName] = parseUnit(
+    config.raisingToken,
+  )
+
   return mConStr0([
     txInputToMeshData(config.starter),
     config.nodeSymbol,
@@ -48,7 +54,7 @@ export const nodeConfigToMeshData = (config: NodeConfig) => {
     config.commitFoldSymbol,
     config.commitFoldValidatorHash,
     config.tokensHolderSymbol,
-    config.tokensHolderValidatorHash,
+    config.tokensHolderFirstValidatorHash,
     config.failProofSymbol,
     config.failProofValidatorHash,
     config.presaleTierCs,
@@ -63,10 +69,10 @@ export const nodeConfigToMeshData = (config: NodeConfig) => {
     config.projectMinCommitment,
     config.projectMaxCommitment,
     config.totalTokens,
-    projectToken.policyId,
-    projectToken.assetName,
-    raisingToken.policyId,
-    raisingToken.assetName,
+    projectTokenPolicyId,
+    projectTokenAssetName,
+    raisingTokenPolicyId,
+    raisingTokenAssetName,
     bech32AddressToMeshData(config.ownerBech32Address),
     config.daoAdminPubKeyHash,
     bech32AddressToMeshData(config.daoFeeReceiverBech32Address),

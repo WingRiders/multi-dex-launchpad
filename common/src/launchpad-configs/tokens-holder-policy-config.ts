@@ -1,5 +1,6 @@
-import {mConStr0, parseAssetUnit, type TxInput} from '@meshsdk/common'
+import {mConStr0, type TxInput} from '@meshsdk/common'
 import type {Unit} from '@meshsdk/core'
+import {parseUnit} from '../helpers'
 import {txInputToMeshData} from '../helpers/mesh-data'
 
 export type TokensHolderPolicyConfig = {
@@ -27,13 +28,16 @@ export type TokensHolderPolicyConfig = {
 export const tokensHolderPolicyConfigToMeshData = (
   config: TokensHolderPolicyConfig,
 ) => {
-  const projectToken = parseAssetUnit(config.projectToken)
+  const [projectTokenPolicyId, projectTokenAssetName] = parseUnit(
+    config.projectToken,
+  )
+
   return mConStr0([
     config.owner,
     config.startTime,
     config.totalTokens,
-    projectToken.policyId,
-    projectToken.assetName,
+    projectTokenPolicyId,
+    projectTokenAssetName,
     config.collateral,
     txInputToMeshData(config.starter),
     config.nodeSymbol,

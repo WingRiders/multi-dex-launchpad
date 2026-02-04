@@ -1,5 +1,6 @@
-import {mConStr0, parseAssetUnit, type TxInput} from '@meshsdk/common'
+import {mConStr0, type TxInput} from '@meshsdk/common'
 import type {Unit} from '@meshsdk/core'
+import {parseUnit} from '../helpers'
 import {bech32AddressToMeshData, txInputToMeshData} from '../helpers/mesh-data'
 
 export type RewardsFoldConfig = {
@@ -32,8 +33,13 @@ export type RewardsFoldConfig = {
 }
 
 export const rewardsFoldConfigToMeshData = (config: RewardsFoldConfig) => {
-  const projectToken = parseAssetUnit(config.projectToken)
-  const raisingToken = parseAssetUnit(config.raisingToken)
+  const [projectTokenPolicyId, projectTokenAssetName] = parseUnit(
+    config.projectToken,
+  )
+  const [raisingTokenPolicyId, raisingTokenAssetName] = parseUnit(
+    config.raisingToken,
+  )
+
   return mConStr0([
     txInputToMeshData(config.starter),
     bech32AddressToMeshData(config.ownerBech32Address),
@@ -43,10 +49,10 @@ export const rewardsFoldConfigToMeshData = (config: RewardsFoldConfig) => {
     config.finalProjectTokensHolderValidatorHash,
     config.firstProjectTokensHolderValidatorHash,
     config.projectTokensHolderPolicy,
-    projectToken.policyId,
-    projectToken.assetName,
-    raisingToken.policyId,
-    raisingToken.assetName,
+    projectTokenPolicyId,
+    projectTokenAssetName,
+    raisingTokenPolicyId,
+    raisingTokenAssetName,
     config.presaleTierCs,
     config.tokensToDistribute,
     config.endTime,

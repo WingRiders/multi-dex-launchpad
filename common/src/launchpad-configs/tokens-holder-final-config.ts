@@ -1,5 +1,6 @@
-import {mConStr0, parseAssetUnit, type TxInput} from '@meshsdk/common'
+import {mConStr0, type TxInput} from '@meshsdk/common'
 import type {Unit} from '@meshsdk/core'
+import {parseUnit} from '../helpers'
 import {bech32AddressToMeshData, txInputToMeshData} from '../helpers/mesh-data'
 
 export type TokensHolderFinalConfig = {
@@ -25,8 +26,13 @@ export type TokensHolderFinalConfig = {
 export const tokensHolderFinalConfigToMeshData = (
   config: TokensHolderFinalConfig,
 ) => {
-  const projectToken = parseAssetUnit(config.projectToken)
-  const raisingToken = parseAssetUnit(config.raisingToken)
+  const [projectTokenPolicyId, projectTokenAssetName] = parseUnit(
+    config.projectToken,
+  )
+  const [raisingTokenPolicyId, raisingTokenAssetName] = parseUnit(
+    config.raisingToken,
+  )
+
   return mConStr0([
     bech32AddressToMeshData(config.ownerBech32Address),
     config.wrPoolSymbol,
@@ -42,10 +48,10 @@ export const tokensHolderFinalConfigToMeshData = (
     config.vestingPeriodInstallments,
     config.vestingPeriodStart,
     bech32AddressToMeshData(config.daoFeeReceiverBech32Address),
-    raisingToken.policyId,
-    raisingToken.assetName,
-    projectToken.policyId,
-    projectToken.assetName,
+    raisingTokenPolicyId,
+    raisingTokenAssetName,
+    projectTokenPolicyId,
+    projectTokenAssetName,
     txInputToMeshData(config.starter),
   ])
 }

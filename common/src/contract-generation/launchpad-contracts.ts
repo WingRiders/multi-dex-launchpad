@@ -182,7 +182,7 @@ export const generateLaunchpadContracts = async (
         commitFoldSymbol: commitFoldPolicy.hash,
         commitFoldValidatorHash: commitFoldValidator.hash,
         tokensHolderSymbol: tokensHolderPolicy.hash,
-        tokensHolderValidatorHash: tokensHolderFinalValidator.hash,
+        tokensHolderFirstValidatorHash: tokensHolderFirstValidator.hash,
         failProofSymbol: constantScriptHashes.failProofPolicy.hash,
         failProofValidatorHash: constantScriptHashes.failProofValidator.hash,
         presaleTierCs: launchpadConfig.presaleTierCs,

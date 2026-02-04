@@ -32,4 +32,4 @@ export const txInputToMeshData = ({txHash, outputIndex}: TxInput): Data =>
 export const maybeToMeshData = <T>(
   value: T | null,
   toMeshData: (v: T) => Data,
-) => (value ? mConStr0([toMeshData(value)]) : mConStr1([]))
+) => (value != null ? mConStr0([toMeshData(value)]) : mConStr1([]))
