@@ -150,8 +150,8 @@ const pushSyncEvent = (event: SyncEvent) => {
       value: event.txOutput.value as JsonValue,
       spentTxHash: null,
       spentSlot: null,
-      scriptHash: event.txOutput.scriptHash ?? null,
-      scriptSize: event.txOutput.scriptSize ?? null,
+      scriptLanguage: event.txOutput.scriptLanguage ?? null,
+      scriptCbor: event.txOutput.scriptCbor ?? null,
     })
 }
 
@@ -322,18 +322,8 @@ const makeTxOutput = (
   datum: txOutput.datum ?? null,
   datumHash: txOutput.datumHash ?? null,
   value: serializeValue(txOutput.value) as InputJsonValue,
-  ...(txOutput.script?.cbor != null && txOutput.script.language !== 'native'
-    ? (() => {
-        const script = applyCborEncoding(txOutput.script.cbor)
-        return {
-          scriptHash: resolveScriptHash(
-            script,
-            ogmiosPlutusVersionToMeshVersion[txOutput.script.language],
-          ),
-          scriptSize: script.length / 2,
-        }
-      })()
-    : {scriptHash: null, scriptSize: null}),
+  scriptLanguage: txOutput.script?.language ?? null,
+  scriptCbor: txOutput.script?.cbor ?? null,
 })
 
 // Pushes sync events

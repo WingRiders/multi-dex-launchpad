@@ -1,4 +1,4 @@
-import type {Value} from '@cardano-ogmios/schema'
+import type {Plutus, Value} from '@cardano-ogmios/schema'
 import type {UTxO} from '@meshsdk/common'
 import type {InputJsonValue} from '@prisma/client/runtime/client'
 import {
@@ -8,6 +8,7 @@ import {
 import superjson, {type SuperJSONResult} from 'superjson'
 import type {Launch, TxOutput} from '../../prisma/generated/client'
 import {ogmiosValueToMeshAssets} from '../agent/ogmios/helpers'
+import {encodeOgmiosScript} from '../helpers/script'
 
 export const prismaLaunchToLaunchConfig = (
   launch: Launch,
@@ -71,6 +72,16 @@ export const prismaTxOutputToMeshOutput = (output: TxOutput): UTxO => {
     output.value as unknown as SuperJSONResult,
   )
 
+  const script =
+    output.scriptLanguage != null &&
+    output.scriptLanguage !== 'native' &&
+    output.scriptCbor != null
+      ? encodeOgmiosScript(
+          output.scriptLanguage as Plutus['language'],
+          output.scriptCbor,
+        )
+      : null
+
   return {
     input: {
       txHash: output.txHash,
@@ -83,6 +94,9 @@ export const prismaTxOutputToMeshOutput = (output: TxOutput): UTxO => {
       }),
       dataHash: output.datumHash ?? undefined,
       plutusData: output.datum ?? undefined,
+      ...(script != null
+        ? {scriptRef: script.scriptRef, scriptHash: script.scriptHash}
+        : {}),
     },
   }
 }

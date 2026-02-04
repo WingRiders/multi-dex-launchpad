@@ -10,9 +10,12 @@ import {
   getServerHealthcheck,
 } from './agent/endpoints/healthcheck'
 import {submitTx} from './agent/ogmios/tx-submission-client'
-import {getLaunch, getLaunches} from './endpoints/launch'
 import {
-  getFirstProjectTokensHolderRefScriptUtxo,
+  getFirstProjectTokensHolderUTxO,
+  getLaunch,
+  getLaunches,
+} from './endpoints/launch'
+import {
   getNodePolicyRefScriptUtxo,
   getNodeValidatorRefScriptUtxo,
 } from './endpoints/ref-scripts'
@@ -84,10 +87,10 @@ export const createServerRouter = () =>
       .query(({input: {launchTxHash}}) =>
         getNodePolicyRefScriptUtxo(launchTxHash),
       ),
-    firstProjectTokensHolderRef: publicProcedure
+    firstProjectTokensHolderUTxO: publicProcedure
       .input(z.object({launchTxHash: z.string()}))
       .query(({input: {launchTxHash}}) =>
-        getFirstProjectTokensHolderRefScriptUtxo(launchTxHash),
+        getFirstProjectTokensHolderUTxO(launchTxHash),
       ),
   })
 

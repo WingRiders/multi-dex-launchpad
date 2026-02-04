@@ -3,25 +3,28 @@ import {
   type RefSCriptUTxO,
 } from '@wingriders/multi-dex-launchpad-common'
 import type {TxOutput} from '../../prisma/generated/client'
+import {prismaTxOutputToMeshOutput} from '../db/helpers'
 import {prisma} from '../db/prisma-client'
 
-const txOutputToRefScriptUtxo = (
-  txOutput: Pick<
-    TxOutput,
-    'txHash' | 'outputIndex' | 'scriptHash' | 'scriptSize'
-  >,
-): RefSCriptUTxO => {
-  ensure(
-    txOutput.scriptHash != null && txOutput.scriptSize != null,
-    {txOutput},
-    'Script hash and size must be set',
-  )
+const txOutputToRefScriptUtxo = (txOutput: TxOutput): RefSCriptUTxO => {
+  const utxo = prismaTxOutputToMeshOutput(txOutput)
+
+  const scriptRef = utxo.output.scriptRef
+  const scriptHash = utxo.output.scriptHash
+
+  ensure(scriptRef != null, {txOutput}, 'Script ref is required')
+  ensure(scriptHash != null, {txOutput}, 'Script hash is required')
+
+  const scriptSize = scriptRef.length / 2
 
   return {
-    txHash: txOutput.txHash,
-    outputIndex: txOutput.outputIndex,
-    scriptHash: txOutput.scriptHash,
-    scriptSize: txOutput.scriptSize,
+    input: utxo.input,
+    output: {
+      ...utxo.output,
+      scriptRef,
+      scriptHash,
+    },
+    scriptSize,
   }
 }
 
@@ -32,14 +35,7 @@ export const getNodeValidatorRefScriptUtxo = async (
     {
       where: {txHash: launchTxHash},
       select: {
-        nodeValidatorRefScriptCarrier: {
-          select: {
-            txHash: true,
-            outputIndex: true,
-            scriptHash: true,
-            scriptSize: true,
-          },
-        },
+        nodeValidatorRefScriptCarrier: true,
       },
     },
   )
@@ -57,14 +53,7 @@ export const getNodePolicyRefScriptUtxo = async (
   const {nodePolicyRefScriptCarrier} = await prisma.launch.findUniqueOrThrow({
     where: {txHash: launchTxHash},
     select: {
-      nodePolicyRefScriptCarrier: {
-        select: {
-          txHash: true,
-          outputIndex: true,
-          scriptHash: true,
-          scriptSize: true,
-        },
-      },
+      nodePolicyRefScriptCarrier: true,
     },
   })
 
@@ -73,31 +62,4 @@ export const getNodePolicyRefScriptUtxo = async (
   }
 
   return txOutputToRefScriptUtxo(nodePolicyRefScriptCarrier)
-}
-
-export const getFirstProjectTokensHolderRefScriptUtxo = async (
-  launchTxHash: string,
-): Promise<RefSCriptUTxO> => {
-  const {firstProjectTokensHolderValidatorRefScriptCarrier} =
-    await prisma.launch.findUniqueOrThrow({
-      where: {txHash: launchTxHash},
-      select: {
-        firstProjectTokensHolderValidatorRefScriptCarrier: {
-          select: {
-            txHash: true,
-            outputIndex: true,
-            scriptHash: true,
-            scriptSize: true,
-          },
-        },
-      },
-    })
-
-  if (firstProjectTokensHolderValidatorRefScriptCarrier == null) {
-    throw new Error('First project tokens holder ref script carrier not found')
-  }
-
-  return txOutputToRefScriptUtxo(
-    firstProjectTokensHolderValidatorRefScriptCarrier,
-  )
 }

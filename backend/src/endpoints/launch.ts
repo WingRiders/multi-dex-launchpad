@@ -1,10 +1,14 @@
+import type {UTxO} from '@meshsdk/common'
 import type {
   LaunchpadConfig,
   LaunchTimeStatus,
   ProjectInfoTxMetadata,
 } from '@wingriders/multi-dex-launchpad-common'
 import type {Prisma} from '../../prisma/generated/client'
-import {prismaLaunchToLaunchConfig} from '../db/helpers'
+import {
+  prismaLaunchToLaunchConfig,
+  prismaTxOutputToMeshOutput,
+} from '../db/helpers'
 import {prisma} from '../db/prisma-client'
 
 export const getLaunches = async (
@@ -105,4 +109,25 @@ export const getLaunch = async (
     config: prismaLaunchToLaunchConfig(launch),
     totalCommitted: 0n, // TODO: sum up the total committed amount
   }
+}
+
+export const getFirstProjectTokensHolderUTxO = async (
+  launchTxHash: string,
+): Promise<UTxO> => {
+  const {firstProjectTokensHolder} = await prisma.launch.findUniqueOrThrow({
+    where: {
+      txHash: launchTxHash,
+    },
+    select: {
+      firstProjectTokensHolder: true,
+    },
+  })
+
+  if (firstProjectTokensHolder == null) {
+    throw new Error(
+      `First project tokens holder not found for launch ${launchTxHash}`,
+    )
+  }
+
+  return prismaTxOutputToMeshOutput(firstProjectTokensHolder)
 }

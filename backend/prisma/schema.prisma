@@ -28,8 +28,8 @@ model TxOutput {
   datum     String?
   datumHash String?
 
-  scriptHash String?
-  scriptSize Int?
+  scriptLanguage String? // native | plutus:v1 | plutus:v2 | plutus:v3
+  scriptCbor     String?
 
   // policy id -> asset name -> quantity
   // comes from Ogmios, serialized with superjson

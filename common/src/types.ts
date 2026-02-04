@@ -1,3 +1,6 @@
+import type {TxInput, TxOutput} from '@meshsdk/common'
+import type {SetRequired} from 'type-fest'
+
 export type TokenMetadata = {
   subject: string
   description: string
@@ -23,8 +26,7 @@ export type SetNullable<T, K extends keyof T> = {
 }
 
 export type RefSCriptUTxO = {
-  txHash: string
-  outputIndex: number
-  scriptHash: string
+  input: TxInput
+  output: SetRequired<TxOutput, 'scriptRef' | 'scriptHash'>
   scriptSize: number
 }
