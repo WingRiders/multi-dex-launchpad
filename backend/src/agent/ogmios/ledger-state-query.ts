@@ -25,3 +25,9 @@ export const getLedgerTip = async () =>
 
 export const getUtxos = async (addresses: string[]) =>
   (await getLedgerStateQueryClient()).utxo({addresses})
+
+export const getProtocolParameters = async () =>
+  (await getLedgerStateQueryClient()).protocolParameters()
+
+export const getCurrentEpoch = async () =>
+  (await getLedgerStateQueryClient()).epoch()

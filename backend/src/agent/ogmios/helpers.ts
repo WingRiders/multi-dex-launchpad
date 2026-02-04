@@ -2,10 +2,11 @@ import type {
   MetadatumDetailedSchema,
   Plutus,
   Point,
+  ProtocolParameters,
   Utxo,
   Value,
 } from '@cardano-ogmios/schema'
-import type {Asset, LanguageVersion, UTxO} from '@meshsdk/common'
+import type {Asset, LanguageVersion, Protocol, UTxO} from '@meshsdk/common'
 
 import {
   createUnit,
@@ -103,3 +104,32 @@ export const ogmiosPlutusVersionToMeshVersion: Record<
   'plutus:v2': 'V2',
   'plutus:v3': 'V3',
 }
+
+// Mesh protocol parameters are only a subset, probably only those which can be changed between epochs.
+export const ogmiosProtocolParametersToMeshProtocolParameters = (
+  params: ProtocolParameters,
+  epoch: number,
+): Protocol => ({
+  epoch,
+  minFeeA: params.minFeeCoefficient,
+  minFeeB: Number(params.minFeeConstant.ada.lovelace),
+  maxBlockSize: params.maxBlockBodySize!.bytes,
+  maxTxSize: params.maxTransactionSize!.bytes,
+  maxBlockHeaderSize: params.maxBlockHeaderSize!.bytes,
+  keyDeposit: Number(params.stakeCredentialDeposit.ada.lovelace),
+  poolDeposit: Number(params.stakePoolDeposit.ada.lovelace),
+  decentralisation: 0, // All blocks are produced by SPO. This params was already dropped and is not exposed by Ogmios.
+  minPoolCost: params.minStakePoolCost.ada.lovelace.toString(),
+  // Yes, Mesh and Ogmios have inverted number/string types for the following:
+  priceMem: Number(params.scriptExecutionPrices!.memory),
+  priceStep: Number(params.scriptExecutionPrices!.cpu),
+  maxTxExMem: params.maxExecutionUnitsPerTransaction!.memory.toString(),
+  maxTxExSteps: params.maxExecutionUnitsPerTransaction!.cpu.toString(),
+  maxBlockExMem: params.maxExecutionUnitsPerBlock!.memory.toString(),
+  maxBlockExSteps: params.maxExecutionUnitsPerBlock!.cpu.toString(),
+  maxValSize: params.maxValueSize!.bytes,
+  collateralPercent: params.collateralPercentage!,
+  maxCollateralInputs: params.maxCollateralInputs!,
+  coinsPerUtxoSize: params.minUtxoDepositCoefficient,
+  minFeeRefScriptCostPerByte: params.minFeeReferenceScripts!.multiplier,
+})

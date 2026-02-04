@@ -1,8 +1,15 @@
 import type {UTxO} from '@meshsdk/common'
 import {OfflineFetcher, OgmiosProvider} from '@meshsdk/core'
 import {config} from '../config'
-import {ogmiosUtxoToMeshUtxo} from './ogmios/helpers'
-import {getUtxos} from './ogmios/ledger-state-query'
+import {
+  ogmiosProtocolParametersToMeshProtocolParameters,
+  ogmiosUtxoToMeshUtxo,
+} from './ogmios/helpers'
+import {
+  getCurrentEpoch,
+  getProtocolParameters,
+  getUtxos,
+} from './ogmios/ledger-state-query'
 import {getWalletChangeAddress} from './wallet'
 
 export const ogmiosProvider = new OgmiosProvider(
@@ -20,9 +27,28 @@ export const setFetcherUtxos = (utxos: UTxO[]) => {
 
   fetcher.addUTxOs(utxos)
 }
+
+// Use this when running agent (on startup and on new epoch)
+export const updateFetcherProtocolParametersFromOgmios = async () => {
+  // No need to reset because internal field is a mapping with key = epoch and params can change only on epoch switch
+  fetcher.addProtocolParameters(
+    ogmiosProtocolParametersToMeshProtocolParameters(
+      await getProtocolParameters(),
+      await getCurrentEpoch(),
+    ),
+  )
+}
+
 // Use this when running CLI
 export const updateFetcherFromOgmios = async () => {
   setFetcherUtxos(
     (await getUtxos([getWalletChangeAddress()])).map(ogmiosUtxoToMeshUtxo),
   )
+  await updateFetcherProtocolParametersFromOgmios()
 }
+
+const coreCsl = await import('@meshsdk/core-csl')
+export const offlineEvaluator = new coreCsl.OfflineEvaluator(
+  fetcher,
+  config.NETWORK,
+)

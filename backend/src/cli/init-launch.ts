@@ -30,7 +30,11 @@ import {
 } from '@wingriders/multi-dex-launchpad-common'
 import {Command} from 'commander'
 import {z} from 'zod'
-import {ogmiosProvider, updateFetcherFromOgmios} from '../agent/providers'
+import {
+  offlineEvaluator,
+  ogmiosProvider,
+  updateFetcherFromOgmios,
+} from '../agent/providers'
 import {getWallet, initWallet} from '../agent/wallet'
 import {config} from '../config'
 import {logger} from '../logger'
@@ -195,7 +199,7 @@ export const buildInitLaunchCommand = () => {
         await wallet.getChangeAddress(),
         config.NETWORK,
         ogmiosProvider,
-        ogmiosProvider,
+        offlineEvaluator,
       )
         .txInCollateral(
           collateralUtxo.input.txHash,
