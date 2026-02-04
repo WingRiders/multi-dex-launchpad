@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'bun:test'
 import {decodeDatum} from '@/datums/helpers'
 import {
+  nodeDatumCborSchema,
   sundaePoolDatumCborSchema,
   wrPoolDatumCborSchema,
 } from '@/datums/schemas'
@@ -51,6 +52,37 @@ describe('decodeSundaePoolDatum', () => {
       feeManager: null,
       marketOpen: 0,
       protocolFees: 3330696000,
+    })
+  })
+})
+
+describe('Node datum', () => {
+  it('should decode a node datum datum with both keys set to null', () => {
+    const cbor = 'd8799fd87a80d87a8018640aff'
+    const decoded = decodeDatum(nodeDatumCborSchema, cbor)
+    expect(decoded).toEqual({
+      key: null,
+      next: null,
+      committed: 10n,
+      createdTime: 100,
+    })
+  })
+
+  it('should decode a node datum with both keys set to non-null', () => {
+    const cbor =
+      'd8799fd8799fd8799f581ccafecafecafecafecafecafecafecafecafecafecafecafecafecafe00ffffd8799fd8799f581ccafecafecafecafecafecafecafecafecafecafecafecafecafecafe01ffff18640aff'
+    const decoded = decodeDatum(nodeDatumCborSchema, cbor)
+    expect(decoded).toEqual({
+      key: {
+        hash: 'cafecafecafecafecafecafecafecafecafecafecafecafecafecafe',
+        index: 0,
+      },
+      next: {
+        hash: 'cafecafecafecafecafecafecafecafecafecafecafecafecafecafe',
+        index: 1,
+      },
+      committed: 10n,
+      createdTime: 100,
     })
   })
 })

@@ -63,7 +63,7 @@ export const addInitLaunch = (
     upperTimeLimitSlot,
     SLOT_CONFIG_NETWORK[network],
   )
-  const committed = 0
+  const committed = 0n
   const headNode: NodeDatum = {key: null, next: null, createdTime, committed}
   const nodeToken: Asset = {
     unit: createUnit(contracts.nodePolicy.hash, contracts.nodeValidator.hash),

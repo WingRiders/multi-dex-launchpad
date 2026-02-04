@@ -60,6 +60,7 @@ export const nodeRedeemerToMeshData = (redeemer: NodeRedeemer) => {
 
     default: {
       const _exhaustiveCheck: never = redeemer
+      throw new Error(`Unknown node redeemer: ${_exhaustiveCheck}`)
     }
   }
 }

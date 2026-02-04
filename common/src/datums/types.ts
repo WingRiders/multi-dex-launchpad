@@ -14,9 +14,8 @@ export type NodeKey = {
 export type NodeDatum = {
   key: NodeKey | null
   next: NodeKey | null
-  // POSIXTime
   createdTime: number
-  committed: number
+  committed: bigint
 }
 
 export type TokensHolderFirstDatum = {

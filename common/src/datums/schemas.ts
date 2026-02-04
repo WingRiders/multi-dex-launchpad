@@ -10,6 +10,7 @@ import {
 import type {
   FailProofDatum,
   MultisigScript,
+  NodeDatum,
   NodeKey,
   PoolProofDatum,
   RewardsHolderDatum,
@@ -29,6 +30,27 @@ export const nodeKeyCborSchema = z
     (res): NodeKey => ({
       hash: res.fields[0].bytes,
       index: Number(res.fields[1].int),
+    }),
+  )
+
+export const maybeNodeKeyCborSchema = makeMaybeCborSchema(nodeKeyCborSchema)
+
+export const nodeDatumCborSchema = z
+  .object({
+    constructor: z.literal(0n),
+    fields: z.tuple([
+      maybeNodeKeyCborSchema,
+      maybeNodeKeyCborSchema,
+      z.object({int: z.bigint()}), // createdTime
+      z.object({int: z.bigint()}), // committed
+    ]),
+  })
+  .transform(
+    (res): NodeDatum => ({
+      key: res.fields[0],
+      next: res.fields[1],
+      createdTime: Number(res.fields[2].int),
+      committed: res.fields[3].int,
     }),
   )
 
