@@ -15,11 +15,13 @@ import {
   getLaunch,
   getLaunches,
 } from './endpoints/launch'
+import {getPreviousNodeUTxO, getUserNodes} from './endpoints/node'
 import {
   getNodePolicyRefScriptUtxo,
   getNodeValidatorRefScriptUtxo,
 } from './endpoints/ref-scripts'
 import {getTokenMetadata, getTokensMetadata} from './endpoints/token-metadata'
+import {getUTxO} from './endpoints/utxo'
 
 export const t = initTRPC.create({
   transformer: superjson,
@@ -64,6 +66,25 @@ export const createServerRouter = () =>
         }),
       )
       .query(({input}) => findNodeToSpend(input)),
+    userNodes: publicProcedure
+      .input(z.object({launchTxHash: z.string(), ownerPubKeyHash: z.string()}))
+      .query(({input: {launchTxHash, ownerPubKeyHash}}) =>
+        getUserNodes(launchTxHash, ownerPubKeyHash),
+      ),
+    previousNodeUTxO: publicProcedure
+      .input(
+        z.object({
+          launchTxHash: z.string(),
+          keyHash: z.string(),
+          keyIndex: z.number(),
+        }),
+      )
+      .query(({input: {launchTxHash, keyHash, keyIndex}}) =>
+        getPreviousNodeUTxO(launchTxHash, keyHash, keyIndex),
+      ),
+    utxo: publicProcedure
+      .input(z.object({txHash: z.string(), outputIndex: z.number()}))
+      .query(({input: {txHash, outputIndex}}) => getUTxO(txHash, outputIndex)),
     nodeValidatorRef: publicProcedure
       .input(z.object({launchTxHash: z.string()}))
       .query(({input: {launchTxHash}}) =>
