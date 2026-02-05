@@ -1,4 +1,3 @@
-import type {UTxO} from '@meshsdk/common'
 import {initTRPC} from '@trpc/server'
 import type {RouterRecord} from '@trpc/server/unstable-core-do-not-import'
 import {launchTimeStatuses} from '@wingriders/multi-dex-launchpad-common'
@@ -10,6 +9,7 @@ import {
   getServerHealthcheck,
 } from './agent/endpoints/healthcheck'
 import {submitTx} from './agent/ogmios/tx-submission-client'
+import {findNodeToSpend} from './db/helpers'
 import {
   getFirstProjectTokensHolderUTxO,
   getLaunch,
@@ -63,20 +63,7 @@ export const createServerRouter = () =>
           ownerPubKeyHash: z.string(),
         }),
       )
-      .query(() => {
-        // TODO: implement this
-        const mockedResponse: UTxO = {
-          input: {
-            txHash: 'txHash',
-            outputIndex: 0,
-          },
-          output: {
-            address: 'addr',
-            amount: [],
-          },
-        }
-        return mockedResponse
-      }),
+      .query(({input}) => findNodeToSpend(input)),
     nodeValidatorRef: publicProcedure
       .input(z.object({launchTxHash: z.string()}))
       .query(({input: {launchTxHash}}) =>

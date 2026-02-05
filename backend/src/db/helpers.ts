@@ -9,6 +9,7 @@ import superjson, {type SuperJSONResult} from 'superjson'
 import type {Launch, TxOutput} from '../../prisma/generated/client'
 import {ogmiosValueToMeshAssets} from '../agent/ogmios/helpers'
 import {encodeOgmiosScript} from '../helpers/script'
+import {prisma} from './prisma-client'
 
 export const prismaLaunchToLaunchConfig = (
   launch: Launch,
@@ -99,4 +100,40 @@ export const prismaTxOutputToMeshOutput = (output: TxOutput): UTxO => {
         : {}),
     },
   }
+}
+
+type FindNodeToSpendArgs = {
+  launchTxHash: string
+  ownerPubKeyHash: string
+}
+
+export const findNodeToSpend = async ({
+  launchTxHash,
+  ownerPubKeyHash,
+}: FindNodeToSpendArgs) => {
+  const nodeToSpend = await prisma.node.findFirstOrThrow({
+    where: {
+      launchTxHash,
+      txOut: {
+        spentSlot: null,
+      },
+      OR: [
+        {keyHash: null},
+        {
+          keyHash: {
+            lte: ownerPubKeyHash,
+          },
+        },
+      ],
+    },
+    orderBy: [
+      {keyHash: {sort: 'desc', nulls: 'last'}},
+      {keyIndex: {sort: 'desc', nulls: 'last'}},
+    ],
+    include: {
+      txOut: true,
+    },
+  })
+
+  return prismaTxOutputToMeshOutput(nodeToSpend.txOut)
 }
