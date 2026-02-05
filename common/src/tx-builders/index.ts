@@ -1,6 +1,7 @@
 export * from './create-commitment'
 export * from './init-launchpad'
 export * from './ref-script-carriers'
+export * from './remove-commitment'
 
 import type {IEvaluator, ISubmitter, MeshTxBuilderBody} from '@meshsdk/common'
 import {MeshTxBuilder} from '@meshsdk/core'
