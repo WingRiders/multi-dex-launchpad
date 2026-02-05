@@ -51,7 +51,11 @@ import {
 import {logger} from '../../logger'
 import {CONSTANT_CONTRACTS} from '../constants'
 import {processLaunches} from '../launch-processing'
-import {getWalletChangeAddress, getWalletPubKeyHash} from '../wallet'
+import {
+  getWalletChangeAddress,
+  getWalletPubKeyHash,
+  updateWalletUtxos,
+} from '../wallet'
 import {
   ogmiosPlutusVersionToMeshVersion,
   originPoint,
@@ -84,16 +88,10 @@ type LaunchUtxoType =
   | 'wrPool'
   | 'sundaePool'
 
-// NOTE: TxOutputCreateManyInput fields must be named txOutput
-//       see `pushSyncEvent` for details
 type SyncEvent =
   | {
       type: 'block'
       data: Block
-    }
-  | {
-      type: 'agentTxOutput'
-      txOutput: TxOutputCreateManyInput
     }
   | {
       type: 'launchTxOutput'
@@ -132,22 +130,18 @@ const isUtxoTracked = (utxo: TransactionOutputReference): boolean => {
   return false
 }
 
-// Scans all tracked utxos in O(n) and returns the utxos associated with the given address
-export const getAddressTrackedUtxos = (bech32Address: string): TxOutput[] =>
-  trackedUtxos.filter((utxo) => utxo.address === bech32Address)
-
 // Pushes to the sync event buffer, tracks utxos
 // Does NOT track the interesting launches
 const pushSyncEvent = (event: SyncEvent) => {
   syncEventBuffer.push(event)
-  if ('txOutput' in event)
+  if (event.type === 'launchTxOutput')
     trackedUtxos.push({
       txHash: event.txOutput.txHash,
       slot: event.txOutput.slot,
       outputIndex: event.txOutput.outputIndex,
       address: event.txOutput.address,
-      datum: event.txOutput.datum ?? null,
-      datumHash: event.txOutput.datumHash ?? null,
+      datum: event.txOutput.datum || null,
+      datumHash: event.txOutput.datumHash || null,
       value: event.txOutput.value as JsonValue,
       spentTxHash: null,
       spentSlot: null,
@@ -185,7 +179,7 @@ const processBlock = async (block: BlockPraos) => {
   // otherwise we might miss transactions;
   // we also want to parse spent tx outputs last as not to miss anything
   await parseInitLaunch(block.slot, block.transactions || [])
-  parseTrackableTxOutputs(block.slot, block.transactions || [])
+  parseLaunchTxOutputs(block.slot, block.transactions || [])
   parseSpentTxOutputs(block.slot, block.transactions || [])
 }
 
@@ -328,7 +322,7 @@ const makeTxOutput = (
 })
 
 // Pushes sync events
-const parseTrackableTxOutputs = (slot: number, transactions: Transaction[]) => {
+const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
   const txOuts = transactions.flatMap((tx) =>
     tx.outputs.map((out, i) => ({
       txOutput: out,
@@ -340,15 +334,6 @@ const parseTrackableTxOutputs = (slot: number, transactions: Transaction[]) => {
   for (const {txOutput, txHash, outputIndex} of txOuts) {
     const address = tryDeserializeAddress(txOutput.address)
     if (!address) continue
-
-    if (address.pubKeyHash === getWalletPubKeyHash()) {
-      // We check agent utxos first and track them
-      pushSyncEvent({
-        type: 'agentTxOutput',
-        txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
-      })
-      continue
-    }
 
     // For all other utxos we check if that script hash is either
     // - a constant script we track
@@ -802,9 +787,6 @@ const writeBuffersIfNecessary = async ({
   // chain sync. If block buffer was written but other data not, it could get lost forever.
   if (syncEventBuffer.length >= threshold) {
     const blockBuffer = syncEventBuffer.filter((e) => e.type === 'block')
-    const agentTxOutputBuffer = syncEventBuffer.filter(
-      (e) => e.type === 'agentTxOutput',
-    )
     const spentTxOutputBuffer = syncEventBuffer.filter(
       (e) => e.type === 'spentTxOutput',
     )
@@ -847,9 +829,9 @@ const writeBuffersIfNecessary = async ({
                                    ${blockBuffer.map(({data: {hash}}) => hash)}::text[],
                                    ${blockBuffer.map(({data: {height}}) => height)}::integer[])`
 
-      const txOutputsInsert = agentTxOutputBuffer
-        .map((e) => e.txOutput)
-        .concat(launchTxOutputBuffer.map((e) => e.txOutput))
+      // NOTE: All events that add have .txOutput must be processed first
+      //       Right now we only have launchTxOutput
+      const txOutputsInsert = launchTxOutputBuffer.map((e) => e.txOutput)
 
       if (txOutputsInsert.length > 0)
         await prisma.txOutput.createMany({
@@ -1192,12 +1174,18 @@ export const startChainSyncClient = async () => {
         response.tip !== 'origin' &&
         response.block.height === response.tip.height
 
-      // If we're synced, we process the launches.
+      // If we're synced, we can process the launches.
       // It's important we do that once per each new block
       // so we don't submit multiple transactions for the same action.
       // We also must do that after we're done with the new block
       // so we're up-to-date with the latest launches state.
-      if (isSynced) await processLaunches(interestingLaunches)
+      if (isSynced) {
+        // we update the wallet utxos once we're synced:
+        //   that would get the up-to-date wallet utxos from ogmios
+        //   and discard the stale cache of the spent ones
+        await updateWalletUtxos()
+        await processLaunches(interestingLaunches)
+      }
 
       return nextBlock()
     },

@@ -1,3 +1,4 @@
+import type {MeshTxBuilder} from '@meshsdk/core'
 import {
   addRefScriptCarrier,
   buildTx,
@@ -5,6 +6,7 @@ import {
   ensure,
   generateConstantContracts,
   getLogContextFromTxBuilderBody,
+  getTxInParameterUtxoId,
   makeBuilder,
   type RefScriptCarrierDatum,
   SUNDAE_POOL_SCRIPT_HASH,
@@ -12,12 +14,16 @@ import {
   WR_POOL_VALIDATOR_HASH,
 } from '@wingriders/multi-dex-launchpad-common'
 import {config} from '../config'
-import {prismaTxOutputToMeshOutput} from '../db/helpers'
 import {logger} from '../logger'
-import {getAddressTrackedUtxos} from './ogmios/chain-sync'
 import {submitTx} from './ogmios/tx-submission-client'
 import {offlineEvaluator, ogmiosProvider, setFetcherUtxos} from './providers'
-import {getWallet, getWalletChangeAddress, getWalletPubKeyHash} from './wallet'
+import {
+  getSpendableWalletUtxos,
+  getWallet,
+  getWalletChangeAddress,
+  getWalletPubKeyHash,
+  trackSpentUtxo,
+} from './wallet'
 
 export const deployConstantContracts = async (): Promise<string | null> => {
   const constantContracts = await generateConstantContracts({
@@ -37,6 +43,13 @@ export const deployConstantContracts = async (): Promise<string | null> => {
   return txHash
 }
 
+// NOTE: we don't _need_ to track spent non-wallet utxos,
+//       but we still do
+const trackSpentInputs = (b: MeshTxBuilder) =>
+  b.meshTxBuilderBody.inputs.forEach((input) => {
+    trackSpentUtxo(getTxInParameterUtxoId(input.txIn))
+  })
+
 export const deployContracts = async (
   contracts: Contract[],
 ): Promise<string | null> => {
@@ -50,16 +63,7 @@ export const deployContracts = async (
     offlineEvaluator,
   )
 
-  // NOTE: we assume only utxos on the change address
-  //       are allowed to be spent
-  // REVIEW: did we want to fetch from Ogmios?
-  // TODO: handle utxo selection better
-  //       when submitting multiple txs at the same time
-  //       it's very likely some input utxos have already been spent
-  //       but Ogmios haven't yet shared the info with us
-  const walletUtxos = getAddressTrackedUtxos(getWalletChangeAddress()).map(
-    prismaTxOutputToMeshOutput,
-  )
+  const walletUtxos = getSpendableWalletUtxos()
   b.selectUtxosFrom(walletUtxos)
   setFetcherUtxos(walletUtxos)
 
@@ -82,6 +86,9 @@ export const deployContracts = async (
     )
     return null
   }
+
+  trackSpentInputs(b)
+
   const signedTx = await wallet.signTx(unsignedTx.value)
   const txHash = await submitTx(signedTx)
   return txHash
