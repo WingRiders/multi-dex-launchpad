@@ -32,6 +32,7 @@ import {
   tryDeserializeAddress,
   wrPoolDatumCborSchema,
 } from '@wingriders/multi-dex-launchpad-common'
+import type {SetNonNullable, SetRequired} from 'type-fest'
 import z from 'zod'
 import type {Block, TxOutput} from '../../../prisma/generated/client'
 import type {
@@ -96,7 +97,10 @@ type SyncEvent =
   | {
       type: 'launchTxOutput'
       launchTxHash: string
-      txOutput: TxOutputCreateManyInput
+      txOutput: SetNonNullable<
+        SetRequired<TxOutputCreateManyInput, 'datum'>,
+        'datum'
+      >
       outputType: LaunchUtxoType
     }
   | {
@@ -307,19 +311,27 @@ const makeTxOutput = (
   txHash: string,
   outputIndex: number,
   txOutput: TransactionOutput,
-): Required<TxOutputCreateManyInput> => ({
-  txHash,
-  slot,
-  outputIndex,
-  spentTxHash: null,
-  spentSlot: null,
-  address: txOutput.address,
-  datum: txOutput.datum ?? null,
-  datumHash: txOutput.datumHash ?? null,
-  value: serializeValue(txOutput.value) as InputJsonValue,
-  scriptLanguage: txOutput.script?.language ?? null,
-  scriptCbor: txOutput.script?.cbor ?? null,
-})
+): SetNonNullable<Required<TxOutputCreateManyInput>, 'datum'> => {
+  ensure(
+    txOutput.datum != null,
+    {txHash, outputIndex},
+    'Tx output must have datum',
+  )
+
+  return {
+    txHash,
+    slot,
+    outputIndex,
+    spentTxHash: null,
+    spentSlot: null,
+    address: txOutput.address,
+    datum: txOutput.datum ?? null,
+    datumHash: txOutput.datumHash ?? null,
+    value: serializeValue(txOutput.value) as InputJsonValue,
+    scriptLanguage: txOutput.script?.language ?? null,
+    scriptCbor: txOutput.script?.cbor ?? null,
+  }
+}
 
 // Pushes sync events
 const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
@@ -977,22 +989,12 @@ const saveLaunchTxOutputsFields = async (
         break
       }
       case 'node': {
-        if (!txOutput.datum) {
-          logger.warn(
-            {txHash: txOutput.txHash},
-            'Found node utxo without datum',
-          )
-          continue
-        }
-
         const datum = decodeDatum(nodeDatumCborSchema, txOutput.datum)
-        if (!datum) {
-          logger.warn(
-            {txHash: txOutput.txHash},
-            'Found node utxo with invalid datum',
-          )
-          continue
-        }
+        ensure(
+          datum != null,
+          {txHash: txOutput.txHash},
+          'Found node utxo with invalid datum',
+        )
 
         await prisma.node.create({
           data: {
