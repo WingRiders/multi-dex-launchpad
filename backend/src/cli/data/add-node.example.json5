@@ -1,0 +1,10 @@
+{
+  launchTxHash: 'c3d4de112cf3390b311edbde5833b8292c9e5e6d3de4edb0d1bec150cdc07c3c',
+  transactions: [{
+    committed: '2000000',
+  }, {
+    committed: '2100000',
+  }, {
+    committed: '2200000',
+  }],
+}

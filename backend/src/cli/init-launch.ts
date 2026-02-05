@@ -88,7 +88,7 @@ export const buildInitLaunchCommand = () => {
     .description('Build and submit the init launch transaction')
     .option(
       '-c, --config <filepath>',
-      'Launch config JSON file with launchpad config and project information',
+      'Launch config JSON5 file with launchpad config and project information',
       'src/cli/data/launch.json5',
     )
 

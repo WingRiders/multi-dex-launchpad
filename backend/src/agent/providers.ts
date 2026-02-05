@@ -1,6 +1,9 @@
 import type {UTxO} from '@meshsdk/common'
 import {OfflineFetcher, OgmiosProvider} from '@meshsdk/core'
+import {getRefScriptCarrierValidatorAddress} from '@wingriders/multi-dex-launchpad-common'
+import {groupBy, mapValues} from 'es-toolkit'
 import {config} from '../config'
+import {logger} from '../logger'
 import {
   ogmiosProtocolParametersToMeshProtocolParameters,
   ogmiosUtxoToMeshUtxo,
@@ -40,10 +43,27 @@ export const updateFetcherProtocolParametersFromOgmios = async () => {
 }
 
 // Use this when running CLI
-export const updateFetcherFromOgmios = async () => {
-  setFetcherUtxos(
-    (await getUtxos([getWalletChangeAddress()])).map(ogmiosUtxoToMeshUtxo),
+export const updateFetcherFromOgmios = async (additionalUtxos: UTxO[] = []) => {
+  const utxosOnAddresses = (
+    await getUtxos([
+      getWalletChangeAddress(),
+      getRefScriptCarrierValidatorAddress(config.NETWORK),
+    ])
+  ).map(ogmiosUtxoToMeshUtxo)
+  const utxos = [...utxosOnAddresses, ...additionalUtxos]
+  logger.debug(
+    {
+      utxos: mapValues(
+        groupBy(utxos, (utxo) => utxo.output.address),
+        (utxosInGroup) =>
+          utxosInGroup.map(
+            (utxo) => `${utxo.input.txHash}#${utxo.input.outputIndex}`,
+          ),
+      ),
+    },
+    'Updating fetcher with UTxOs',
   )
+  setFetcherUtxos(utxos)
   await updateFetcherProtocolParametersFromOgmios()
 }
 

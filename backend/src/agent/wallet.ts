@@ -13,6 +13,7 @@ import {getFetcher, ogmiosProvider} from './providers'
 let wallet: MeshWallet | undefined
 let walletChangeAddress: string | undefined
 let walletPubKeyHash: string | undefined
+let walletStakeKeyHash: string | undefined
 
 export const initWallet = async () => {
   ensure(config.WALLET_MNEMONIC != null, 'The mnemonic is not provided')
@@ -29,7 +30,9 @@ export const initWallet = async () => {
   })
   await wallet.init()
   walletChangeAddress = await wallet.getChangeAddress()
-  walletPubKeyHash = deserializeAddress(walletChangeAddress).pubKeyHash
+  const deserializedAddress = deserializeAddress(walletChangeAddress)
+  walletPubKeyHash = deserializedAddress.pubKeyHash
+  walletStakeKeyHash = deserializedAddress.stakeCredentialHash
 }
 
 export const getWallet = (): MeshWallet => {
@@ -45,6 +48,11 @@ export const getWalletChangeAddress = (): string => {
 export const getWalletPubKeyHash = (): string => {
   ensure(walletPubKeyHash != null, 'Wallet is not initialized')
   return walletPubKeyHash
+}
+
+export const getWalletStakeKeyHash = (): string => {
+  ensure(walletStakeKeyHash != null, 'Wallet is not initialized')
+  return walletStakeKeyHash
 }
 
 // Here's how the utxo selection works:
