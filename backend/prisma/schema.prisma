@@ -78,6 +78,13 @@ model Node {
   launchTxHash String
   launch       Launch @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
 
+  keyHash     String?
+  keyIndex    Int?
+  nextHash    String?
+  nextIndex   Int?
+  committed   BigInt
+  createdTime BigInt
+
   @@unique([txHash, outputIndex, launchTxHash])
 }
 

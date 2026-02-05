@@ -24,6 +24,7 @@ import {
   INIT_LAUNCH_AGENT_LOVELACE,
   INIT_LAUNCH_TX_METADATA_LABEL,
   isGeneratedPolicyType,
+  nodeDatumCborSchema,
   parseUnit,
   poolProofDatumCborSchema,
   rewardsHolderDatumCborSchema,
@@ -994,11 +995,34 @@ const saveLaunchTxOutputsFields = async (
         break
       }
       case 'node': {
+        if (!txOutput.datum) {
+          logger.warn(
+            {txHash: txOutput.txHash},
+            'Found node utxo without datum',
+          )
+          continue
+        }
+
+        const datum = decodeDatum(nodeDatumCborSchema, txOutput.datum)
+        if (!datum) {
+          logger.warn(
+            {txHash: txOutput.txHash},
+            'Found node utxo with invalid datum',
+          )
+          continue
+        }
+
         await prisma.node.create({
           data: {
             txHash: txOutput.txHash,
             outputIndex: txOutput.outputIndex,
             launchTxHash,
+            keyHash: datum.key?.hash,
+            keyIndex: datum.key?.index,
+            nextHash: datum.next?.hash,
+            nextIndex: datum.next?.index,
+            createdTime: BigInt(datum.createdTime),
+            committed: datum.committed,
           },
         })
         break
