@@ -6,6 +6,7 @@ import {UnitDisplay} from '@/components/unit-display'
 import {ipfsToHttps} from '@/helpers/url'
 import {useTRPC} from '@/trpc/client'
 import {Allocation} from './allocation'
+import {Contributing} from './contributing'
 import {LaunchLink} from './launch-link'
 import {LaunchTimeline} from './launch-timeline'
 import {Progress} from './progress'
@@ -58,7 +59,9 @@ export const LaunchDetails = ({launchTxHash}: LaunchDetailsProps) => {
             className="object-cover"
           />
         </div>
-        <div className="col-span-2 border p-5">Contributing</div>
+        <div className="col-span-2">
+          <Contributing launchTxHash={launchTxHash} config={config} />
+        </div>
       </div>
 
       <Allocation config={config} />

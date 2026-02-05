@@ -1,8 +1,9 @@
-import {type Asset, resolveSlotNo} from '@meshsdk/common'
+import type {Asset} from '@meshsdk/common'
 import {
   addInitLaunch,
   bech32AddressSchema,
   COMMIT_FOLD_FEE_ADA,
+  calculateTxValidityIntervalBeforeLaunchStart,
   DAO_ADMIN_PUB_KEY_HASH,
   DAO_FEE_DENOMINATOR,
   DAO_FEE_NUMERATOR,
@@ -209,22 +210,10 @@ export const buildInitLaunchCommand = () => {
         )
         .selectUtxosFrom(walletUtxos)
 
-      // Validity interval
-      const currentSlot = Number(resolveSlotNo(config.NETWORK, now))
-      const lowerTimeLimitSlot = currentSlot - 120 // 2 minutes to the past to be safe
-      const startTimeSlot = Number(resolveSlotNo(config.NETWORK, startTime))
-      if (startTimeSlot - currentSlot <= 1) {
-        throw new Error(
-          `Too close to start time, currentSlot = ${currentSlot}, lowerTimeLimitSlot = ${lowerTimeLimitSlot}`,
-        )
-      }
-
-      const upperTimeLimitSlot = Math.min(
-        Math.max(
-          startTimeSlot - 1, // Validity must ends before start time
-          currentSlot + 1, // It makes no sense to have validity interval not ending in the future
-        ),
-        lowerTimeLimitSlot + 3600, // Validity interval no longer than 1 hour
+      const validityInterval = calculateTxValidityIntervalBeforeLaunchStart(
+        config.NETWORK,
+        startTime,
+        now,
       )
 
       addInitLaunch(
@@ -234,8 +223,8 @@ export const buildInitLaunchCommand = () => {
         launchpadContracts,
         parsedFile.agentBech32Address,
         starterUtxo.output,
-        lowerTimeLimitSlot,
-        upperTimeLimitSlot,
+        validityInterval.validityStartSlot,
+        validityInterval.validityEndSlot,
       )
 
       const builtTx = await b.complete()

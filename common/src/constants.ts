@@ -2,6 +2,11 @@ import type {LanguageVersion, Unit} from '@meshsdk/common'
 import type {Network} from './helpers/network'
 import {LOVELACE_UNIT} from './helpers/unit'
 
+// Validity start of a transaction must be before the last block on the blockchain, using 2 minutes should be enough to be safe
+export const DEFAULT_TX_VALIDITY_START_BACKDATE_MS = 2 * 60 * 1000 // 2 minutes
+// 1 hour after the validity start
+export const DEFAULT_TX_TTL = 60 * 60 * 1000 // 1 hour
+
 export const SCRIPT_HASH_LENGTH = 28
 
 export enum PlutusScriptVersion {

@@ -2,9 +2,9 @@ import type {LaunchpadConfig} from '@wingriders/multi-dex-launchpad-common'
 import {cva} from 'class-variance-authority'
 import {formatDistanceStrict} from 'date-fns'
 import {ActivityIcon, CheckIcon, CircleIcon} from 'lucide-react'
-import {Fragment, useEffect, useMemo} from 'react'
+import {Fragment, useMemo} from 'react'
 import {formatDateTime} from '@/helpers/format'
-import {useTime} from '@/helpers/time'
+import {useUpdatedTime} from '@/helpers/time'
 
 type LaunchTimelineProps = {
   config: Pick<
@@ -30,20 +30,12 @@ type TimelineItemData = {
 export const LaunchTimeline = ({
   config: {presaleTierStartTime, defaultStartTime, endTime},
 }: LaunchTimelineProps) => {
-  const {time, scheduleTimeUpdate, clearAllScheduledTimeUpdates} = useTime()
-
-  useEffect(() => {
-    scheduleTimeUpdate(presaleTierStartTime)
-    scheduleTimeUpdate(defaultStartTime)
-    scheduleTimeUpdate(endTime)
-    return clearAllScheduledTimeUpdates
-  }, [
-    clearAllScheduledTimeUpdates,
-    presaleTierStartTime,
-    defaultStartTime,
-    endTime,
-    scheduleTimeUpdate,
-  ])
+  const time = useUpdatedTime(
+    useMemo(
+      () => [presaleTierStartTime, defaultStartTime, endTime],
+      [presaleTierStartTime, defaultStartTime, endTime],
+    ),
+  )
 
   const itemsData = useMemo(() => {
     const dataItems: Omit<TimelineItemData, 'status'>[] = [

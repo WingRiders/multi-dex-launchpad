@@ -1,4 +1,4 @@
-import {BrowserWallet} from '@meshsdk/core'
+import {BrowserWallet, deserializeAddress} from '@meshsdk/core'
 import type {QueryClient} from '@tanstack/react-query'
 import {
   type Network,
@@ -26,6 +26,8 @@ const waitForWalletExtension = async (walletId: string) => {
 export type ConnectedWallet = {
   wallet: BrowserWallet
   address: string
+  pubKeyHash: string
+  stakeKeyHash?: string
 }
 
 export type ConnectedWalletState = {
@@ -69,10 +71,14 @@ export const useConnectedWalletStore = create<ConnectedWalletState>()(
               `Cannot connect to wallet that is not on ${expectedNetwork} network`,
             )
           }
+
+          const {pubKeyHash, stakeCredentialHash} = deserializeAddress(address)
           set({
             connectedWallet: {
               wallet,
               address,
+              pubKeyHash,
+              stakeKeyHash: stakeCredentialHash || undefined,
             },
             connectedWalletType: walletType,
             isWalletConnecting: false,

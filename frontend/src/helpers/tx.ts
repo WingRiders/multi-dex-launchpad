@@ -1,20 +1,52 @@
-import type {IWallet} from '@meshsdk/core'
+import type {IWallet, UTxO} from '@meshsdk/core'
 import {MeshTxBuilder, OfflineFetcher} from '@meshsdk/core'
 import {
   matchUtxo,
+  type Network,
   walletNetworkIdToNetwork,
 } from '@wingriders/multi-dex-launchpad-common'
 import {getWalletCollateralUtxo} from '../../../common/src/helpers/collateral'
 
 type InitTxBuilderArgs = {
-  wallet: IWallet
+  wallet?: IWallet
+  network?: Network
+  walletUtxos?: UTxO[]
+  collateralUtxo?: UTxO
+  changeAddress?: string
+  additionalFetcherUtxos?: UTxO[]
 }
 
-export const initTxBuilder = async ({wallet}: InitTxBuilderArgs) => {
-  const network = walletNetworkIdToNetwork(await wallet.getNetworkId())
-  const walletUtxos = await wallet.getUtxos()
+const fallbackFromWallet = async <TValue, TGetFromWalletResult>(
+  value: TValue | undefined,
+  wallet: IWallet | undefined,
+  getFromWallet: (wallet: IWallet) => Promise<TGetFromWalletResult>,
+): Promise<TValue | TGetFromWalletResult> => {
+  if (value != null) return value
+  if (wallet == null) throw new Error('Wallet is required')
+  return getFromWallet(wallet)
+}
 
-  const collateralUtxo = await getWalletCollateralUtxo(wallet, walletUtxos)
+export const initTxBuilder = async ({
+  wallet,
+  network: networkArg,
+  walletUtxos: walletUtxosArg,
+  collateralUtxo: collateralUtxoArg,
+  changeAddress: changeAddressArg,
+  additionalFetcherUtxos,
+}: InitTxBuilderArgs) => {
+  const network = await fallbackFromWallet(networkArg, wallet, async (wallet) =>
+    walletNetworkIdToNetwork(await wallet.getNetworkId()),
+  )
+  const walletUtxos = await fallbackFromWallet(
+    walletUtxosArg,
+    wallet,
+    (wallet) => wallet.getUtxos(),
+  )
+  const collateralUtxo = await fallbackFromWallet(
+    collateralUtxoArg,
+    wallet,
+    (wallet) => getWalletCollateralUtxo(wallet, walletUtxos),
+  )
   if (!collateralUtxo) {
     throw new Error('No collateral UTxO found')
   }
@@ -24,10 +56,18 @@ export const initTxBuilder = async ({wallet}: InitTxBuilderArgs) => {
     (utxo) => !isCollateral(utxo.input),
   )
 
-  const changeAddress = await wallet.getChangeAddress()
+  const changeAddress = await fallbackFromWallet(
+    changeAddressArg,
+    wallet,
+    (wallet) => wallet.getChangeAddress(),
+  )
 
   const fetcher = new OfflineFetcher()
-  fetcher.addUTxOs([...walletUtxos, collateralUtxo])
+  fetcher.addUTxOs([
+    ...walletUtxos,
+    collateralUtxo,
+    ...(additionalFetcherUtxos ?? []),
+  ])
 
   const coreCsl = await import('@meshsdk/core-csl')
   const evaluator = new coreCsl.OfflineEvaluator(fetcher, network)

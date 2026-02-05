@@ -37,7 +37,7 @@ export const UnitQuantityInput = ({
       allowedDecimalSeparators={['.', ',']}
       decimalScale={decimalScale}
       allowNegative={false}
-      isAllowed={({value}) => !value || BigInt(value) <= MAX_VALUE}
+      isAllowed={({value}) => !value || new BigNumber(value).lte(MAX_VALUE)}
       type="text"
       placeholder={Number(0).toFixed(decimalScale)}
       onValueChange={({value: newValue}, {source}) => {

@@ -1,7 +1,17 @@
+import {cva, type VariantProps} from 'class-variance-authority'
 import type {ReactNode} from 'react'
 import {cn} from '@/lib/utils'
 import {InfoTooltip} from './info-tooltip'
 import {Skeleton} from './ui/skeleton'
+
+const gridItemVariants = cva('', {
+  variants: {
+    direction: {
+      horizontal: 'flex flex-row items-center gap-2',
+      vertical: 'flex flex-col gap-1',
+    },
+  },
+})
 
 type GridItemProps = {
   label: string
@@ -9,6 +19,7 @@ type GridItemProps = {
   isLoading?: boolean
   tooltip?: string
   className?: string
+  direction?: VariantProps<typeof gridItemVariants>['direction']
 }
 
 export const GridItem = ({
@@ -17,9 +28,10 @@ export const GridItem = ({
   isLoading,
   tooltip,
   className,
+  direction = 'vertical',
 }: GridItemProps) => {
   return (
-    <div className={cn('space-y-1', className)}>
+    <div className={cn(gridItemVariants({direction}), className)}>
       <div className="flex items-center gap-2 text-muted-foreground">
         <p className="text-sm">{label}</p>
         {tooltip && <InfoTooltip content={tooltip} />}

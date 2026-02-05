@@ -1,4 +1,4 @@
-import {BrowserWallet} from '@meshsdk/core'
+import {BrowserWallet, type UTxO} from '@meshsdk/core'
 import {
   type QueryClient,
   skipToken,
@@ -6,6 +6,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
+import {getWalletCollateralUtxo} from '@wingriders/multi-dex-launchpad-common'
 import {useCallback} from 'react'
 import {useShallow} from 'zustand/shallow'
 import {queryKeyFactory} from '@/helpers/query-key'
@@ -85,6 +86,34 @@ export const useWalletUtxosQuery = () => {
   return useQuery({
     queryKey: queryKeyFactory.walletUtxos(),
     queryFn: wallet ? () => wallet.getUtxos() : skipToken,
+  })
+}
+
+type UseWalletCollateralUtxoQueryArgs = {
+  walletUtxos?: UTxO[]
+  isLoadingWalletUtxos?: boolean
+}
+
+export const useWalletCollateralUtxoQuery = ({
+  walletUtxos,
+  isLoadingWalletUtxos,
+}: UseWalletCollateralUtxoQueryArgs) => {
+  const wallet = useConnectedWalletStore(
+    useShallow((state) => state.connectedWallet?.wallet),
+  )
+
+  return useQuery({
+    queryKey: queryKeyFactory.walletCollateralUtxo(),
+    queryFn: wallet
+      ? () =>
+          getWalletCollateralUtxo(
+            wallet,
+            // If we are loading wallet utxos, don't try to load them again in getWalletCollateralUtxo.
+            // If walletUtxos is undefined and isLoadingWalletUtxos is falsy, then we will load utxos from
+            // the wallet API in getWalletCollateralUtxo.
+            walletUtxos ?? (isLoadingWalletUtxos ? [] : undefined),
+          )
+      : skipToken,
   })
 }
 

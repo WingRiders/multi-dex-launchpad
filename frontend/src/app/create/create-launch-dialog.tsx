@@ -1,8 +1,8 @@
-import {resolveSlotNo} from '@meshsdk/core'
 import {skipToken, useQuery, useQueryClient} from '@tanstack/react-query'
 import {
   addInitLaunch,
   COMMIT_FOLD_FEE_ADA,
+  calculateTxValidityIntervalBeforeLaunchStart,
   DAO_ADMIN_PUB_KEY_HASH,
   DAO_FEE_DENOMINATOR,
   DAO_FEE_NUMERATOR,
@@ -28,7 +28,7 @@ import {
   WR_POOL_SYMBOL,
   WR_POOL_VALIDATOR_HASH,
 } from '@wingriders/multi-dex-launchpad-common'
-import {addMinutes, minutesToMilliseconds, subMinutes} from 'date-fns'
+import {minutesToMilliseconds} from 'date-fns'
 import {Loader2Icon} from 'lucide-react'
 import {useRouter} from 'next/navigation'
 import {type ReactNode, useEffect} from 'react'
@@ -81,6 +81,7 @@ export const CreateLaunchDialog = ({
         onOpenAutoFocus={(event) => {
           event.preventDefault()
         }}
+        className="max-h-[80vh] overflow-y-auto"
       >
         <CreateLaunchDialogContent
           onOpenChange={onOpenChange}
@@ -223,9 +224,11 @@ const CreateLaunchDialogContent = ({
 
           const txBuilder = await initTxBuilder({wallet: wallet.wallet})
 
-          // TODO: extract to constants
-          const lowerTimeLimit = subMinutes(time, 10)
-          const upperTimeLimit = addMinutes(time, 30)
+          const validityInterval = calculateTxValidityIntervalBeforeLaunchStart(
+            network,
+            launchpadConfig.startTime,
+            time,
+          )
 
           addInitLaunch(
             txBuilder,
@@ -234,14 +237,8 @@ const CreateLaunchDialogContent = ({
             launchpadContracts,
             env('NEXT_PUBLIC_AGENT_ADDRESS'),
             starterUtxo.output,
-            Number.parseInt(
-              resolveSlotNo(network, lowerTimeLimit.getTime()),
-              10,
-            ),
-            Number.parseInt(
-              resolveSlotNo(network, upperTimeLimit.getTime()),
-              10,
-            ),
+            validityInterval.validityStartSlot,
+            validityInterval.validityEndSlot,
           )
 
           const tx = await txBuilder.complete()

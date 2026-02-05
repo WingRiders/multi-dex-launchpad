@@ -6,7 +6,7 @@ import {
   isAfter,
   isBefore,
 } from 'date-fns'
-import {useCallback, useEffect, useRef, useState} from 'react'
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import type {Launch} from '@/types'
 
 export const useTime = (updateInterval?: number) => {
@@ -71,6 +71,18 @@ export const useTime = (updateInterval?: number) => {
   }
 }
 
+export const useUpdatedTime = (updateAt: number[], updateInterval?: number) => {
+  const {time, scheduleTimeUpdate, clearAllScheduledTimeUpdates} =
+    useTime(updateInterval)
+
+  useEffect(() => {
+    updateAt.forEach(scheduleTimeUpdate)
+    return clearAllScheduledTimeUpdates
+  }, [clearAllScheduledTimeUpdates, scheduleTimeUpdate, updateAt])
+
+  return time
+}
+
 export const getLaunchTimeStatus = (
   launch: Pick<Launch, 'startTime' | 'endTime'>,
   time: number,
@@ -83,18 +95,12 @@ export const getLaunchTimeStatus = (
 export const useLaunchTimeStatus = (
   launch: Pick<Launch, 'startTime' | 'endTime'>,
 ): LaunchTimeStatus => {
-  const {time, scheduleTimeUpdate, clearAllScheduledTimeUpdates} = useTime()
+  const startTime = getTime(launch.startTime)
+  const endTime = getTime(launch.endTime)
 
-  useEffect(() => {
-    scheduleTimeUpdate(launch.startTime)
-    scheduleTimeUpdate(launch.endTime)
-    return clearAllScheduledTimeUpdates
-  }, [
-    clearAllScheduledTimeUpdates,
-    launch.endTime,
-    launch.startTime,
-    scheduleTimeUpdate,
-  ])
+  const time = useUpdatedTime(
+    useMemo(() => [startTime, endTime], [startTime, endTime]),
+  )
 
   return getLaunchTimeStatus(launch, time)
 }
