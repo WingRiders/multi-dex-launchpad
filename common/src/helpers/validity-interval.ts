@@ -116,3 +116,34 @@ export const calculateTxValidityIntervalForInsertNode = (
 
   return validityInterval
 }
+
+// can be used for all actions that need to happen before the launch ends: remove node
+export const calculateTxValidityIntervalBeforeLaunchEnd = (
+  network: Network,
+  launchEndTime: number,
+  now = Date.now(),
+) => {
+  if (now >= launchEndTime) {
+    throw new Error(
+      'Cannot calculate validity interval, launch has already ended',
+    )
+  }
+
+  const slotConfig = SLOT_CONFIG_NETWORK[network]
+  const validityInterval = calculateTxValidityInterval(network, now)
+
+  const validityEndTime = slotToBeginUnixTime(
+    validityInterval.validityEndSlot,
+    slotConfig,
+  )
+  const adjustedValidityEndTime = Math.min(
+    validityEndTime,
+    launchEndTime - 1000,
+  )
+  validityInterval.validityEndSlot = unixTimeToEnclosingSlot(
+    adjustedValidityEndTime,
+    slotConfig,
+  )
+
+  return validityInterval
+}

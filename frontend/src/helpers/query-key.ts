@@ -38,6 +38,16 @@ const f = {
       committed?.toString(),
       nodeToSpend,
     ] as const,
+  buildRemoveCommitmentTx: (
+    nodeToRemove: TxInput | undefined,
+    previousNode: TxInput | undefined,
+  ) =>
+    [
+      ...f.walletMutation(),
+      'build-remove-commitment-tx',
+      nodeToRemove,
+      previousNode,
+    ] as const,
 }
 
 export {f as queryKeyFactory}

@@ -11,6 +11,7 @@ import {LaunchLink} from './launch-link'
 import {LaunchTimeline} from './launch-timeline'
 import {Progress} from './progress'
 import {ProjectTokenInfo} from './project-token-info'
+import {UserNodes} from './user-nodes'
 
 type LaunchDetailsProps = {
   launchTxHash: string
@@ -63,6 +64,8 @@ export const LaunchDetails = ({launchTxHash}: LaunchDetailsProps) => {
           <Contributing launchTxHash={launchTxHash} config={config} />
         </div>
       </div>
+
+      <UserNodes launchTxHash={launchTxHash} config={config} />
 
       <Allocation config={config} />
 
