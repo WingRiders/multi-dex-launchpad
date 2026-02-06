@@ -118,3 +118,20 @@ export const rewardsFoldRedeemerToMeshData = (
     }
   }
 }
+
+export type TokensHolderFirstRedeemer =
+  | 'cancel-launch'
+  | 'delegate-to-rewards-or-failure'
+  | 'emergency-withdrawal'
+
+export const tokensHolderFirstRedeemerToMeshData = (
+  redeemer: TokensHolderFirstRedeemer,
+) => {
+  const constr = {
+    'cancel-launch': 0,
+    'delegate-to-rewards-or-failure': 1,
+    'emergency-withdrawal': 2,
+  }[redeemer]
+
+  return mConStr(constr, [])
+}
