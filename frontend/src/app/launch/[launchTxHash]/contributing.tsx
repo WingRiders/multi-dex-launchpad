@@ -43,7 +43,7 @@ import {
   useWalletCollateralUtxoQuery,
   useWalletUtxosQuery,
 } from '@/wallet/queries'
-import {useRefScriptsForCreatingCommitment} from './helpers'
+import {useNodeRefScripts} from './helpers'
 
 type ContributingLaunchpadConfig = Pick<
   LaunchpadConfig,
@@ -148,7 +148,7 @@ const ActiveContributing = ({
     isLoading: isLoadingRefScripts,
     isError: isRefScriptsError,
     uniqueErrorMessages: refScriptsUniqueErrorMessages,
-  } = useRefScriptsForCreatingCommitment(launchTxHash)
+  } = useNodeRefScripts(launchTxHash)
 
   const {
     data: walletUtxos,

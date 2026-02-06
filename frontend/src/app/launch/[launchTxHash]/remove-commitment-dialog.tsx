@@ -33,7 +33,7 @@ import {
   useWalletCollateralUtxoQuery,
   useWalletUtxosQuery,
 } from '@/wallet/queries'
-import {useRefScriptsForCreatingCommitment} from './helpers'
+import {useNodeRefScripts} from './helpers'
 import type {Node} from './types'
 
 type RemoveCommitmentDialogProps = {
@@ -142,7 +142,7 @@ const RemoveCommitmentDialogContent = ({
     isLoading: isLoadingRefScripts,
     isError: isRefScriptsError,
     uniqueErrorMessages: refScriptsUniqueErrorMessages,
-  } = useRefScriptsForCreatingCommitment(launchTxHash)
+  } = useNodeRefScripts(launchTxHash)
 
   const validityInterval = calculateTxValidityIntervalBeforeLaunchEnd(
     network,
@@ -351,7 +351,8 @@ const RemoveCommitmentDialogContent = ({
             }
             disabled={
               isBuildingRemoveCommitmentTx ||
-              buildRemoveCommitmentTxResult == null
+              buildRemoveCommitmentTxResult == null ||
+              isSigningAndSubmittingTx
             }
             onClick={handleRemove}
           >

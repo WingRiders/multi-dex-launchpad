@@ -48,6 +48,8 @@ const f = {
       nodeToRemove,
       previousNode,
     ] as const,
+  buildCancelLaunchTx: (launchTxHash: string) =>
+    [...f.walletMutation(), 'build-cancel-launch-tx', launchTxHash] as const,
 }
 
 export {f as queryKeyFactory}

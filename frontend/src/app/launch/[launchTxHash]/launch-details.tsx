@@ -2,10 +2,12 @@
 
 import {useSuspenseQuery} from '@tanstack/react-query'
 import Image from 'next/image'
+import {OnlyWithWallet} from '@/components/only-with-wallet'
 import {UnitDisplay} from '@/components/unit-display'
 import {ipfsToHttps} from '@/helpers/url'
 import {useTRPC} from '@/trpc/client'
 import {Allocation} from './allocation'
+import {CancelLaunch} from './cancel-launch'
 import {Contributing} from './contributing'
 import {LaunchLink} from './launch-link'
 import {LaunchTimeline} from './launch-timeline'
@@ -65,13 +67,31 @@ export const LaunchDetails = ({launchTxHash}: LaunchDetailsProps) => {
         </div>
       </div>
 
-      <UserNodes launchTxHash={launchTxHash} config={config} />
+      <OnlyWithWallet>
+        {(connectedWallet) => (
+          <UserNodes
+            launchTxHash={launchTxHash}
+            config={config}
+            connectedWallet={connectedWallet}
+          />
+        )}
+      </OnlyWithWallet>
 
       <Allocation config={config} />
 
       <Progress config={config} totalCommitted={totalCommitted} />
 
       <ProjectTokenInfo projectToken={config.projectToken} />
+
+      <OnlyWithWallet address={config.ownerBech32Address}>
+        {(connectedWallet) => (
+          <CancelLaunch
+            launchTxHash={launchTxHash}
+            config={config}
+            connectedWallet={connectedWallet}
+          />
+        )}
+      </OnlyWithWallet>
     </div>
   )
 }

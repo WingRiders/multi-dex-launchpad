@@ -5,7 +5,6 @@ import {
   launchpadConstants,
 } from '@wingriders/multi-dex-launchpad-common'
 import {useMemo, useState} from 'react'
-import {useShallow} from 'zustand/shallow'
 import {AssetQuantity} from '@/components/asset-quantity'
 import {ErrorAlert} from '@/components/error-alert'
 import {Button} from '@/components/ui/button'
@@ -13,10 +12,7 @@ import {Skeleton} from '@/components/ui/skeleton'
 import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
 import {formatDateTime} from '@/helpers/format'
 import {useUpdatedTime} from '@/helpers/time'
-import {
-  type ConnectedWallet,
-  useConnectedWalletStore,
-} from '@/store/connected-wallet'
+import type {ConnectedWallet} from '@/store/connected-wallet'
 import {useTRPC} from '@/trpc/client'
 import {RemoveCommitmentDialog} from './remove-commitment-dialog'
 import type {Node} from './types'
@@ -24,27 +20,14 @@ import type {Node} from './types'
 type UserNodesProps = {
   launchTxHash: string
   config: Pick<LaunchpadConfig, 'raisingToken' | 'endTime'>
-}
-
-export const UserNodes = (props: UserNodesProps) => {
-  const {connectedWallet} = useConnectedWalletStore(
-    useShallow(({connectedWallet}) => ({connectedWallet})),
-  )
-
-  if (!connectedWallet) return null
-
-  return <UserNodesContent {...props} connectedWallet={connectedWallet} />
-}
-
-type UserNodesContentProps = UserNodesProps & {
   connectedWallet: ConnectedWallet
 }
 
-const UserNodesContent = ({
+export const UserNodes = ({
   launchTxHash,
   config,
   connectedWallet,
-}: UserNodesContentProps) => {
+}: UserNodesProps) => {
   const trpc = useTRPC()
 
   const {data, isLoading, error} = useQuery(

@@ -1,10 +1,15 @@
-import type {UTxO} from '@meshsdk/common'
+import {
+  SLOT_CONFIG_NETWORK,
+  type UTxO,
+  unixTimeToEnclosingSlot,
+} from '@meshsdk/common'
 import type {
   LaunchpadConfig,
   LaunchTimeStatus,
   ProjectInfoTxMetadata,
 } from '@wingriders/multi-dex-launchpad-common'
 import type {Prisma} from '../../prisma/generated/client'
+import {config} from '../config'
 import {
   prismaLaunchToLaunchConfig,
   prismaTxOutputToMeshOutput,
@@ -56,27 +61,52 @@ export const getLaunches = async (
       projectLogoUrl: true,
       startTime: true,
       endTime: true,
+      firstProjectTokensHolder: {
+        select: {
+          spentSlot: true,
+        },
+      },
     },
   })
 
-  return launches.map(
-    ({
-      txHash,
-      projectTitle,
-      projectDescription,
-      projectLogoUrl,
-      startTime,
-      endTime,
-    }) => ({
-      txHash,
-      title: projectTitle,
-      description: projectDescription,
-      logoIpfsUrl: projectLogoUrl,
-      startTime: new Date(Number(startTime)),
-      endTime: new Date(Number(endTime)),
-    }),
+  return (
+    launches
+      // filter out cancelled launches
+      .filter(
+        ({startTime, firstProjectTokensHolder}) =>
+          !isLaunchCancelled(
+            Number(startTime),
+            firstProjectTokensHolder?.spentSlot,
+          ),
+      )
+      .map(
+        ({
+          txHash,
+          projectTitle,
+          projectDescription,
+          projectLogoUrl,
+          startTime,
+          endTime,
+        }) => ({
+          txHash,
+          title: projectTitle,
+          description: projectDescription,
+          logoIpfsUrl: projectLogoUrl,
+          startTime: new Date(Number(startTime)),
+          endTime: new Date(Number(endTime)),
+        }),
+      )
   )
 }
+
+// launch is cancelled if the first tokens holder was spent before the launch started
+const isLaunchCancelled = (
+  startTime: number,
+  firstTokensHolderSpentSlot: number | null | undefined,
+) =>
+  firstTokensHolderSpentSlot != null &&
+  firstTokensHolderSpentSlot <
+    unixTimeToEnclosingSlot(startTime, SLOT_CONFIG_NETWORK[config.NETWORK])
 
 export const getLaunch = async (
   txHash: string,
