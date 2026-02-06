@@ -54,41 +54,38 @@ jobs:
           git config --local user.name "TechRiderWR"
           git config --local user.email "techrider@wingriders.com"
 
-      - name: Initialize with empty initial commit if no public ${{ inputs.branch }} branch
-        shell: bash
-        run: |
-          if ! git ls-remote --exit-code public ${{ inputs.branch }}; then
-            # Save the branch name
-            ORIGINAL_BRANCH_NAME=`git rev-parse --abbrev-ref HEAD`
-            echo "Original branch name was $ORIGINAL_BRANCH_NAME"
-
-            # Check out a temporary orphan branch
-            git checkout --orphan temp
-          
-            # Remove all files (since it's an orphan branch)
-            git rm -rf .
-            
-            # Create an empty commit to initialize the branch
-            git commit --allow-empty -m "Initial empty commit"
-            
-            # Push the empty commit to the remote `public/${{ inputs.branch }}` branch
-            git push public temp:${{ inputs.branch }}
-          
-            # Checkout original branch back
-            git checkout $ORIGINAL_BRANCH_NAME
-          fi
-
       - name: Rewrite commit history
         shell: bash
         run: |
-          # Rebase all private commits on the public ones
-          git rebase public/${{ inputs.branch }} --exec "git commit --amend --no-edit --reset-author --allow-empty"
+          if git show-ref --quiet refs/remotes/public/${{ inputs.branch }}; then
+            # Number of commits on the public branch
+            publicCommitsCount=$(git rev-list --count public/${{ inputs.branch }})
           
-          # Identify the first divergent commit (the first commit on the private branch not in public)
-          firstDivergentCommit=$(git log --pretty="format:%h" | tail -n $(($(git rev-list --count public/${{ inputs.branch }})+1)) | head -1)
+            # The first divergent commit on private branch (empty when private has no commits beyond public)
+            firstDivergentCommit=$(git rev-list --reverse HEAD | tail -n +$((publicCommitsCount+1)) | head -1)
+            echo "firstDivergentCommit is $firstDivergentCommit"
+            
+            if [ -n "$firstDivergentCommit" ]; then
+              # Rebase all private commits on the public ones
+              git rebase "$firstDivergentCommit~1" --exec "git commit --amend --no-edit --reset-author" --onto public/${{ inputs.branch }}
+            
+              # Filter out the Co-authored-by lines and continue with the history cleaning
+              FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --msg-filter "sed -n '/Co-authored-by/Iq;p'" "$firstDivergentCommit~1..HEAD"
+            else
+              echo "Not rebasing, the commit history is of the same length"
+            fi
+          else
+            echo "Public branch does not exist – anonymizing entire history"
           
-          # Filter out the Co-authored-by lines and continue with the history cleaning
-          FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --msg-filter "sed -n '/Co-authored-by/Iq;p'" "$firstDivergentCommit~1..HEAD"
+            # --reset-author does not suffice, the values from git config are used only when creating/amending commit
+            FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch \
+              --env-filter '
+                export GIT_AUTHOR_NAME="TechRiderWR"
+                export GIT_AUTHOR_EMAIL="techrider@wingriders.com"
+                export GIT_COMMITTER_NAME="TechRiderWR"
+                export GIT_COMMITTER_EMAIL="techrider@wingriders.com"
+              ' --msg-filter "sed -n '/Co-authored-by/Iq;p'" HEAD
+          fi
 
           # Finally, show the commit log for verification
           git log --pretty="format:%an <%ae> (%h): %s"
