@@ -17,8 +17,10 @@ import {
 } from './endpoints/launch'
 import {getPreviousNodeUTxO, getUserNodes} from './endpoints/node'
 import {
+  getFirstProjectTokensHolderValidatorRefScriptUtxo,
   getNodePolicyRefScriptUtxo,
   getNodeValidatorRefScriptUtxo,
+  getProjectTokensHolderPolicyRefScriptUtxo,
 } from './endpoints/ref-scripts'
 import {getTokenMetadata, getTokensMetadata} from './endpoints/token-metadata'
 import {getUTxO} from './endpoints/utxo'
@@ -94,6 +96,16 @@ export const createServerRouter = () =>
       .input(z.object({launchTxHash: z.string()}))
       .query(({input: {launchTxHash}}) =>
         getNodePolicyRefScriptUtxo(launchTxHash),
+      ),
+    firstProjectTokensHolderValidatorRef: publicProcedure
+      .input(z.object({launchTxHash: z.string()}))
+      .query(({input: {launchTxHash}}) =>
+        getFirstProjectTokensHolderValidatorRefScriptUtxo(launchTxHash),
+      ),
+    projectTokensHolderPolicyRef: publicProcedure
+      .input(z.object({launchTxHash: z.string()}))
+      .query(({input: {launchTxHash}}) =>
+        getProjectTokensHolderPolicyRefScriptUtxo(launchTxHash),
       ),
     firstProjectTokensHolderUTxO: publicProcedure
       .input(z.object({launchTxHash: z.string()}))

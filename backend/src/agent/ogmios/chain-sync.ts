@@ -325,7 +325,7 @@ const makeTxOutput = (
     spentTxHash: null,
     spentSlot: null,
     address: txOutput.address,
-    datum: txOutput.datum ?? null,
+    datum: txOutput.datum,
     datumHash: txOutput.datumHash ?? null,
     value: serializeValue(txOutput.value) as InputJsonValue,
     scriptLanguage: txOutput.script?.language ?? null,

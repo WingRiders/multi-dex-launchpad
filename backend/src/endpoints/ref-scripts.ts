@@ -63,3 +63,43 @@ export const getNodePolicyRefScriptUtxo = async (
 
   return txOutputToRefScriptUtxo(nodePolicyRefScriptCarrier)
 }
+
+export const getFirstProjectTokensHolderValidatorRefScriptUtxo = async (
+  launchTxHash: string,
+): Promise<RefSCriptUTxO> => {
+  const {firstProjectTokensHolderValidatorRefScriptCarrier} =
+    await prisma.launch.findUniqueOrThrow({
+      where: {txHash: launchTxHash},
+      select: {
+        firstProjectTokensHolderValidatorRefScriptCarrier: true,
+      },
+    })
+
+  if (firstProjectTokensHolderValidatorRefScriptCarrier == null) {
+    throw new Error(
+      'First project tokens holder validator ref script carrier not found',
+    )
+  }
+
+  return txOutputToRefScriptUtxo(
+    firstProjectTokensHolderValidatorRefScriptCarrier,
+  )
+}
+
+export const getProjectTokensHolderPolicyRefScriptUtxo = async (
+  launchTxHash: string,
+): Promise<RefSCriptUTxO> => {
+  const {projectTokensHolderPolicyRefScriptCarrier} =
+    await prisma.launch.findUniqueOrThrow({
+      where: {txHash: launchTxHash},
+      select: {
+        projectTokensHolderPolicyRefScriptCarrier: true,
+      },
+    })
+
+  if (projectTokensHolderPolicyRefScriptCarrier == null) {
+    throw new Error('Project tokens holder policy ref script carrier not found')
+  }
+
+  return txOutputToRefScriptUtxo(projectTokensHolderPolicyRefScriptCarrier)
+}
