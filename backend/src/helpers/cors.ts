@@ -7,13 +7,17 @@ const parseOrigin = (allowedOrigin: string | RegExp) => {
 }
 
 export const getCorsOptions = (corsEnabledFor: string, isProd = true) => {
-  const allowedOrigins = corsEnabledFor
-    ? corsEnabledFor.split(',').map((x) => parseOrigin(x.trim()))
+  const allowedOriginsRaw = corsEnabledFor
+    ? corsEnabledFor.split(',').map((x) => x.trim())
     : []
+
+  const allowedOrigins = allowedOriginsRaw.map(parseOrigin)
+
+  const noCredentials = isProd && allowedOriginsRaw.includes('*')
 
   return {
     origin: isProd ? allowedOrigins : true,
     methods: ['GET', 'PUT', 'POST', 'OPTIONS'],
-    credentials: isProd ? !allowedOrigins.includes('*') : true,
+    credentials: !noCredentials,
   }
 }

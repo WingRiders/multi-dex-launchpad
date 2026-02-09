@@ -10,6 +10,7 @@
     "fix": "bun biome check . --write",
     "clean": "rm -r prisma/generated",
     "cli": "bun src/cli/main.ts",
+    "test": "bun test && bun run tsgo --noEmit",
     "prisma:generate": "bunx --bun prisma generate --no-hints",
     "prisma:dev": "bunx --bun prisma migrate dev",
     "prisma:deploy": "bunx --bun prisma migrate deploy",

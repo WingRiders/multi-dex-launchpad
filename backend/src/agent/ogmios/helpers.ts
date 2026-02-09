@@ -14,22 +14,32 @@ import {
   LOVELACE_UNIT,
 } from '@wingriders/multi-dex-launchpad-common'
 import {config} from '../../config'
+import {encodeOgmiosScript} from '../../helpers/script'
 
-export const ogmiosUtxoToMeshUtxo = (utxo: Utxo[number]): UTxO => ({
-  input: {
-    txHash: utxo.transaction.id,
-    outputIndex: utxo.index,
-  },
-  output: {
-    address: utxo.address,
-    amount: ogmiosValueToMeshAssets(utxo.value, {
-      includeAda: true,
-    }),
-    dataHash: utxo.datumHash,
-    plutusData: utxo.datum,
-    // TODO scriptRef and scriptHash
-  },
-})
+export const ogmiosUtxoToMeshUtxo = (utxo: Utxo[number]): UTxO => {
+  const script =
+    utxo.script != null &&
+    utxo.script.language !== 'native' &&
+    utxo.script.cbor != null
+      ? encodeOgmiosScript(utxo.script.language, utxo.script.cbor)
+      : null
+  return {
+    input: {
+      txHash: utxo.transaction.id,
+      outputIndex: utxo.index,
+    },
+    output: {
+      address: utxo.address,
+      amount: ogmiosValueToMeshAssets(utxo.value, {
+        includeAda: true,
+      }),
+      dataHash: utxo.datumHash,
+      plutusData: utxo.datum,
+      scriptRef: script?.scriptRef,
+      scriptHash: script?.scriptHash,
+    },
+  }
+}
 
 export const originPoint = {
   mainnet: {
