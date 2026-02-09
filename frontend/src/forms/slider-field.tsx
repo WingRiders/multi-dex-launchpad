@@ -1,4 +1,4 @@
-import {InfoIcon} from 'lucide-react'
+import {InfoTooltip} from '@/components/info-tooltip'
 import {
   Field,
   FieldContent,
@@ -6,7 +6,6 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import {Slider} from '@/components/ui/slider'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
 import {useFieldContext} from './context'
 
 type SliderFieldProps = {
@@ -32,14 +31,7 @@ export const SliderField = ({
     <Field data-invalid={isInvalid}>
       <FieldContent className="flex-row items-center">
         <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-        {tooltip && (
-          <Tooltip>
-            <TooltipTrigger>
-              <InfoIcon className="size-4" />
-            </TooltipTrigger>
-            <TooltipContent>{tooltip}</TooltipContent>
-          </Tooltip>
-        )}
+        {tooltip && <InfoTooltip content={tooltip} />}
       </FieldContent>
       <Slider
         id={field.name}

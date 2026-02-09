@@ -2,8 +2,8 @@
 
 import {useSuspenseQuery} from '@tanstack/react-query'
 import type {LaunchTimeStatus} from '@wingriders/multi-dex-launchpad-common'
+import {ErrorAlert} from '@/components/error-alert'
 import {LaunchItem} from '@/components/launch-item'
-import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert'
 import {useTRPC} from '@/trpc/client'
 import {WithLaunchesSectionTitle} from './with-launches-section-title'
 
@@ -39,12 +39,11 @@ export const LaunchesList = ({
   if (error)
     return (
       <WithLaunchesSectionTitle title={title} wrap={hideIfEmpty}>
-        <Alert variant="destructive" className="mt-4">
-          <AlertTitle>Error while loading {title}</AlertTitle>
-          <AlertDescription>
-            {error instanceof Error ? error.message : String(error)}
-          </AlertDescription>
-        </Alert>
+        <ErrorAlert
+          title={`Error while loading ${title}`}
+          description={error.message}
+          className="mt-4"
+        />
       </WithLaunchesSectionTitle>
     )
 

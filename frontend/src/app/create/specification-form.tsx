@@ -7,7 +7,7 @@ import {
 import {Loader2Icon} from 'lucide-react'
 import {useShallow} from 'zustand/shallow'
 import {AssetQuantity} from '@/components/asset-quantity'
-import {Alert, AlertTitle} from '@/components/ui/alert'
+import {ErrorAlert} from '@/components/error-alert'
 import {Button} from '@/components/ui/button'
 import {
   Field,
@@ -95,9 +95,10 @@ export const SpecificationForm = () => {
         <Loader2Icon className="size-8 animate-spin" />
       </div>
     ) : (
-      <Alert variant="destructive" className="mt-8">
-        <AlertTitle>Error while fetching wallet balance</AlertTitle>
-      </Alert>
+      <ErrorAlert
+        title="Error while fetching wallet balance"
+        className="mt-8"
+      />
     )
   }
 

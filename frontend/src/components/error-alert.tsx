@@ -1,9 +1,10 @@
 import {AlertCircleIcon} from 'lucide-react'
+import type {ReactNode} from 'react'
 import {Alert, AlertDescription, AlertTitle} from './ui/alert'
 
 type ErrorAlertProps = {
   title?: string
-  description?: string
+  description?: ReactNode
   className?: string
 }
 

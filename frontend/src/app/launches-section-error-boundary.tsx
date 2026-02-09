@@ -1,7 +1,7 @@
 'use client'
 
 import {ErrorBoundary} from 'react-error-boundary'
-import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert'
+import {ErrorAlert} from '@/components/error-alert'
 import {WithLaunchesSectionTitle} from './with-launches-section-title'
 
 type LaunchesSectionErrorBoundaryProps = {
@@ -19,12 +19,11 @@ export const LaunchesSectionErrorBoundary = ({
     <ErrorBoundary
       fallbackRender={({error}) => (
         <WithLaunchesSectionTitle title={title} wrap={wrapWithTitle}>
-          <Alert variant="destructive" className="mt-4">
-            <AlertTitle>Error while loading {title}</AlertTitle>
-            <AlertDescription>
-              {error instanceof Error ? error.message : String(error)}
-            </AlertDescription>
-          </Alert>
+          <ErrorAlert
+            title={`Error while loading ${title}`}
+            description={error instanceof Error ? error.message : String(error)}
+            className="mt-4"
+          />
         </WithLaunchesSectionTitle>
       )}
     >

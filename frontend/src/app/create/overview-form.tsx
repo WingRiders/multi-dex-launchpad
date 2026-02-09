@@ -7,7 +7,7 @@ import Image from 'next/image'
 import {useState} from 'react'
 import {useShallow} from 'zustand/shallow'
 import {AssetQuantity} from '@/components/asset-quantity'
-import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert'
+import {ErrorAlert} from '@/components/error-alert'
 import {Button} from '@/components/ui/button'
 import {
   Field,
@@ -519,59 +519,61 @@ export const OverviewForm = () => {
 
         <div className="mt-8 space-y-4">
           {walletBalanceError && (
-            <Alert variant="destructive">
-              <AlertTitle>Error while fetching wallet balance</AlertTitle>
-              <AlertDescription>{walletBalanceError.message}</AlertDescription>
-            </Alert>
+            <ErrorAlert
+              title="Error while fetching wallet balance"
+              description={walletBalanceError.message}
+            />
           )}
           {hasEnoughAda === false && (
-            <Alert variant="destructive">
-              <AlertTitle>
-                Insufficient {ADA_METADATA.ticker} balance
-              </AlertTitle>
-              <AlertDescription>
-                You need:
-                <ul className="ml-4 flex list-disc flex-col gap-1">
-                  <li>
-                    <AssetQuantity
-                      unit={LOVELACE_UNIT}
-                      quantity={LAUNCH_COLLATERAL}
-                    />{' '}
-                    as a collateral, it will be returned to you after the
-                    launch.
-                  </li>
-                  <li>
-                    <AssetQuantity
-                      unit={LOVELACE_UNIT}
-                      quantity={INIT_LAUNCH_AGENT_LOVELACE}
-                    />{' '}
-                    to deploy the launch smart contracts. Part of this will be
-                    returned to you after the launch.
-                  </li>
-                  <li>
-                    ~
-                    <AssetQuantity
-                      unit={LOVELACE_UNIT}
-                      quantity={ESTIMATE_INIT_TRANSACTION_FEE_LOVELACE}
-                    />{' '}
-                    to pay for the transaction fee.
-                  </li>
-                </ul>
-              </AlertDescription>
-            </Alert>
+            <ErrorAlert
+              title={`Insufficient ${ADA_METADATA.ticker} balance`}
+              description={
+                <>
+                  You need:
+                  <ul className="ml-4 flex list-disc flex-col gap-1">
+                    <li>
+                      <AssetQuantity
+                        unit={LOVELACE_UNIT}
+                        quantity={LAUNCH_COLLATERAL}
+                      />{' '}
+                      as a collateral, it will be returned to you after the
+                      launch.
+                    </li>
+                    <li>
+                      <AssetQuantity
+                        unit={LOVELACE_UNIT}
+                        quantity={INIT_LAUNCH_AGENT_LOVELACE}
+                      />{' '}
+                      to deploy the launch smart contracts. Part of this will be
+                      returned to you after the launch.
+                    </li>
+                    <li>
+                      ~
+                      <AssetQuantity
+                        unit={LOVELACE_UNIT}
+                        quantity={ESTIMATE_INIT_TRANSACTION_FEE_LOVELACE}
+                      />{' '}
+                      to pay for the transaction fee.
+                    </li>
+                  </ul>
+                </>
+              }
+            />
           )}
           {hasEnoughProjectTokens === false && (
-            <Alert variant="destructive">
-              <AlertTitle>Insufficient project tokens</AlertTitle>
-              <AlertDescription>
-                Based on your configuration, you need to have at least{' '}
-                <AssetQuantity
-                  unit={tokenInformation.projectTokenToSale.unit}
-                  quantity={requiredProjectTokens}
-                />{' '}
-                in your wallet to create this token launch.
-              </AlertDescription>
-            </Alert>
+            <ErrorAlert
+              title="Insufficient project tokens"
+              description={
+                <>
+                  Based on your configuration, you need to have at least{' '}
+                  <AssetQuantity
+                    unit={tokenInformation.projectTokenToSale.unit}
+                    quantity={requiredProjectTokens}
+                  />{' '}
+                  in your wallet to create this token launch.
+                </>
+              }
+            />
           )}
         </div>
 

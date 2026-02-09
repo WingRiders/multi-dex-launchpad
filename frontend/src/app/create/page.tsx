@@ -4,8 +4,8 @@ import {ArrowLeftIcon, Loader2Icon} from 'lucide-react'
 import Link from 'next/link'
 import {useShallow} from 'zustand/shallow'
 import {ClientOnly} from '@/components/client-only'
+import {ErrorAlert} from '@/components/error-alert'
 import {PageContainer} from '@/components/page-container'
-import {Alert, AlertTitle} from '@/components/ui/alert'
 import {Button} from '@/components/ui/button'
 import {useConnectedWalletStore} from '@/store/connected-wallet'
 import {isLaunchDraftStageAtLeast} from './helpers'
@@ -61,9 +61,7 @@ const CreatePageContent = () => {
         <Loader2Icon className="size-8 animate-spin" />
       </div>
     ) : (
-      <Alert variant="destructive" className="mt-8">
-        <AlertTitle>Connect your wallet to continue</AlertTitle>
-      </Alert>
+      <ErrorAlert title="Connect your wallet to continue" className="mt-8" />
     )
   }
 
