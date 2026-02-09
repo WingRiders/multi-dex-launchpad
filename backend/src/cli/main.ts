@@ -1,5 +1,6 @@
 import {Command} from 'commander'
 import {buildAddNodeCommand} from './add-node'
+import {buildDeployConstantContractsCommand} from './deploy-constant-contracts'
 import {buildInitLaunchCommand} from './init-launch'
 
 const program = new Command()
@@ -11,5 +12,6 @@ program
 
 program.addCommand(buildInitLaunchCommand())
 program.addCommand(buildAddNodeCommand())
+program.addCommand(buildDeployConstantContractsCommand())
 
 program.parse(process.argv)

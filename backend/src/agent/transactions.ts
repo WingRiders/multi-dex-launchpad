@@ -4,14 +4,10 @@ import {
   buildTx,
   type Contract,
   ensure,
-  generateConstantContracts,
   getLogContextFromTxBuilderBody,
   getTxInParameterUtxoId,
   makeBuilder,
   type RefScriptCarrierDatum,
-  SUNDAE_POOL_SCRIPT_HASH,
-  WR_POOL_SYMBOL,
-  WR_POOL_VALIDATOR_HASH,
 } from '@wingriders/multi-dex-launchpad-common'
 import {config} from '../config'
 import {logger} from '../logger'
@@ -24,24 +20,6 @@ import {
   getWalletPubKeyHash,
   trackSpentUtxo,
 } from './wallet'
-
-export const deployConstantContracts = async (): Promise<string | null> => {
-  const constantContracts = await generateConstantContracts({
-    wrPoolValidatorHash: WR_POOL_VALIDATOR_HASH[config.NETWORK],
-    wrPoolSymbol: WR_POOL_SYMBOL[config.NETWORK],
-    sundaePoolScriptHash: SUNDAE_POOL_SCRIPT_HASH[config.NETWORK],
-  })
-  const contracts = [
-    constantContracts.failProofValidator,
-    constantContracts.failProofPolicy,
-    constantContracts.poolProofValidator,
-    constantContracts.poolProofPolicy,
-  ]
-  const txHash = await deployContracts(contracts)
-  if (txHash) logger.info({txHash}, 'Deployed constant contracts')
-  else logger.error('Failed to deploy constant contracts')
-  return txHash
-}
 
 // NOTE: we don't _need_ to track spent non-wallet utxos,
 //       but we still do

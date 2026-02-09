@@ -1,5 +1,4 @@
 import {type Data, resolveScriptHash} from '@meshsdk/core'
-import {parseDatumCbor} from '@meshsdk/core-cst'
 import {
   PLUTUS_SCRIPT_VERSION_PREFIX,
   PLUTUS_SCRIPT_VERSION_TO_LANGUAGE,
@@ -13,7 +12,7 @@ export const getScriptFromExport = (plutusExport: {
   cborHex: string
   type: string
 }): Contract => {
-  const hex = parseDatumCbor(plutusExport.cborHex).bytes
+  const hex = plutusExport.cborHex
   const version =
     PLUTUS_SCRIPT_VERSION_TO_LANGUAGE[plutusExport.type as PlutusScriptVersion]
   const hash = resolveScriptHash(hex, version)
