@@ -8,6 +8,7 @@ import type {
   LaunchTimeStatus,
   ProjectInfoTxMetadata,
 } from '@wingriders/multi-dex-launchpad-common'
+import {max} from 'es-toolkit/compat'
 import type {Prisma} from '../../prisma/generated/client'
 import {config} from '../config'
 import {
@@ -77,9 +78,17 @@ export const getLaunches = async (
       projectLogoUrl: true,
       startTime: true,
       endTime: true,
-      firstProjectTokensHolder: {
+      firstProjectTokensHolders: {
+        where: {
+          txOut: {
+            spentSlot: {not: null},
+          },
+        },
         select: {
-          spentSlot: true,
+          txOut: {
+            // TODO: Here we could just select the max
+            select: {spentSlot: true},
+          },
         },
       },
     },
@@ -89,10 +98,13 @@ export const getLaunches = async (
     launches
       // filter out cancelled launches
       .filter(
-        ({startTime, firstProjectTokensHolder}) =>
+        ({startTime, firstProjectTokensHolders}) =>
           !isLaunchCancelled(
             Number(startTime),
-            firstProjectTokensHolder?.spentSlot,
+            // We get all historical first project token holder utxos here
+            // and we select the highest spentSlot, i.e. the most recent one
+            // cancelled launches would have one spent utxo here
+            max(firstProjectTokensHolders.map((h) => h.txOut.spentSlot)),
           ),
       )
       .map(
@@ -160,14 +172,12 @@ export const getLaunch = async (
 export const getFirstProjectTokensHolderUTxO = async (
   launchTxHash: string,
 ): Promise<UTxO> => {
-  const {firstProjectTokensHolder} = await prisma.launch.findUniqueOrThrow({
-    where: {
-      txHash: launchTxHash,
-    },
-    select: {
-      firstProjectTokensHolder: true,
-    },
-  })
+  const firstProjectTokensHolder =
+    // Gets the most recent first project tokens holder utxo
+    await prisma.firstProjectTokensHolder.findFirst({
+      select: {txOut: true},
+      where: {launchTxHash, txOut: {spentSlot: {not: null}}},
+    })
 
   if (firstProjectTokensHolder == null) {
     throw new Error(
@@ -175,5 +185,5 @@ export const getFirstProjectTokensHolderUTxO = async (
     )
   }
 
-  return prismaTxOutputToMeshOutput(firstProjectTokensHolder)
+  return prismaTxOutputToMeshOutput(firstProjectTokensHolder.txOut)
 }

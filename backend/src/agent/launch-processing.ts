@@ -3,7 +3,7 @@ import type {
   GeneratedContracts,
 } from '@wingriders/multi-dex-launchpad-common'
 import {Result} from 'better-result'
-import type {Launch} from '../../prisma/generated/client'
+import {RefScriptCarrierType} from '../../prisma/generated/client'
 import {prisma} from '../db/prisma-client'
 import type {InterestingLaunch} from '../interesting-launches'
 import {logger} from '../logger'
@@ -59,7 +59,15 @@ const processLaunch = async (
 
   // TODO: that probably can be cached in the interestingLaunches
   const launch = await prisma.launch.findUniqueOrThrow({
-    where: {txHash: launchTxHash},
+    where: {
+      txHash: launchTxHash,
+    },
+    include: {
+      refScriptCarriers: {
+        where: {txOut: {spentSlot: null}},
+        select: {type: true},
+      },
+    },
   })
 
   // Deploy contracts if needed
@@ -68,7 +76,7 @@ const processLaunch = async (
   for (const phase of [1, 2, 3, 4, 5] as const) {
     // TODO: we should chain these transactions
     const contractsToDeploy = getUndeployedLaunchContracts(
-      launch,
+      launch.refScriptCarriers,
       contracts,
       phase,
     )
@@ -137,42 +145,45 @@ const processLaunch = async (
 // Phase 5:
 // - node validator
 const getUndeployedLaunchContracts = (
-  launch: Launch,
+  deployedRefScriptCarriers: {type: RefScriptCarrierType}[],
   contracts: GeneratedContracts,
   phase: 1 | 2 | 3 | 4 | 5,
 ) => {
+  const isDeployed = (t: RefScriptCarrierType) =>
+    deployedRefScriptCarriers.some((c) => c.type === t)
+
   const undeployedContracts: Contract[] = []
 
   if (phase === 1) {
-    if (launch.rewardsFoldPolicyRefScriptCarrierTxHash == null)
+    if (!isDeployed(RefScriptCarrierType.REWARDS_FOLD_POLICY))
       undeployedContracts.push(contracts.rewardsFoldPolicy)
-    if (launch.nodePolicyRefScriptCarrierTxHash == null)
+    if (!isDeployed(RefScriptCarrierType.NODE_POLICY))
       undeployedContracts.push(contracts.nodePolicy)
-    if (launch.commitFoldPolicyRefScriptCarrierTxHash == null)
+    if (!isDeployed(RefScriptCarrierType.COMMIT_FOLD_POLICY))
       undeployedContracts.push(contracts.commitFoldPolicy)
-    if (launch.projectTokensHolderPolicyRefScriptCarrierTxHash == null)
+    if (!isDeployed(RefScriptCarrierType.PROJECT_TOKENS_HOLDER_POLICY))
       undeployedContracts.push(contracts.tokensHolderPolicy)
   }
 
   if (phase === 2) {
-    if (launch.commitFoldValidatorRefScriptCarrierTxHash == null)
+    if (!isDeployed(RefScriptCarrierType.COMMIT_FOLD_VALIDATOR))
       undeployedContracts.push(contracts.commitFoldValidator)
   }
 
   if (phase === 3) {
-    if (launch.finalProjectTokensHolderValidatorRefScriptCarrierTxHash == null)
+    if (!isDeployed(RefScriptCarrierType.FINAL_PROJECT_TOKENS_HOLDER_VALIDATOR))
       undeployedContracts.push(contracts.tokensHolderFinalValidator)
   }
 
   if (phase === 4) {
-    if (launch.rewardsFoldValidatorRefScriptCarrierTxHash == null)
+    if (!isDeployed(RefScriptCarrierType.REWARDS_FOLD_VALIDATOR))
       undeployedContracts.push(contracts.rewardsFoldValidator)
-    if (launch.firstProjectTokensHolderValidatorRefScriptCarrierTxHash == null)
+    if (!isDeployed(RefScriptCarrierType.FIRST_PROJECT_TOKENS_HOLDER_VALIDATOR))
       undeployedContracts.push(contracts.tokensHolderFirstValidator)
   }
 
   if (phase === 5) {
-    if (launch.nodeValidatorRefScriptCarrierTxHash == null)
+    if (!isDeployed(RefScriptCarrierType.NODE_VALIDATOR))
       undeployedContracts.push(contracts.nodeValidator)
   }
 

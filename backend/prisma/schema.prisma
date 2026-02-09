@@ -43,40 +43,29 @@ model TxOutput {
   spentSlot   Int?
   spentBlock  Block?  @relation("spent", fields: [spentSlot], references: [slot], onDelete: SetNull)
 
-  // ref script carriers
-  launchNodeValidatorRefScriptCarrier                     Launch? @relation("nodeValidatorRefScriptCarrier")
-  launchNodePolicyRefScriptCarrier                        Launch? @relation("nodePolicyRefScriptCarrier")
-  launchFirstProjectTokensHolderValidatorRefScriptCarrier Launch? @relation("firstProjectTokensHolderValidatorRefScriptCarrier")
-  launchProjectTokensHolderPolicyRefScriptCarrier         Launch? @relation("projectTokensHolderPolicyRefScriptCarrier")
-  launchFinalProjectTokensHolderValidatorRefScriptCarrier Launch? @relation("finalProjectTokensHolderValidatorRefScriptCarrier")
-  launchCommitFoldValidatorRefScriptCarrier               Launch? @relation("commitFoldValidatorRefScriptCarrier")
-  launchCommitFoldPolicyRefScriptCarrier                  Launch? @relation("commitFoldPolicyRefScriptCarrier")
-  launchRewardsFoldValidatorRefScriptCarrier              Launch? @relation("rewardsFoldValidatorRefScriptCarrier")
-  launchRewardsFoldPolicyRefScriptCarrier                 Launch? @relation("rewardsFoldPolicyRefScriptCarrier")
-
   // tracked utxos
-  launchFailProof                Launch?         @relation("failProof")
-  launchFirstProjectTokensHolder Launch?         @relation("firstProjectTokensHolder")
-  launchFinalProjectTokensHolder Launch?         @relation("finalProjectTokensHolder")
-  launchCommitFold               Launch?         @relation("commitFold")
-  launchRewardsFold              Launch?         @relation("rewardsFold")
-  launchWrPool                   Launch?         @relation("wrPool")
-  launchWrPoolProof              Launch?         @relation("wrPoolProof")
-  launchSundaePool               Launch?         @relation("sundaePool")
-  launchSundaePoolProof          Launch?         @relation("sundaePoolProof")
-  nodes                          Node[]
-  rewardsHolders                 RewardsHolder[]
+  nodes                     Node[]
+  rewardsHolders            RewardsHolder[]
+  failProofs                FailProof[]
+  firstProjectTokensHolders FirstProjectTokensHolder[]
+  finalProjectTokensHolders FinalProjectTokensHolder[]
+  commitFolds               CommitFold[]
+  rewardsFolds              RewardsFold[]
+  poolProofs                PoolProof[]
+  wrPools                   WrPool[]
+  sundaePools               SundaePool[]
+
+  refScriptCarriers RefScriptCarrier[]
 
   @@id([txHash, outputIndex])
 }
 
 model Node {
-  txHash      String
-  outputIndex Int
-  txOut       TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
-
+  txHash       String
+  outputIndex  Int
+  txOut        TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
   launchTxHash String
-  launch       Launch @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
+  launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
 
   keyHash     String?
   keyIndex    Int?
@@ -89,12 +78,125 @@ model Node {
 }
 
 model RewardsHolder {
-  txHash      String
-  outputIndex Int
-  txOut       TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
-
+  txHash       String
+  outputIndex  Int
+  txOut        TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
   launchTxHash String
-  launch       Launch @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
+  launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
+
+  @@unique([txHash, outputIndex, launchTxHash])
+}
+
+model FailProof {
+  txHash       String
+  outputIndex  Int
+  txOut        TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
+  launchTxHash String
+  launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
+
+  @@unique([txHash, outputIndex, launchTxHash])
+}
+
+model FirstProjectTokensHolder {
+  txHash       String
+  outputIndex  Int
+  txOut        TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
+  launchTxHash String
+  launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
+
+  @@unique([txHash, outputIndex, launchTxHash])
+}
+
+model FinalProjectTokensHolder {
+  txHash       String
+  outputIndex  Int
+  txOut        TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
+  launchTxHash String
+  launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
+
+  @@unique([txHash, outputIndex, launchTxHash])
+}
+
+model CommitFold {
+  txHash       String
+  outputIndex  Int
+  txOut        TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
+  launchTxHash String
+  launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
+
+  @@unique([txHash, outputIndex, launchTxHash])
+}
+
+model RewardsFold {
+  txHash       String
+  outputIndex  Int
+  txOut        TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
+  launchTxHash String
+  launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
+
+  @@unique([txHash, outputIndex, launchTxHash])
+}
+
+enum PoolProofType {
+  SUNDAE
+  WR
+}
+
+model PoolProof {
+  txHash       String
+  outputIndex  Int
+  txOut        TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
+  launchTxHash String
+  launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
+
+  type PoolProofType
+
+  @@unique([txHash, outputIndex, launchTxHash])
+}
+
+model WrPool {
+  txHash       String
+  outputIndex  Int
+  txOut        TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
+  launchTxHash String
+  launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
+
+  @@unique([txHash, outputIndex, launchTxHash])
+}
+
+model SundaePool {
+  txHash       String
+  outputIndex  Int
+  txOut        TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
+  launchTxHash String
+  launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
+
+  @@unique([txHash, outputIndex, launchTxHash])
+}
+
+// NOTE: only generated contracts are tracked in the db
+//       constant contract are deployed once
+//       and stored as constants directly in the codebase
+enum RefScriptCarrierType {
+  NODE_VALIDATOR
+  NODE_POLICY
+  FIRST_PROJECT_TOKENS_HOLDER_VALIDATOR
+  PROJECT_TOKENS_HOLDER_POLICY
+  FINAL_PROJECT_TOKENS_HOLDER_VALIDATOR
+  COMMIT_FOLD_VALIDATOR
+  COMMIT_FOLD_POLICY
+  REWARDS_FOLD_VALIDATOR
+  REWARDS_FOLD_POLICY
+}
+
+model RefScriptCarrier {
+  txHash       String
+  outputIndex  Int
+  txOut        TxOutput @relation(fields: [txHash, outputIndex], references: [txHash, outputIndex], onDelete: Cascade)
+  launchTxHash String
+  launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
+
+  type RefScriptCarrierType
 
   @@unique([txHash, outputIndex, launchTxHash])
 }
@@ -116,86 +218,26 @@ model Launch {
   projectTermsAndConditionsUrl String?
   projectAdditionalUrl         String?
 
-  // Ref script carriers for generated contracts
-  // constant contracts ref carriers are not saved in the db REVIEW: maybe we should?
-  nodeValidatorRefScriptCarrierTxHash      String?
-  nodeValidatorRefScriptCarrierOutputIndex Int?
-  nodeValidatorRefScriptCarrier            TxOutput? @relation("nodeValidatorRefScriptCarrier", fields: [nodeValidatorRefScriptCarrierTxHash, nodeValidatorRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  nodePolicyRefScriptCarrierTxHash      String?
-  nodePolicyRefScriptCarrierOutputIndex Int?
-  nodePolicyRefScriptCarrier            TxOutput? @relation("nodePolicyRefScriptCarrier", fields: [nodePolicyRefScriptCarrierTxHash, nodePolicyRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  firstProjectTokensHolderValidatorRefScriptCarrierTxHash      String?
-  firstProjectTokensHolderValidatorRefScriptCarrierOutputIndex Int?
-  firstProjectTokensHolderValidatorRefScriptCarrier            TxOutput? @relation("firstProjectTokensHolderValidatorRefScriptCarrier", fields: [firstProjectTokensHolderValidatorRefScriptCarrierTxHash, firstProjectTokensHolderValidatorRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  projectTokensHolderPolicyRefScriptCarrierTxHash      String?
-  projectTokensHolderPolicyRefScriptCarrierOutputIndex Int?
-  projectTokensHolderPolicyRefScriptCarrier            TxOutput? @relation("projectTokensHolderPolicyRefScriptCarrier", fields: [projectTokensHolderPolicyRefScriptCarrierTxHash, projectTokensHolderPolicyRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  finalProjectTokensHolderValidatorRefScriptCarrierTxHash      String?
-  finalProjectTokensHolderValidatorRefScriptCarrierOutputIndex Int?
-  finalProjectTokensHolderValidatorRefScriptCarrier            TxOutput? @relation("finalProjectTokensHolderValidatorRefScriptCarrier", fields: [finalProjectTokensHolderValidatorRefScriptCarrierTxHash, finalProjectTokensHolderValidatorRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  commitFoldValidatorRefScriptCarrierTxHash      String?
-  commitFoldValidatorRefScriptCarrierOutputIndex Int?
-  commitFoldValidatorRefScriptCarrier            TxOutput? @relation("commitFoldValidatorRefScriptCarrier", fields: [commitFoldValidatorRefScriptCarrierTxHash, commitFoldValidatorRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  commitFoldPolicyRefScriptCarrierTxHash      String?
-  commitFoldPolicyRefScriptCarrierOutputIndex Int?
-  commitFoldPolicyRefScriptCarrier            TxOutput? @relation("commitFoldPolicyRefScriptCarrier", fields: [commitFoldPolicyRefScriptCarrierTxHash, commitFoldPolicyRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  rewardsFoldValidatorRefScriptCarrierTxHash      String?
-  rewardsFoldValidatorRefScriptCarrierOutputIndex Int?
-  rewardsFoldValidatorRefScriptCarrier            TxOutput? @relation("rewardsFoldValidatorRefScriptCarrier", fields: [rewardsFoldValidatorRefScriptCarrierTxHash, rewardsFoldValidatorRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  rewardsFoldPolicyRefScriptCarrierTxHash      String?
-  rewardsFoldPolicyRefScriptCarrierOutputIndex Int?
-  rewardsFoldPolicyRefScriptCarrier            TxOutput? @relation("rewardsFoldPolicyRefScriptCarrier", fields: [rewardsFoldPolicyRefScriptCarrierTxHash, rewardsFoldPolicyRefScriptCarrierOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
   // Tracked utxos
-  nodes          Node[]
-  rewardsHolders RewardsHolder[]
+  // They are stored in separate tables so that
+  // rollback handling would not loose any data.
+  // If we were to store them in this table linking against TxOutput
+  // we would not be able to find, e.g., the previous rewards fold in case
+  // its utxo is rolled back
+  // Some utxos do not require that (fail proofs / pool proofs are unspendable)
+  // but they are handled the same for consistency
+  nodes                     Node[]
+  rewardsHolders            RewardsHolder[]
+  failProofs                FailProof[]
+  firstProjectTokensHolders FirstProjectTokensHolder[]
+  finalProjectTokensHolders FinalProjectTokensHolder[]
+  commitFolds               CommitFold[]
+  rewardsFolds              RewardsFold[]
+  poolProofs                PoolProof[]
+  wrPools                   WrPool[]
+  sundaePools               SundaePool[]
 
-  failProofTxHash      String?
-  failProofOutputIndex Int?
-  failProof            TxOutput? @relation("failProof", fields: [failProofTxHash, failProofOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  firstProjectTokensHolderTxHash      String?
-  firstProjectTokensHolderOutputIndex Int?
-  firstProjectTokensHolder            TxOutput? @relation("firstProjectTokensHolder", fields: [firstProjectTokensHolderTxHash, firstProjectTokensHolderOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  finalProjectTokensHolderTxHash      String?
-  finalProjectTokensHolderOutputIndex Int?
-  finalProjectTokensHolder            TxOutput? @relation("finalProjectTokensHolder", fields: [finalProjectTokensHolderTxHash, finalProjectTokensHolderOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  commitFoldTxHash      String?
-  commitFoldOutputIndex Int?
-  commitFold            TxOutput? @relation("commitFold", fields: [commitFoldTxHash, commitFoldOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  rewardsFoldTxHash      String?
-  rewardsFoldOutputIndex Int?
-  rewardsFold            TxOutput? @relation("rewardsFold", fields: [rewardsFoldTxHash, rewardsFoldOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  // REVIEW: we probably don't want to store the pools because they change all the time
-  //         but we actually need this data, and fetching it doesn't make sense as it's a standalone service
-  //         we need to stop aggregating these once the pool proof is created
-  wrPoolTxHash      String?
-  wrPoolOutputIndex Int?
-  wrPool            TxOutput? @relation("wrPool", fields: [wrPoolTxHash, wrPoolOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  wrPoolProofTxHash      String?
-  wrPoolProofOutputIndex Int?
-  wrPoolProof            TxOutput? @relation("wrPoolProof", fields: [wrPoolProofTxHash, wrPoolProofOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  sundaePoolTxHash      String?
-  sundaePoolOutputIndex Int?
-  sundaePool            TxOutput? @relation("sundaePool", fields: [sundaePoolTxHash, sundaePoolOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
-
-  sundaePoolProofTxHash      String?
-  sundaePoolProofOutputIndex Int?
-  sundaePoolProof            TxOutput? @relation("sundaePoolProof", fields: [sundaePoolProofTxHash, sundaePoolProofOutputIndex], references: [txHash, outputIndex], onDelete: SetNull)
+  refScriptCarriers RefScriptCarrier[]
 
   // The configuration is available as soon as the transaction is parsed.
   // We store it inline in the launch table.
@@ -293,25 +335,4 @@ model Launch {
   // The min amount of ada various utxos are expected to held.
   // This includes the rewards holder, dao fee, and final project tokens holder.
   oilAda                             BigInt
-
-  // unique ref script carriers
-  @@unique([nodeValidatorRefScriptCarrierTxHash, nodeValidatorRefScriptCarrierOutputIndex])
-  @@unique([nodePolicyRefScriptCarrierTxHash, nodePolicyRefScriptCarrierOutputIndex])
-  @@unique([firstProjectTokensHolderValidatorRefScriptCarrierTxHash, firstProjectTokensHolderValidatorRefScriptCarrierOutputIndex])
-  @@unique([projectTokensHolderPolicyRefScriptCarrierTxHash, projectTokensHolderPolicyRefScriptCarrierOutputIndex])
-  @@unique([finalProjectTokensHolderValidatorRefScriptCarrierTxHash, finalProjectTokensHolderValidatorRefScriptCarrierOutputIndex])
-  @@unique([commitFoldValidatorRefScriptCarrierTxHash, commitFoldValidatorRefScriptCarrierOutputIndex])
-  @@unique([commitFoldPolicyRefScriptCarrierTxHash, commitFoldPolicyRefScriptCarrierOutputIndex])
-  @@unique([rewardsFoldValidatorRefScriptCarrierTxHash, rewardsFoldValidatorRefScriptCarrierOutputIndex])
-  @@unique([rewardsFoldPolicyRefScriptCarrierTxHash, rewardsFoldPolicyRefScriptCarrierOutputIndex])
-  // unique tracked utxos
-  @@unique([failProofTxHash, failProofOutputIndex])
-  @@unique([firstProjectTokensHolderTxHash, firstProjectTokensHolderOutputIndex])
-  @@unique([finalProjectTokensHolderTxHash, finalProjectTokensHolderOutputIndex])
-  @@unique([commitFoldTxHash, commitFoldOutputIndex])
-  @@unique([rewardsFoldTxHash, rewardsFoldOutputIndex])
-  @@unique([wrPoolTxHash, wrPoolOutputIndex])
-  @@unique([wrPoolProofTxHash, wrPoolProofOutputIndex])
-  @@unique([sundaePoolTxHash, sundaePoolOutputIndex])
-  @@unique([sundaePoolProofTxHash, sundaePoolProofOutputIndex])
 }

@@ -2,7 +2,10 @@ import {
   ensure,
   type RefSCriptUTxO,
 } from '@wingriders/multi-dex-launchpad-common'
-import type {TxOutput} from '../../prisma/generated/client'
+import {
+  RefScriptCarrierType,
+  type TxOutput,
+} from '../../prisma/generated/client'
 import {prismaTxOutputToMeshOutput} from '../db/helpers'
 import {prisma} from '../db/prisma-client'
 
@@ -31,12 +34,14 @@ const txOutputToRefScriptUtxo = (txOutput: TxOutput): RefSCriptUTxO => {
 export const getNodeValidatorRefScriptUtxo = async (
   launchTxHash: string,
 ): Promise<RefSCriptUTxO> => {
-  const {nodeValidatorRefScriptCarrier} = await prisma.launch.findUniqueOrThrow(
+  const nodeValidatorRefScriptCarrier = await prisma.refScriptCarrier.findFirst(
     {
-      where: {txHash: launchTxHash},
-      select: {
-        nodeValidatorRefScriptCarrier: true,
+      where: {
+        launchTxHash,
+        type: RefScriptCarrierType.NODE_VALIDATOR,
+        txOut: {spentSlot: null},
       },
+      select: {txOut: true},
     },
   )
 
@@ -44,35 +49,39 @@ export const getNodeValidatorRefScriptUtxo = async (
     throw new Error('Node validator ref script carrier not found')
   }
 
-  return txOutputToRefScriptUtxo(nodeValidatorRefScriptCarrier)
+  return txOutputToRefScriptUtxo(nodeValidatorRefScriptCarrier.txOut)
 }
 
 export const getNodePolicyRefScriptUtxo = async (
   launchTxHash: string,
 ): Promise<RefSCriptUTxO> => {
-  const {nodePolicyRefScriptCarrier} = await prisma.launch.findUniqueOrThrow({
-    where: {txHash: launchTxHash},
-    select: {
-      nodePolicyRefScriptCarrier: true,
+  const nodePolicyRefScriptCarrier = await prisma.refScriptCarrier.findFirst({
+    where: {
+      launchTxHash,
+      type: RefScriptCarrierType.NODE_POLICY,
+      txOut: {spentSlot: null},
     },
+    select: {txOut: true},
   })
 
   if (nodePolicyRefScriptCarrier == null) {
     throw new Error('Node policy ref script carrier not found')
   }
 
-  return txOutputToRefScriptUtxo(nodePolicyRefScriptCarrier)
+  return txOutputToRefScriptUtxo(nodePolicyRefScriptCarrier.txOut)
 }
 
 export const getFirstProjectTokensHolderValidatorRefScriptUtxo = async (
   launchTxHash: string,
 ): Promise<RefSCriptUTxO> => {
-  const {firstProjectTokensHolderValidatorRefScriptCarrier} =
-    await prisma.launch.findUniqueOrThrow({
-      where: {txHash: launchTxHash},
-      select: {
-        firstProjectTokensHolderValidatorRefScriptCarrier: true,
+  const firstProjectTokensHolderValidatorRefScriptCarrier =
+    await prisma.refScriptCarrier.findFirst({
+      where: {
+        launchTxHash,
+        type: RefScriptCarrierType.FIRST_PROJECT_TOKENS_HOLDER_VALIDATOR,
+        txOut: {spentSlot: null},
       },
+      select: {txOut: true},
     })
 
   if (firstProjectTokensHolderValidatorRefScriptCarrier == null) {
@@ -82,24 +91,28 @@ export const getFirstProjectTokensHolderValidatorRefScriptUtxo = async (
   }
 
   return txOutputToRefScriptUtxo(
-    firstProjectTokensHolderValidatorRefScriptCarrier,
+    firstProjectTokensHolderValidatorRefScriptCarrier.txOut,
   )
 }
 
 export const getProjectTokensHolderPolicyRefScriptUtxo = async (
   launchTxHash: string,
 ): Promise<RefSCriptUTxO> => {
-  const {projectTokensHolderPolicyRefScriptCarrier} =
-    await prisma.launch.findUniqueOrThrow({
-      where: {txHash: launchTxHash},
-      select: {
-        projectTokensHolderPolicyRefScriptCarrier: true,
+  const projectTokensHolderPolicyRefScriptCarrier =
+    await prisma.refScriptCarrier.findFirst({
+      where: {
+        launchTxHash,
+        type: RefScriptCarrierType.PROJECT_TOKENS_HOLDER_POLICY,
+        txOut: {spentSlot: null},
       },
+      select: {txOut: true},
     })
 
   if (projectTokensHolderPolicyRefScriptCarrier == null) {
     throw new Error('Project tokens holder policy ref script carrier not found')
   }
 
-  return txOutputToRefScriptUtxo(projectTokensHolderPolicyRefScriptCarrier)
+  return txOutputToRefScriptUtxo(
+    projectTokensHolderPolicyRefScriptCarrier.txOut,
+  )
 }

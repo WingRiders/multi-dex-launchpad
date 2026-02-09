@@ -142,37 +142,23 @@ export const resetInterestingLaunches = async () => {
     where: {
       NOT: {
         AND: [
-          {nodeValidatorRefScriptCarrier: {spentSlot: {not: null}}},
-          {nodePolicyRefScriptCarrier: {spentSlot: {not: null}}},
-          {
-            firstProjectTokensHolderValidatorRefScriptCarrier: {
-              spentSlot: {not: null},
-            },
-          },
-          {
-            projectTokensHolderPolicyRefScriptCarrier: {
-              spentSlot: {not: null},
-            },
-          },
-          {
-            finalProjectTokensHolderValidatorRefScriptCarrier: {
-              spentSlot: {not: null},
-            },
-          },
-          {
-            commitFoldValidatorRefScriptCarrier: {spentSlot: {not: null}},
-          },
-          {commitFoldPolicyRefScriptCarrier: {spentSlot: {not: null}}},
-          {
-            rewardsFoldValidatorRefScriptCarrier: {spentSlot: {not: null}},
-          },
-          {rewardsFoldPolicyRefScriptCarrier: {spentSlot: {not: null}}},
+          // NOTE: here we could be missing some ref script carriers altogether
+          //       but if all the other utxos are spent that's not a problem
+          {refScriptCarriers: {some: {txOut: {spentSlot: {not: null}}}}},
           {nodes: {some: {txOut: {spentSlot: {not: null}}}}},
           {rewardsHolders: {some: {txOut: {spentSlot: {not: null}}}}},
-          {commitFold: {spentSlot: {not: null}}},
-          {rewardsFold: {spentSlot: {not: null}}},
-          {firstProjectTokensHolder: {spentSlot: {not: null}}},
-          {finalProjectTokensHolder: {spentSlot: {not: null}}},
+          {commitFolds: {some: {txOut: {spentSlot: {not: null}}}}},
+          {rewardsFolds: {some: {txOut: {spentSlot: {not: null}}}}},
+          {
+            firstProjectTokensHolders: {
+              some: {txOut: {spentSlot: {not: null}}},
+            },
+          },
+          {
+            finalProjectTokensHolders: {
+              some: {txOut: {spentSlot: {not: null}}},
+            },
+          },
         ],
       },
     },

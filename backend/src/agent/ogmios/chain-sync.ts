@@ -30,7 +30,12 @@ import {
 } from '@wingriders/multi-dex-launchpad-common'
 import type {SetNonNullable, SetRequired} from 'type-fest'
 import z from 'zod'
-import type {Block, TxOutput} from '../../../prisma/generated/client'
+import {
+  type Block,
+  PoolProofType,
+  RefScriptCarrierType,
+  type TxOutput,
+} from '../../../prisma/generated/client'
 import type {
   LaunchCreateManyInput,
   TxOutputCreateManyInput,
@@ -144,7 +149,15 @@ const resetTrackedUtxos = async () => {
   trackedUtxos = await prisma.txOutput.findMany({
     where: {spentSlot: null},
   })
-  logger.debug({trackedUtxos}, 'Reset tracked utxos')
+  logger.debug(
+    {
+      trackedUtxos: trackedUtxos.map((utxo) => ({
+        txHash: utxo.txHash,
+        outputIndex: utxo.outputIndex,
+      })),
+    },
+    'Reset tracked utxos',
+  )
 }
 
 // Aggregation logic is here
@@ -475,8 +488,7 @@ const parseInitLaunch = async (slot: number, transactions: Transaction[]) => {
       )
       continue
     }
-    const [projectTokensHolder, firstProjectTokensHolderOutputIndex] =
-      projectTokensHolders[0]!
+    const [projectTokensHolder] = projectTokensHolders[0]!
     const projectTokens =
       projectTokensHolder.value[launchContracts.tokensHolderPolicy.hash]?.[
         launchContracts.tokensHolderFirstValidator.hash
@@ -548,8 +560,6 @@ const parseInitLaunch = async (slot: number, transactions: Transaction[]) => {
         projectTermsAndConditionsUrl:
           launchTxMetadata.data.projectInfo.termsAndConditionsUrl,
         projectAdditionalUrl: launchTxMetadata.data.projectInfo.additionalUrl,
-        firstProjectTokensHolderTxHash: tx.id,
-        firstProjectTokensHolderOutputIndex,
         ownerBech32Address: launchTxMetadata.data.config.ownerBech32Address,
         splitBps: Number(launchTxMetadata.data.config.splitBps),
         wrPoolValidatorHash: launchTxMetadata.data.config.wrPoolValidatorHash,
@@ -752,99 +762,101 @@ const saveLaunchTxOutputsFields = async (
   for (const {launchTxHash, outputType, txOutput} of launchTxOutputBuffer) {
     switch (outputType) {
       case 'nodeValidatorRefScriptCarrier': {
-        await prisma.launch.update({
+        await prisma.refScriptCarrier.create({
           data: {
-            nodeValidatorRefScriptCarrierTxHash: txOutput.txHash,
-            nodeValidatorRefScriptCarrierOutputIndex: txOutput.outputIndex,
+            type: RefScriptCarrierType.NODE_VALIDATOR,
+            launchTxHash: launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'nodePolicyRefScriptCarrier': {
-        await prisma.launch.update({
+        await prisma.refScriptCarrier.create({
           data: {
-            nodePolicyRefScriptCarrierTxHash: txOutput.txHash,
-            nodePolicyRefScriptCarrierOutputIndex: txOutput.outputIndex,
+            type: RefScriptCarrierType.NODE_POLICY,
+            launchTxHash: launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'firstProjectTokensHolderValidatorRefScriptCarrier': {
-        await prisma.launch.update({
+        await prisma.refScriptCarrier.create({
           data: {
-            firstProjectTokensHolderValidatorRefScriptCarrierTxHash:
-              txOutput.txHash,
-            firstProjectTokensHolderValidatorRefScriptCarrierOutputIndex:
-              txOutput.outputIndex,
+            type: RefScriptCarrierType.FIRST_PROJECT_TOKENS_HOLDER_VALIDATOR,
+            launchTxHash: launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'projectTokensHolderPolicyRefScriptCarrier': {
-        await prisma.launch.update({
+        await prisma.refScriptCarrier.create({
           data: {
-            projectTokensHolderPolicyRefScriptCarrierTxHash: txOutput.txHash,
-            projectTokensHolderPolicyRefScriptCarrierOutputIndex:
-              txOutput.outputIndex,
+            type: RefScriptCarrierType.PROJECT_TOKENS_HOLDER_POLICY,
+            launchTxHash: launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'finalProjectTokensHolderValidatorRefScriptCarrier': {
-        await prisma.launch.update({
+        await prisma.refScriptCarrier.create({
           data: {
-            finalProjectTokensHolderValidatorRefScriptCarrierTxHash:
-              txOutput.txHash,
-            finalProjectTokensHolderValidatorRefScriptCarrierOutputIndex:
-              txOutput.outputIndex,
+            type: RefScriptCarrierType.FINAL_PROJECT_TOKENS_HOLDER_VALIDATOR,
+            launchTxHash: launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'commitFoldValidatorRefScriptCarrier': {
-        await prisma.launch.update({
+        await prisma.refScriptCarrier.create({
           data: {
-            commitFoldValidatorRefScriptCarrierTxHash: txOutput.txHash,
-            commitFoldValidatorRefScriptCarrierOutputIndex:
-              txOutput.outputIndex,
+            type: RefScriptCarrierType.COMMIT_FOLD_VALIDATOR,
+            launchTxHash: launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'commitFoldPolicyRefScriptCarrier': {
-        await prisma.launch.update({
+        await prisma.refScriptCarrier.create({
           data: {
-            commitFoldPolicyRefScriptCarrierTxHash: txOutput.txHash,
-            commitFoldPolicyRefScriptCarrierOutputIndex: txOutput.outputIndex,
+            type: RefScriptCarrierType.COMMIT_FOLD_POLICY,
+            launchTxHash: launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'rewardsFoldValidatorRefScriptCarrier': {
-        await prisma.launch.update({
+        await prisma.refScriptCarrier.create({
           data: {
-            rewardsFoldValidatorRefScriptCarrierTxHash: txOutput.txHash,
-            rewardsFoldValidatorRefScriptCarrierOutputIndex:
-              txOutput.outputIndex,
+            type: RefScriptCarrierType.REWARDS_FOLD_VALIDATOR,
+            launchTxHash: launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'rewardsFoldPolicyRefScriptCarrier': {
-        await prisma.launch.update({
+        await prisma.refScriptCarrier.create({
           data: {
-            rewardsFoldPolicyRefScriptCarrierTxHash: txOutput.txHash,
-            rewardsFoldPolicyRefScriptCarrierOutputIndex: txOutput.outputIndex,
+            type: RefScriptCarrierType.REWARDS_FOLD_POLICY,
+            launchTxHash: launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
@@ -882,92 +894,94 @@ const saveLaunchTxOutputsFields = async (
         break
       }
       case 'firstProjectTokensHolder': {
-        await prisma.launch.update({
+        await prisma.firstProjectTokensHolder.create({
           data: {
-            firstProjectTokensHolderTxHash: txOutput.txHash,
-            firstProjectTokensHolderOutputIndex: txOutput.outputIndex,
+            launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'finalProjectTokensHolder': {
-        await prisma.launch.update({
+        await prisma.finalProjectTokensHolder.create({
           data: {
-            finalProjectTokensHolderTxHash: txOutput.txHash,
-            finalProjectTokensHolderOutputIndex: txOutput.outputIndex,
+            launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'commitFold': {
-        await prisma.launch.update({
+        await prisma.commitFold.create({
           data: {
-            commitFoldTxHash: txOutput.txHash,
-            commitFoldOutputIndex: txOutput.outputIndex,
+            launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'rewardsFold': {
-        await prisma.launch.update({
+        await prisma.rewardsFold.create({
           data: {
-            rewardsFoldTxHash: txOutput.txHash,
-            rewardsFoldOutputIndex: txOutput.outputIndex,
+            launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'failProof': {
-        await prisma.launch.update({
+        await prisma.failProof.create({
           data: {
-            failProofTxHash: txOutput.txHash,
-            failProofOutputIndex: txOutput.outputIndex,
+            launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'wrPoolProof': {
-        await prisma.launch.update({
+        await prisma.poolProof.create({
           data: {
-            wrPoolProofTxHash: txOutput.txHash,
-            wrPoolProofOutputIndex: txOutput.outputIndex,
+            launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
+            type: PoolProofType.WR,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'sundaePoolProof': {
-        await prisma.launch.update({
+        await prisma.poolProof.create({
           data: {
-            sundaePoolProofTxHash: txOutput.txHash,
-            sundaePoolProofOutputIndex: txOutput.outputIndex,
+            launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
+            type: PoolProofType.SUNDAE,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'wrPool': {
-        await prisma.launch.update({
+        await prisma.wrPool.create({
           data: {
-            wrPoolTxHash: txOutput.txHash,
-            wrPoolOutputIndex: txOutput.outputIndex,
+            launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
       case 'sundaePool': {
-        await prisma.launch.update({
+        await prisma.sundaePool.create({
           data: {
-            sundaePoolTxHash: txOutput.txHash,
-            sundaePoolOutputIndex: txOutput.outputIndex,
+            launchTxHash,
+            txHash: txOutput.txHash,
+            outputIndex: txOutput.outputIndex,
           },
-          where: {txHash: launchTxHash},
         })
         break
       }
