@@ -204,6 +204,7 @@ export const OverviewForm = () => {
                   width={800}
                   height={400}
                   className="h-auto w-full object-cover"
+                  loading="eager"
                 />
               </div>
             </div>

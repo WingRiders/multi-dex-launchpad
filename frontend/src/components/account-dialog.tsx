@@ -22,6 +22,7 @@ export const AccountDialog = ({open, onOpenChange}: AccountDialogProps) => {
         onOpenAutoFocus={(event) => {
           event.preventDefault()
         }}
+        aria-describedby={undefined}
       >
         <AccountDialogContent onOpenChange={onOpenChange} />
       </DialogContent>

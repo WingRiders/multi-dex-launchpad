@@ -58,7 +58,7 @@ export const RemoveCommitmentDialog = ({
         if (!open) onClose()
       }}
     >
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         {node && (
           <RemoveCommitmentDialogContent
             launchTxHash={launchTxHash}

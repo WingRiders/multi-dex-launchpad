@@ -18,7 +18,7 @@ export const TxSubmittedDialog = ({
 }: TxSubmittedDialogProps) => {
   return (
     <Dialog open={!!txHash} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         {txHash && (
           <TxSubmittedDialogContent
             txHash={txHash}

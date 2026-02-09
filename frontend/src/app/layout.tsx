@@ -28,13 +28,19 @@ export const dynamic = 'force-dynamic'
 
 const RootLayout = ({children}: LayoutProps<'/'>) => {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      // ThemeProvider from next-themes updates the html attributes client-side, which causes hydration mismatch warnings
+      suppressHydrationWarning
+    >
       <head>
         <PublicEnvScript />
       </head>
 
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        // some extensions can cause hydration mismatch warnings by updating the body attributes client-side before our React loads
+        suppressHydrationWarning
       >
         <ThemeProvider
           attribute="class"

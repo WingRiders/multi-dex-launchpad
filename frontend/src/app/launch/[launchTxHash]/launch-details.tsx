@@ -53,16 +53,18 @@ export const LaunchDetails = ({launchTxHash}: LaunchDetailsProps) => {
 
       <LaunchTimeline config={config} />
 
-      <div className="grid grid-cols-5 gap-8">
-        <div className="relative col-span-3 h-[450px] w-full">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-5">
+        <div className="relative h-[300px] w-full md:col-span-3 md:h-[450px]">
           <Image
             src={ipfsToHttps(projectInfo.logoUrl)}
             alt={projectInfo.title}
             fill
+            sizes="(min-width: 1024px) 60vw, 100vw"
             className="object-cover"
+            loading="eager"
           />
         </div>
-        <div className="col-span-2">
+        <div className="md:col-span-2">
           <Contributing launchTxHash={launchTxHash} config={config} />
         </div>
       </div>

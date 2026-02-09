@@ -47,7 +47,7 @@ export const LaunchItem = ({launch}: LaunchItemProps) => {
             src={ipfsToHttps(launch.logoIpfsUrl)}
             className="h-52 w-full object-cover transition-transform duration-300 hover:scale-[1.02]"
             alt={launch.title}
-            loading="lazy"
+            loading="eager"
             width={500}
             height={500}
           />

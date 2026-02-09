@@ -115,7 +115,7 @@ const NodeItem = ({node, config, onWithdraw}: NodeItemProps) => {
 
       {canCreateRemoveTxAfter < config.endTime && (
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <div>
               <Button
                 variant="outline"

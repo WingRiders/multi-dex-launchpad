@@ -21,7 +21,7 @@ export const ConnectWalletDialog = ({
 }: ConnectWalletDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <ConnectWalletDialogContent
           onConnect={onConnect}
           isWalletConnecting={isWalletConnecting}

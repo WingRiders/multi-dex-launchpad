@@ -26,7 +26,7 @@ export const UnitSelectDialog = ({
 }: UnitSelectDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <UnitSelectDialogContent
           items={items}
           onItemClick={onItemClick}

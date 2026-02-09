@@ -1,6 +1,7 @@
 import type {LaunchConfig} from '@wingriders/multi-dex-launchpad-common'
 import {cva} from 'class-variance-authority'
 import {formatDistanceStrict} from 'date-fns'
+import {round} from 'es-toolkit'
 import {ActivityIcon, CheckIcon, CircleIcon} from 'lucide-react'
 import {Fragment, useMemo} from 'react'
 import {formatDateTime} from '@/helpers/format'
@@ -120,7 +121,7 @@ export const LaunchTimeline = ({
                   style={{
                     width: `${
                       data.status === 'active'
-                        ? data.progress * 100
+                        ? round(data.progress * 100, 2)
                         : data.status === 'completed'
                           ? 100
                           : 0

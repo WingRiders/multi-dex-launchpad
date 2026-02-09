@@ -61,6 +61,7 @@ export const CreateLaunchDialog = ({
           event.preventDefault()
         }}
         className="max-h-[80vh] overflow-y-auto"
+        aria-describedby={undefined}
       >
         <CreateLaunchDialogContent
           onOpenChange={onOpenChange}
