@@ -2,7 +2,7 @@ import {
   type AddCreateCommitmentArgs,
   addCreateCommitment,
   calculateTxValidityIntervalForInsertNode,
-  type LaunchpadConfig,
+  type LaunchConfig,
   makeBuilder,
 } from '@wingriders/multi-dex-launchpad-common'
 import {Result} from 'better-result'
@@ -61,11 +61,11 @@ const waitForNodeTx = (txHash: string) =>
 
 const processAddNodeTransactions = async (
   launchTxHash: string,
-  launchpadConfig: LaunchpadConfig,
+  launchConfig: LaunchConfig,
   addNodeTransactions: AddNodeTransaction[],
 ) => {
   const now = Date.now()
-  const waitForDefaultStart = launchpadConfig.defaultStartTime - now
+  const waitForDefaultStart = launchConfig.defaultStartTime - now
   if (waitForDefaultStart > 0) {
     logger.info(
       `Default tier not started yet, waiting ${waitForDefaultStart / 1000}s`,
@@ -73,7 +73,7 @@ const processAddNodeTransactions = async (
     await Bun.sleep(waitForDefaultStart)
     return processAddNodeTransactions(
       launchTxHash,
-      launchpadConfig,
+      launchConfig,
       addNodeTransactions,
     )
   }
@@ -127,15 +127,15 @@ const processAddNodeTransactions = async (
 
   const validityInterval = calculateTxValidityIntervalForInsertNode(
     config.NETWORK,
-    launchpadConfig.defaultStartTime,
-    launchpadConfig.endTime,
+    launchConfig.defaultStartTime,
+    launchConfig.endTime,
     now,
   )
 
   const addCreateCommitmentArgs: AddCreateCommitmentArgs = {
     config: {
-      nodeAda: launchpadConfig.nodeAda,
-      raisingToken: launchpadConfig.raisingToken,
+      nodeAda: launchConfig.nodeAda,
+      raisingToken: launchConfig.raisingToken,
     },
     committed: addNodeTransaction.committed,
     lowerTimeLimitSlot: validityInterval.validityStartSlot,
@@ -169,7 +169,7 @@ const processAddNodeTransactions = async (
     await waitForNodeTx(txHash)
     await processAddNodeTransactions(
       launchTxHash,
-      launchpadConfig,
+      launchConfig,
       otherAddNodeTransactions,
     )
   }

@@ -11,7 +11,7 @@ import {
   encodingLaunchTxMetadata,
   ensure,
   type GeneratedContracts,
-  type LaunchpadConfig,
+  type LaunchConfig,
   type LaunchTxMetadata,
   LOVELACE_UNIT,
   type NodeDatum,
@@ -36,7 +36,7 @@ export const INIT_LAUNCH_AGENT_LOVELACE = 500_000_000n
 // * sets the correct metadata with the project configuration and info
 export const addInitLaunch = (
   b: MeshTxBuilder,
-  config: LaunchpadConfig,
+  config: LaunchConfig,
   projectInfo: ProjectInfoTxMetadata,
   contracts: GeneratedContracts,
   agentBech32Address: string,

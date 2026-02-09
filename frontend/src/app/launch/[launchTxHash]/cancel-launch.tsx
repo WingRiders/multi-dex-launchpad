@@ -1,4 +1,4 @@
-import type {LaunchpadConfig} from '@wingriders/multi-dex-launchpad-common'
+import type {LaunchConfig} from '@wingriders/multi-dex-launchpad-common'
 import {useMemo, useState} from 'react'
 import {Button} from '@/components/ui/button'
 import {useUpdatedTime} from '@/helpers/time'
@@ -7,7 +7,7 @@ import {CancelLaunchDialog} from './cancel-launch-dialog'
 
 type CancelLaunchProps = {
   launchTxHash: string
-  config: Pick<LaunchpadConfig, 'ownerBech32Address' | 'startTime'>
+  config: Pick<LaunchConfig, 'ownerBech32Address' | 'startTime'>
   connectedWallet: ConnectedWallet
 }
 

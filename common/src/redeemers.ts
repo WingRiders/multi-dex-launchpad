@@ -9,7 +9,7 @@ export type InsertSeparatorsRedeemer = {
 export type RemoveCurrentNodeRedeemer = {type: 'remove-current-node'}
 export type RemoveNextNodeRedeemer = {type: 'remove-next-node'}
 export type StartRewardsFoldRedeemer = {type: 'start-rewards-fold'}
-export type FailLaunchpadRedeemer = {type: 'fail-launchpad-redeemer'}
+export type FailLaunchRedeemer = {type: 'fail-launch-redeemer'}
 export type DelegateToRewardsFoldRedeemer = {
   type: 'delegate-to-rewards-fold'
   foldIndex: number
@@ -24,7 +24,7 @@ export type NodeRedeemer =
   | RemoveCurrentNodeRedeemer
   | RemoveNextNodeRedeemer
   | StartRewardsFoldRedeemer
-  | FailLaunchpadRedeemer
+  | FailLaunchRedeemer
   | DelegateToRewardsFoldRedeemer
   | ReclaimAfterFailureRedeemer
   | NodeEmergencyWithdrawalRedeemer
@@ -46,7 +46,7 @@ export const nodeRedeemerToMeshData = (redeemer: NodeRedeemer) => {
     case 'start-rewards-fold':
       return mConStr(4, [])
 
-    case 'fail-launchpad-redeemer':
+    case 'fail-launch-redeemer':
       return mConStr(5, [])
 
     case 'delegate-to-rewards-fold':

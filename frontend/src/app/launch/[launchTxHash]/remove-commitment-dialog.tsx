@@ -3,7 +3,7 @@ import {
   type AddRemoveCommitmentArgs,
   addRemoveCommitment,
   calculateTxValidityIntervalBeforeLaunchEnd,
-  type LaunchpadConfig,
+  type LaunchConfig,
   LOVELACE_UNIT,
 } from '@wingriders/multi-dex-launchpad-common'
 import {useEffect, useMemo} from 'react'
@@ -38,7 +38,7 @@ import type {Node} from './types'
 
 type RemoveCommitmentDialogProps = {
   launchTxHash: string
-  config: Pick<LaunchpadConfig, 'raisingToken' | 'endTime'>
+  config: Pick<LaunchConfig, 'raisingToken' | 'endTime'>
   node: Node | null
   connectedWallet: ConnectedWallet
   onClose: () => void
@@ -75,7 +75,7 @@ export const RemoveCommitmentDialog = ({
 
 type RemoveCommitmentDialogContentProp = {
   launchTxHash: string
-  config: Pick<LaunchpadConfig, 'raisingToken' | 'endTime'>
+  config: Pick<LaunchConfig, 'raisingToken' | 'endTime'>
   node: Node
   connectedWallet: ConnectedWallet
   onClose: () => void

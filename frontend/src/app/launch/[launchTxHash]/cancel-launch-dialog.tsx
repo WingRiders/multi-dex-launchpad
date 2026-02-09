@@ -3,7 +3,7 @@ import {
   type AddCancelLaunchArgs,
   addCancelLaunch,
   calculateTxValidityIntervalBeforeLaunchStart,
-  type LaunchpadConfig,
+  type LaunchConfig,
   LOVELACE_UNIT,
 } from '@wingriders/multi-dex-launchpad-common'
 import {useEffect} from 'react'
@@ -37,7 +37,7 @@ type CancelLaunchDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   launchTxHash: string
-  config: Pick<LaunchpadConfig, 'startTime'>
+  config: Pick<LaunchConfig, 'startTime'>
   connectedWallet: ConnectedWallet
 }
 
@@ -64,7 +64,7 @@ export const CancelLaunchDialog = ({
 
 type CancelLaunchDialogContentProps = {
   launchTxHash: string
-  config: Pick<LaunchpadConfig, 'startTime'>
+  config: Pick<LaunchConfig, 'startTime'>
   connectedWallet: ConnectedWallet
   onOpenChange: (open: boolean) => void
 }

@@ -1,7 +1,7 @@
 import {useQuery} from '@tanstack/react-query'
 import {
   DEFAULT_TX_VALIDITY_START_BACKDATE_MS,
-  type LaunchpadConfig,
+  type LaunchConfig,
   launchpadConstants,
 } from '@wingriders/multi-dex-launchpad-common'
 import {useMemo, useState} from 'react'
@@ -19,7 +19,7 @@ import type {Node} from './types'
 
 type UserNodesProps = {
   launchTxHash: string
-  config: Pick<LaunchpadConfig, 'raisingToken' | 'endTime'>
+  config: Pick<LaunchConfig, 'raisingToken' | 'endTime'>
   connectedWallet: ConnectedWallet
 }
 
@@ -83,7 +83,7 @@ export const UserNodes = ({
 }
 
 type NodeItemProps = {
-  config: Pick<LaunchpadConfig, 'raisingToken' | 'endTime'>
+  config: Pick<LaunchConfig, 'raisingToken' | 'endTime'>
   node: Node
   onWithdraw: () => void
 }

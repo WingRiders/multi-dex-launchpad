@@ -9,9 +9,9 @@ import {
   DAO_FEE_NUMERATOR,
   DAO_FEE_RECEIVER_BECH32_ADDRESS,
   generateConstantContracts,
-  generateLaunchpadContracts,
+  generateLaunchContracts,
   LAUNCH_COLLATERAL,
-  type LaunchpadConfig,
+  type LaunchConfig,
   MAX_LENGTHS,
   makeBuilder,
   NODE_ADA,
@@ -42,7 +42,7 @@ import {logger} from '../logger'
 import {parseDuration} from './helpers'
 
 const inputFileSchema = z.object({
-  launchpadConfig: z.object({
+  launchConfig: z.object({
     ownerBech32Address: bech32AddressSchema,
     splitBps: z.int().min(0).max(SPLIT_BPS_BASE),
     sundaeFeeTolerance: z.coerce.bigint(),
@@ -88,7 +88,7 @@ export const buildInitLaunchCommand = () => {
     .description('Build and submit the init launch transaction')
     .option(
       '-c, --config <filepath>',
-      'Launch config JSON5 file with launchpad config and project information',
+      'Launch config JSON5 file with launch config and project information',
       'src/cli/data/launch.json5',
     )
 
@@ -134,8 +134,8 @@ export const buildInitLaunchCommand = () => {
       await updateFetcherFromOgmios()
       logger.info('💰 Selecting starter UTxO...')
       const projectTokenAsset: Asset = {
-        unit: parsedFile.launchpadConfig.projectToken,
-        quantity: parsedFile.launchpadConfig.totalTokens.toString(),
+        unit: parsedFile.launchConfig.projectToken,
+        quantity: parsedFile.launchConfig.totalTokens.toString(),
       }
       const walletUtxos = await wallet.getUtxos()
       const starterUtxo = walletUtxos.filter((utxo) =>
@@ -148,8 +148,8 @@ export const buildInitLaunchCommand = () => {
           `There is no UTxO among ${walletUtxos.length} wallet UTxOs holding required quantity ${projectTokenAsset.quantity} of project tokens ${projectTokenAsset.unit}`,
         )
       }
-      const launchpadConfig: LaunchpadConfig = {
-        ...parsedFile.launchpadConfig,
+      const launchConfig: LaunchConfig = {
+        ...parsedFile.launchConfig,
         startTime: startTime,
         endTime: endTime,
         vestingPeriodStart: vestingPeriodStart,
@@ -179,14 +179,14 @@ export const buildInitLaunchCommand = () => {
 
       logger.info('Generating constant contracts...')
       const constantContracts = await generateConstantContracts({
-        sundaePoolScriptHash: launchpadConfig.sundaePoolScriptHash,
-        wrPoolSymbol: launchpadConfig.wrPoolCurrencySymbol,
-        wrPoolValidatorHash: launchpadConfig.wrPoolValidatorHash,
+        sundaePoolScriptHash: launchConfig.sundaePoolScriptHash,
+        wrPoolSymbol: launchConfig.wrPoolCurrencySymbol,
+        wrPoolValidatorHash: launchConfig.wrPoolValidatorHash,
       })
 
-      logger.info('Generating launchpad contracts...')
-      const launchpadContracts = await generateLaunchpadContracts(
-        launchpadConfig,
+      logger.info('Generating launch contracts...')
+      const launchContracts = await generateLaunchContracts(
+        launchConfig,
         constantContracts,
       )
 
@@ -218,9 +218,9 @@ export const buildInitLaunchCommand = () => {
 
       addInitLaunch(
         b,
-        launchpadConfig,
+        launchConfig,
         parsedFile.projectInfo,
-        launchpadContracts,
+        launchContracts,
         parsedFile.agentBech32Address,
         starterUtxo.output,
         validityInterval.validityStartSlot,

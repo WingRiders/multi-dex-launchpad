@@ -1,7 +1,7 @@
 import type {Unit} from '@meshsdk/common'
 import {
   isLovelaceUnit,
-  type LaunchpadConfig,
+  type LaunchConfig,
   type LaunchTxMetadata,
   type ProjectInfoTxMetadata,
 } from '..'
@@ -30,7 +30,7 @@ export const encodingLaunchTxMetadata = ({
   config,
   projectInfo,
 }: LaunchTxMetadata) => ({
-  config: encodeLaunchpadConfigMetadata(config),
+  config: encodeLaunchConfigMetadata(config),
   projectInfo: encodeProjectInfoMetadata(projectInfo),
 })
 
@@ -39,7 +39,7 @@ const encodeUnit = (unit: Unit) =>
 
 // Mesh supports encoding object (not Map) to metadata (@see metadataObjToMap)
 // But strings need to be pre-processed.
-const encodeLaunchpadConfigMetadata = (config: LaunchpadConfig) => ({
+const encodeLaunchConfigMetadata = (config: LaunchConfig) => ({
   ...config,
 
   // Addresses

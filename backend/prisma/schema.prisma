@@ -230,15 +230,15 @@ model Launch {
   // The asset that is being raised
   raisingTokenPolicyId               String
   raisingTokenAssetName              String
-  // The min possible amount of tokens the launchpad can raise.
+  // The min possible amount of tokens the launch can raise.
   // In case less raised tokens are collected, the launch is considered failed and tokens are returned back.
   projectMinCommitment               BigInt
-  // The maximum amount of tokens the launchpad can raise.
+  // The maximum amount of tokens the launch can raise.
   // Can be set to max int64 value to essentially remove the cap.
   projectMaxCommitment               BigInt
-  // The total number of the project tokens committed to the launchpad.
+  // The total number of the project tokens committed to the launch.
   totalTokens                        BigInt
-  // The number of the project tokens to distribute among the launchpad users.
+  // The number of the project tokens to distribute among the launch users.
   tokensToDistribute                 BigInt
   // The percentage of the raised tokens to place into the pool.
   raisedTokensPoolPartPercentage     Int

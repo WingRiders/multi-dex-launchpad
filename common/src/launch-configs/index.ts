@@ -1,6 +1,6 @@
 export * from './commit-fold-config'
 export * from './commit-fold-policy-config'
-export * from './launchpad-config'
+export * from './launch-config'
 export * from './node-config'
 export * from './node-policy-config'
 export * from './pool-proof-config'

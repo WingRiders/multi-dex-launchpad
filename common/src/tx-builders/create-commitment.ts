@@ -15,12 +15,12 @@ import {
 } from '../datums'
 import {ensure} from '../ensure'
 import {createUnit, LOVELACE_UNIT, networkToNetworkId} from '../helpers'
-import type {LaunchpadConfig} from '../launchpad-configs'
+import type {LaunchConfig} from '../launch-configs'
 import {nodeRedeemerToMeshData} from '../redeemers'
 import type {RefSCriptUTxO} from '../types'
 
 export type AddCreateCommitmentArgs = {
-  config: Pick<LaunchpadConfig, 'nodeAda' | 'raisingToken'>
+  config: Pick<LaunchConfig, 'nodeAda' | 'raisingToken'>
   committed: bigint
   lowerTimeLimitSlot: number
   upperTimeLimitSlot: number

@@ -1,4 +1,4 @@
-import type {LaunchpadConfig} from '@wingriders/multi-dex-launchpad-common'
+import type {LaunchConfig} from '@wingriders/multi-dex-launchpad-common'
 import {cva} from 'class-variance-authority'
 import {formatDistanceStrict} from 'date-fns'
 import {ActivityIcon, CheckIcon, CircleIcon} from 'lucide-react'
@@ -8,7 +8,7 @@ import {useUpdatedTime} from '@/helpers/time'
 
 type LaunchTimelineProps = {
   config: Pick<
-    LaunchpadConfig,
+    LaunchConfig,
     'presaleTierStartTime' | 'defaultStartTime' | 'endTime'
   >
 }

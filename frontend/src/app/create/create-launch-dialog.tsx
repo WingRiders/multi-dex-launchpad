@@ -9,10 +9,10 @@ import {
   DAO_FEE_RECEIVER_BECH32_ADDRESS,
   DISABLED_TIER_CS,
   generateConstantContracts,
-  generateLaunchpadContracts,
+  generateLaunchContracts,
   INIT_LAUNCH_AGENT_LOVELACE,
   LAUNCH_COLLATERAL,
-  type LaunchpadConfig,
+  type LaunchConfig,
   LOVELACE_UNIT,
   MAX_INT64,
   NODE_ADA,
@@ -144,7 +144,7 @@ const CreateLaunchDialogContent = ({
 
           const launchStartTime = getLaunchStartTimeForce(userAccess)
 
-          const launchpadConfig: LaunchpadConfig = {
+          const launchConfig: LaunchConfig = {
             ownerBech32Address: wallet.address,
             splitBps: specification.splitBps,
             wrPoolValidatorHash: WR_POOL_VALIDATOR_HASH[network],
@@ -212,13 +212,13 @@ const CreateLaunchDialogContent = ({
           }
 
           const constantContracts = await generateConstantContracts({
-            wrPoolValidatorHash: launchpadConfig.wrPoolValidatorHash,
-            wrPoolSymbol: launchpadConfig.wrPoolCurrencySymbol,
-            sundaePoolScriptHash: launchpadConfig.sundaePoolScriptHash,
+            wrPoolValidatorHash: launchConfig.wrPoolValidatorHash,
+            wrPoolSymbol: launchConfig.wrPoolCurrencySymbol,
+            sundaePoolScriptHash: launchConfig.sundaePoolScriptHash,
           })
 
-          const launchpadContracts = await generateLaunchpadContracts(
-            launchpadConfig,
+          const launchContracts = await generateLaunchContracts(
+            launchConfig,
             constantContracts,
           )
 
@@ -226,15 +226,15 @@ const CreateLaunchDialogContent = ({
 
           const validityInterval = calculateTxValidityIntervalBeforeLaunchStart(
             network,
-            launchpadConfig.startTime,
+            launchConfig.startTime,
             time,
           )
 
           addInitLaunch(
             txBuilder,
-            launchpadConfig,
+            launchConfig,
             projectInfo,
-            launchpadContracts,
+            launchContracts,
             env('NEXT_PUBLIC_AGENT_ADDRESS'),
             starterUtxo.output,
             validityInterval.validityStartSlot,
@@ -247,7 +247,7 @@ const CreateLaunchDialogContent = ({
           return {
             tx,
             fee,
-            launchpadConfig,
+            launchConfig,
           }
         }
       : skipToken,
@@ -312,7 +312,7 @@ const CreateLaunchDialogContent = ({
             value={
               <AssetQuantity
                 unit={LOVELACE_UNIT}
-                quantity={buildInitTxResult.launchpadConfig.collateral}
+                quantity={buildInitTxResult.launchConfig.collateral}
               />
             }
             tooltip="The collateral is a deposit that is required to create a token launch. It will be returned to you after the launch."

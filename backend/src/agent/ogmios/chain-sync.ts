@@ -15,7 +15,7 @@ import {
   decodeDatum,
   ensure,
   failProofDatumCborSchema,
-  generateLaunchpadContracts,
+  generateLaunchContracts,
   getLaunchTxMetadataSchema,
   INIT_LAUNCH_AGENT_LOVELACE,
   INIT_LAUNCH_TX_METADATA_LABEL,
@@ -424,7 +424,7 @@ const parseInitLaunch = async (slot: number, transactions: Transaction[]) => {
     // Then we generate the contracts and parse the transaction
     logger.info({txHash: tx.id, launchTxMetadata}, 'Found init launch tx')
     // TODO: make that sync, there's no reason to have it async
-    const launchContracts = await generateLaunchpadContracts(
+    const launchContracts = await generateLaunchContracts(
       launchTxMetadata.data.config,
       CONSTANT_CONTRACTS,
     )

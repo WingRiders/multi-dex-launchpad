@@ -6,7 +6,7 @@ import {
   type AddCreateCommitmentArgs,
   addCreateCommitment,
   calculateTxValidityIntervalForInsertNode,
-  type LaunchpadConfig,
+  type LaunchConfig,
   LOVELACE_UNIT,
   parseUnit,
   type Tier,
@@ -45,8 +45,8 @@ import {
 } from '@/wallet/queries'
 import {useNodeRefScripts} from './helpers'
 
-type ContributingLaunchpadConfig = Pick<
-  LaunchpadConfig,
+type ContributingLaunchConfig = Pick<
+  LaunchConfig,
   | 'defaultStartTime'
   | 'endTime'
   | 'nodeAda'
@@ -61,7 +61,7 @@ type ContributingLaunchpadConfig = Pick<
 
 type ContributingProps = {
   launchTxHash: string
-  config: ContributingLaunchpadConfig
+  config: ContributingLaunchConfig
 }
 
 const DEBOUNCE_DELAY = 100
@@ -79,7 +79,7 @@ export const Contributing = ({launchTxHash, config}: ContributingProps) => {
 
 type ActiveContributingProps = {
   launchTxHash: string
-  config: ContributingLaunchpadConfig
+  config: ContributingLaunchConfig
 }
 
 const ActiveContributing = ({

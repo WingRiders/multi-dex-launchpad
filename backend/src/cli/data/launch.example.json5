@@ -1,5 +1,5 @@
 {
-  launchpadConfig: {
+  launchConfig: {
     ownerBech32Address: 'addr_test1qzuz2e6p4z54thrj0u5nnpg5523jkmnvqjtu78p6873daddnq89ztzv3zmk7lyr9krkt4dpdaw37x5v3daf5muspw0rqwhnlz5',
     splitBps: 5000, // 50% to WR / Sundae
     sundaeFeeTolerance: '30000000', // 30 ada

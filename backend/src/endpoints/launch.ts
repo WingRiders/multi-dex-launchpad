@@ -4,7 +4,7 @@ import {
   unixTimeToEnclosingSlot,
 } from '@meshsdk/common'
 import type {
-  LaunchpadConfig,
+  LaunchConfig,
   LaunchTimeStatus,
   ProjectInfoTxMetadata,
 } from '@wingriders/multi-dex-launchpad-common'
@@ -112,7 +112,7 @@ export const getLaunch = async (
   txHash: string,
 ): Promise<{
   projectInfo: ProjectInfoTxMetadata
-  config: LaunchpadConfig
+  config: LaunchConfig
   totalCommitted: bigint
 }> => {
   const launch = await prisma.launch.findUnique({

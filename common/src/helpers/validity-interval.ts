@@ -68,7 +68,7 @@ export const calculateTxValidityIntervalForInsertNode = (
   now = Date.now(),
 ) => {
   if (now >= launchEndTime) {
-    throw new Error('Cannot calculate validity interval, launchpad has ended.')
+    throw new Error('Cannot calculate validity interval, launch has ended.')
   }
 
   // if user is trying to build the tx before tierStartTime, we act as if it was built 1 second after tierStartTime,

@@ -3,18 +3,16 @@ import type {Unit} from '@meshsdk/core'
 
 /**
  * One aggregate config type that covers all the options of individual config
- * types for generated scripts. It can be cast to individual config types by
- * `fromLaunchpadConfig` method that each config exposes, some require also
- * additional params - hashes of previously generated scripts.
- * The LaunchpadConfig is used to generate all the scripts (generateLaunchpadContracts),
+ * types for generated scripts.
+ * The LaunchConfig is used to generate all the scripts (generateLaunchContracts),
  * and also when these parameters are shared in tx metadata we can verify
- * the deployment of a launchpad on the backend.
+ * the deployment of a launch on the backend.
  *
  * This doesn't apply to constant scripts:
  * * poolProof validator and minting policy
  * * rewardsHolder validator
  */
-export type LaunchpadConfig = {
+export type LaunchConfig = {
   // The owner of the launch, supplies the project tokens
   ownerBech32Address: string
 
@@ -55,18 +53,18 @@ export type LaunchpadConfig = {
   // The assets that is being raised
   raisingToken: Unit
 
-  // The min possible amount of tokens the launchpad can raise.
+  // The min possible amount of tokens the launch can raise.
   // In case less raised tokens are collected, the launch is considered failed and tokens are returned back.
   projectMinCommitment: bigint
 
-  // The maximum amount of tokens the launchpad can raise.
+  // The maximum amount of tokens the launch can raise.
   // Can be set to max int64 value to essentially remove the cap.
   projectMaxCommitment: bigint
 
-  // The total number of the project tokens committed to the launchpad.
+  // The total number of the project tokens committed to the launch.
   totalTokens: bigint
 
-  // The number of the project tokens to distribute among the launchpad users.
+  // The number of the project tokens to distribute among the launch users.
   tokensToDistribute: bigint
 
   // The percentage of the raised tokens to place into the pool.

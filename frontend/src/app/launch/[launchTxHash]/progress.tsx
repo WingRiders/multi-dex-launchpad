@@ -1,5 +1,5 @@
 import {
-  type LaunchpadConfig,
+  type LaunchConfig,
   MAX_INT64,
 } from '@wingriders/multi-dex-launchpad-common'
 import type {ReactNode} from 'react'
@@ -8,7 +8,7 @@ import {GridItem} from '@/components/grid-item'
 
 type ProgressProps = {
   config: Pick<
-    LaunchpadConfig,
+    LaunchConfig,
     | 'raisingToken'
     | 'raisedTokensPoolPartPercentage'
     | 'projectMinCommitment'

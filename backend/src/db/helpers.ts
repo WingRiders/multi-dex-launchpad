@@ -4,7 +4,7 @@ import type {InputJsonValue} from '@prisma/client/runtime/client'
 import {
   createUnit,
   ensure,
-  type LaunchpadConfig,
+  type LaunchConfig,
 } from '@wingriders/multi-dex-launchpad-common'
 import superjson, {type SuperJSONResult} from 'superjson'
 import type {SetNonNullable} from 'type-fest'
@@ -14,9 +14,7 @@ import {ogmiosValueToMeshAssets} from '../agent/ogmios/helpers'
 import {encodeOgmiosScript} from '../helpers/script'
 import {prisma} from './prisma-client'
 
-export const prismaLaunchToLaunchConfig = (
-  launch: Launch,
-): LaunchpadConfig => ({
+export const prismaLaunchToLaunchConfig = (launch: Launch): LaunchConfig => ({
   ownerBech32Address: launch.ownerBech32Address,
   splitBps: launch.splitBps,
   wrPoolValidatorHash: launch.wrPoolValidatorHash,

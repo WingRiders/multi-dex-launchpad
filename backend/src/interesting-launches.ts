@@ -6,7 +6,7 @@ import {
   type GeneratedContracts,
   type GeneratedPolicy,
   type GeneratedValidator,
-  generateLaunchpadContracts,
+  generateLaunchContracts,
   SUNDAE_POOL_SCRIPT_HASH,
   WR_POOL_VALIDATOR_HASH,
 } from '@wingriders/multi-dex-launchpad-common'
@@ -213,7 +213,7 @@ export const resetInterestingLaunches = async () => {
   }
 
   for (const launch of launches) {
-    const contracts = await generateLaunchpadContracts(
+    const contracts = await generateLaunchContracts(
       prismaLaunchToLaunchConfig(launch),
       CONSTANT_CONTRACTS,
     )

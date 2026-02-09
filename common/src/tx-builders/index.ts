@@ -1,6 +1,6 @@
 export * from './cancel-launch'
 export * from './create-commitment'
-export * from './init-launchpad'
+export * from './init-launch'
 export * from './ref-script-carriers'
 export * from './remove-commitment'
 

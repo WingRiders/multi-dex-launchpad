@@ -107,8 +107,8 @@ const bech32AddressMetadataSchema =
   metadataStringSchema().pipe(bech32AddressSchema)
 
 // NOTE: instead of z.literal(xxx) we use z.type().refine(v => v === xxx)
-//       so the types remain wide enough, otherwise they won't match LaunchpadConfig
-export const getLaunchpadConfigTxMetadataSchema = ({
+//       so the types remain wide enough, otherwise they won't match LaunchConfig
+export const getLaunchConfigTxMetadataSchema = ({
   network,
   daoAdminPubKeyHash,
   daoFeeReceiverBech32Address,
@@ -230,7 +230,7 @@ export const getLaunchTxMetadataSchema = (
   opts: LaunchTxMetadataSchemaOptions,
 ) =>
   z.object({
-    config: getLaunchpadConfigTxMetadataSchema(opts),
+    config: getLaunchConfigTxMetadataSchema(opts),
     projectInfo: projectInfoTxMetadataSchema,
   })
 export type LaunchTxMetadata = z.infer<

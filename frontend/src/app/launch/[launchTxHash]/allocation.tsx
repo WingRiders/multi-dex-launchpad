@@ -1,11 +1,11 @@
-import type {LaunchpadConfig} from '@wingriders/multi-dex-launchpad-common'
+import type {LaunchConfig} from '@wingriders/multi-dex-launchpad-common'
 import type {ReactNode} from 'react'
 import {AssetQuantity} from '@/components/asset-quantity'
 import {GridItem} from '@/components/grid-item'
 
 type AllocationProps = {
   config: Pick<
-    LaunchpadConfig,
+    LaunchConfig,
     'projectToken' | 'totalTokens' | 'tokensToDistribute'
   >
 }
