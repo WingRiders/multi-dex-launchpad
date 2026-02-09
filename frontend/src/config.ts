@@ -1,4 +1,7 @@
-import {networks} from '@wingriders/multi-dex-launchpad-common'
+import {
+  bech32AddressSchema,
+  networks,
+} from '@wingriders/multi-dex-launchpad-common'
 import {env as runtimeEnv} from 'next-runtime-env'
 import {z} from 'zod'
 
@@ -7,13 +10,13 @@ const envSchemas = {
     .enum(['development', 'production', 'test'])
     .default('development'),
   NEXT_PUBLIC_NETWORK: z.enum(networks),
-  NEXT_PUBLIC_SERVER_URL: z.string(),
-  SERVER_URL: z.string(),
+  NEXT_PUBLIC_SERVER_URL: z.url(),
+  SERVER_URL: z.url(),
   NEXT_PUBLIC_ENABLE_REACT_QUERY_DEVTOOLS: z
     .string()
     .default('false')
     .transform((v) => v === 'true'),
-  NEXT_PUBLIC_AGENT_ADDRESS: z.string(),
+  NEXT_PUBLIC_AGENT_ADDRESS: bech32AddressSchema,
 }
 
 type Env = {

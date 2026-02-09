@@ -241,7 +241,7 @@ const TierForm = withFieldGroup({
             </div>
             <p className="text-muted-foreground text-sm">{description}</p>
             {hasTier && (
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <group.AppField name="tierData.startTime">
                   {(field) => <field.DateTimeField label="Start time" />}
                 </group.AppField>

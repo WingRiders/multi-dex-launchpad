@@ -133,7 +133,10 @@ export const specificationSchema = z
       )
       .max(100),
     projectTokensToPool: z
-      .bigint()
+      .bigint({
+        error:
+          'Enter the number of project tokens to commit to liquidity pool(s)',
+      })
       .gt(
         0n,
         'Project tokens committed to liquidity pool(s) must be greater than 0',

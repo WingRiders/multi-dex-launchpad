@@ -4,7 +4,6 @@ import {Button} from '@/components/ui/button'
 import {Calendar} from '@/components/ui/calendar'
 import {
   Field,
-  FieldContent,
   FieldDescription,
   FieldError,
   FieldLabel,
@@ -47,10 +46,8 @@ export const DateTimeField = ({label, description}: DateTimeFieldProps) => {
 
   return (
     <Field data-invalid={isInvalid}>
-      <FieldContent>
-        <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-        {description && <FieldDescription>{description}</FieldDescription>}
-      </FieldContent>
+      <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+      {description && <FieldDescription>{description}</FieldDescription>}
 
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
