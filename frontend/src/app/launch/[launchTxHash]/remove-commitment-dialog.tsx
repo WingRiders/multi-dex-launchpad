@@ -230,6 +230,18 @@ const RemoveCommitmentDialogContent = ({
     const res = await signAndSubmitTx(buildRemoveCommitmentTxResult.tx)
     if (res) {
       invalidateWalletQueries(queryClient)
+
+      queryClient.setQueryData(
+        trpc.userNodes.queryKey({
+          launchTxHash,
+          ownerPubKeyHash: connectedWallet.pubKeyHash,
+        }),
+        (current) =>
+          current?.filter(
+            (n) =>
+              !(n.txHash === node.txHash && n.outputIndex === node.outputIndex),
+          ),
+      )
     }
   }
 

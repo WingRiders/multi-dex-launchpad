@@ -52,8 +52,24 @@ export const getLaunches = async (
     all: undefined,
   }[timeStatus ?? 'all']
 
+  const orderBy: Prisma.LaunchOrderByWithRelationInput = {
+    upcoming: {
+      startTime: 'asc',
+    },
+    active: {
+      startTime: 'desc',
+    },
+    past: {
+      endTime: 'desc',
+    },
+    all: {
+      startTime: 'asc',
+    },
+  }[timeStatus ?? 'all'] as Prisma.LaunchOrderByWithRelationInput
+
   const launches = await prisma.launch.findMany({
     where,
+    orderBy,
     select: {
       txHash: true,
       projectTitle: true,

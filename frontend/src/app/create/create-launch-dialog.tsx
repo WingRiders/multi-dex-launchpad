@@ -1,37 +1,16 @@
 import {skipToken, useQuery, useQueryClient} from '@tanstack/react-query'
 import {
   addInitLaunch,
-  COMMIT_FOLD_FEE_ADA,
   calculateTxValidityIntervalBeforeLaunchStart,
-  DAO_ADMIN_PUB_KEY_HASH,
-  DAO_FEE_DENOMINATOR,
-  DAO_FEE_NUMERATOR,
-  DAO_FEE_RECEIVER_BECH32_ADDRESS,
-  DISABLED_TIER_CS,
   generateConstantContracts,
   generateLaunchContracts,
   INIT_LAUNCH_AGENT_LOVELACE,
-  LAUNCH_COLLATERAL,
-  type LaunchConfig,
   LOVELACE_UNIT,
-  MAX_INT64,
-  NODE_ADA,
-  OIL_ADA,
-  type ProjectInfoTxMetadata,
-  SUNDAE_POOL_SCRIPT_HASH,
-  SUNDAE_SETTINGS_SYMBOL,
-  VESTING_PERIOD_DURATION,
-  VESTING_PERIOD_DURATION_TO_FIRST_UNLOCK,
-  VESTING_PERIOD_INSTALLMENTS,
-  VESTING_VALIDATOR_HASH,
-  WR_FACTORY_VALIDATOR_HASH,
-  WR_POOL_SYMBOL,
-  WR_POOL_VALIDATOR_HASH,
 } from '@wingriders/multi-dex-launchpad-common'
 import {minutesToMilliseconds} from 'date-fns'
 import {Loader2Icon} from 'lucide-react'
 import {useRouter} from 'next/navigation'
-import {type ReactNode, useEffect} from 'react'
+import {type ReactNode, useEffect, useMemo} from 'react'
 import {useShallow} from 'zustand/shallow'
 import {AssetQuantity} from '@/components/asset-quantity'
 import {ErrorAlert} from '@/components/error-alert'
@@ -50,14 +29,14 @@ import {queryKeyFactory} from '@/helpers/query-key'
 import {useTime} from '@/helpers/time'
 import {getTxFee, initTxBuilder} from '@/helpers/tx'
 import type {ConnectedWallet} from '@/store/connected-wallet'
+import {useTRPC} from '@/trpc/client'
 import {getTxSendErrorMessage, getTxSignErrorMessage} from '@/wallet/errors'
 import {
   invalidateWalletQueries,
   useSignAndSubmitTxMutation,
   useWalletUtxosQuery,
 } from '@/wallet/queries'
-import {SUNDAE_FEE_TOLERANCE} from '../constants'
-import {findStarterUtxo, getLaunchStartTimeForce} from './helpers'
+import {buildConfigAndProjectInfo, findStarterUtxo} from './helpers'
 import {useCreateLaunchStore} from './store'
 import type {CompleteDataForDraftStage, LaunchDraftStage} from './types'
 
@@ -106,17 +85,18 @@ const CreateLaunchDialogContent = ({
   draft,
   wallet,
 }: CreateLaunchDialogContentProps) => {
+  const trpc = useTRPC()
+  const queryClient = useQueryClient()
+
   const navigate = useRouter()
 
   const {deleteDraft} = useCreateLaunchStore(
     useShallow(({deleteDraft}) => ({deleteDraft})),
   )
 
-  const queryClient = useQueryClient()
   const {time} = useTime(minutesToMilliseconds(1))
 
-  const {projectInformation, tokenInformation, specification, userAccess} =
-    draft
+  const {projectInformation, tokenInformation} = draft
 
   const network = env('NEXT_PUBLIC_NETWORK')
 
@@ -126,131 +106,77 @@ const CreateLaunchDialogContent = ({
     error: walletUtxosError,
   } = useWalletUtxosQuery()
 
+  const starterUtxo = useMemo(() => {
+    if (!walletUtxos) return undefined
+
+    return findStarterUtxo(
+      walletUtxos,
+      tokenInformation.projectTokenToSale.unit,
+    )
+  }, [walletUtxos, tokenInformation.projectTokenToSale.unit])
+
+  const configAndProjectInfo = useMemo(() => {
+    if (!starterUtxo) return undefined
+
+    return buildConfigAndProjectInfo(
+      draft,
+      network,
+      starterUtxo.input,
+      wallet.address,
+    )
+  }, [draft, network, starterUtxo, wallet.address])
+
   const {
     data: buildInitTxResult,
     isLoading: isLoadingBuildInitTx,
     error: buildInitTxError,
   } = useQuery({
     queryKey: queryKeyFactory.buildInitTx(draft, walletUtxos),
-    queryFn: walletUtxos
-      ? async () => {
-          const starterUtxo = findStarterUtxo(
-            walletUtxos,
-            tokenInformation.projectTokenToSale.unit,
-          )
-          if (starterUtxo == null) {
-            throw new Error('No UTxO with project token found')
+    queryFn:
+      starterUtxo && configAndProjectInfo
+        ? async () => {
+            const {config, projectInfo} = configAndProjectInfo
+
+            const constantContracts = await generateConstantContracts({
+              wrPoolValidatorHash: config.wrPoolValidatorHash,
+              wrPoolSymbol: config.wrPoolCurrencySymbol,
+              sundaePoolScriptHash: config.sundaePoolScriptHash,
+            })
+
+            const launchpadContracts = await generateLaunchContracts(
+              config,
+              constantContracts,
+            )
+
+            const txBuilder = await initTxBuilder({wallet: wallet.wallet})
+
+            const validityInterval =
+              calculateTxValidityIntervalBeforeLaunchStart(
+                network,
+                config.startTime,
+                time,
+              )
+
+            addInitLaunch(
+              txBuilder,
+              config,
+              projectInfo,
+              launchpadContracts,
+              env('NEXT_PUBLIC_AGENT_ADDRESS'),
+              starterUtxo.output,
+              validityInterval.validityStartSlot,
+              validityInterval.validityEndSlot,
+            )
+
+            const tx = await txBuilder.complete()
+            const fee = await getTxFee(tx)
+
+            return {
+              tx,
+              fee,
+            }
           }
-
-          const launchStartTime = getLaunchStartTimeForce(userAccess)
-
-          const launchConfig: LaunchConfig = {
-            ownerBech32Address: wallet.address,
-            splitBps: specification.splitBps,
-            wrPoolValidatorHash: WR_POOL_VALIDATOR_HASH[network],
-            wrFactoryValidatorHash: WR_FACTORY_VALIDATOR_HASH[network],
-            wrPoolCurrencySymbol: WR_POOL_SYMBOL[network],
-            sundaePoolScriptHash: SUNDAE_POOL_SCRIPT_HASH[network],
-            sundaeFeeTolerance: SUNDAE_FEE_TOLERANCE,
-            sundaeSettingsCurrencySymbol: SUNDAE_SETTINGS_SYMBOL[network],
-            startTime: launchStartTime.getTime(),
-            endTime: userAccess.endTime.getTime(),
-            projectToken: tokenInformation.projectTokenToSale.unit,
-            raisingToken: specification.raisingTokenUnit,
-            projectMinCommitment: specification.projectMinCommitment,
-            projectMaxCommitment:
-              specification.projectMaxCommitment ?? MAX_INT64,
-            totalTokens:
-              tokenInformation.projectTokenToSale.quantity +
-              specification.projectTokensToPool,
-            tokensToDistribute: tokenInformation.projectTokenToSale.quantity,
-            raisedTokensPoolPartPercentage:
-              specification.raisedTokensPoolPartPercentage,
-            daoFeeNumerator: DAO_FEE_NUMERATOR,
-            daoFeeDenominator: DAO_FEE_DENOMINATOR,
-            daoFeeReceiverBech32Address:
-              DAO_FEE_RECEIVER_BECH32_ADDRESS[network],
-            daoAdminPubKeyHash: DAO_ADMIN_PUB_KEY_HASH[network],
-            collateral: LAUNCH_COLLATERAL,
-            starter: starterUtxo.input,
-            vestingPeriodDuration: VESTING_PERIOD_DURATION,
-            vestingPeriodDurationToFirstUnlock:
-              VESTING_PERIOD_DURATION_TO_FIRST_UNLOCK,
-            vestingPeriodInstallments: VESTING_PERIOD_INSTALLMENTS,
-            vestingPeriodStart: userAccess.endTime.getTime(),
-            vestingValidatorHash: VESTING_VALIDATOR_HASH,
-            presaleTierCs:
-              userAccess.presaleTier?.nftPolicyId ?? DISABLED_TIER_CS,
-            presaleTierStartTime:
-              userAccess.presaleTier?.startTime.getTime() ??
-              userAccess.endTime.getTime() + 1,
-            defaultStartTime:
-              userAccess.defaultTier?.startTime.getTime() ??
-              userAccess.endTime.getTime() + 1,
-            presaleTierMinCommitment:
-              userAccess.presaleTier?.minCommitment ?? 0n,
-            defaultTierMinCommitment:
-              userAccess.defaultTier?.minCommitment ?? 0n,
-            presaleTierMaxCommitment:
-              userAccess.presaleTier?.maxCommitment ?? MAX_INT64,
-            defaultTierMaxCommitment:
-              userAccess.defaultTier?.maxCommitment ?? MAX_INT64,
-            nodeAda: NODE_ADA,
-            commitFoldFeeAda: COMMIT_FOLD_FEE_ADA,
-            oilAda: OIL_ADA,
-          }
-
-          const projectInfo: ProjectInfoTxMetadata = {
-            title: projectInformation.title,
-            description: projectInformation.description,
-            url: projectInformation.url,
-            logoUrl: projectInformation.logoUrl,
-            tokenomicsUrl: projectInformation.tokenomicsUrl,
-            whitepaperUrl: projectInformation.whitepaperUrl,
-            termsAndConditionsUrl: projectInformation.termsAndConditionsUrl,
-            additionalUrl: projectInformation.additionalUrl,
-          }
-
-          const constantContracts = await generateConstantContracts({
-            wrPoolValidatorHash: launchConfig.wrPoolValidatorHash,
-            wrPoolSymbol: launchConfig.wrPoolCurrencySymbol,
-            sundaePoolScriptHash: launchConfig.sundaePoolScriptHash,
-          })
-
-          const launchContracts = await generateLaunchContracts(
-            launchConfig,
-            constantContracts,
-          )
-
-          const txBuilder = await initTxBuilder({wallet: wallet.wallet})
-
-          const validityInterval = calculateTxValidityIntervalBeforeLaunchStart(
-            network,
-            launchConfig.startTime,
-            time,
-          )
-
-          addInitLaunch(
-            txBuilder,
-            launchConfig,
-            projectInfo,
-            launchContracts,
-            env('NEXT_PUBLIC_AGENT_ADDRESS'),
-            starterUtxo.output,
-            validityInterval.validityStartSlot,
-            validityInterval.validityEndSlot,
-          )
-
-          const tx = await txBuilder.complete()
-          const fee = await getTxFee(tx)
-
-          return {
-            tx,
-            fee,
-            launchConfig,
-          }
-        }
-      : skipToken,
+        : skipToken,
     staleTime: 0,
   })
 
@@ -264,11 +190,36 @@ const CreateLaunchDialogContent = ({
   } = useSignAndSubmitTxMutation()
 
   const handleCreate = async () => {
-    if (buildInitTxResult == null) return
+    if (buildInitTxResult == null || configAndProjectInfo == null) return
 
     const res = await signAndSubmitTx(buildInitTxResult.tx)
     if (res) {
       invalidateWalletQueries(queryClient)
+
+      queryClient.setQueryData(
+        trpc.launch.queryKey({txHash: submitTxMutationResult.data}),
+        {
+          config: configAndProjectInfo.config,
+          projectInfo: configAndProjectInfo.projectInfo,
+          totalCommitted: 0n,
+        },
+      )
+
+      queryClient.setQueryData(
+        trpc.launches.queryKey({timeStatus: 'upcoming'}),
+        (current) =>
+          [
+            ...(current ?? []),
+            {
+              txHash: res.txHash,
+              title: projectInformation.title,
+              description: projectInformation.description,
+              logoIpfsUrl: projectInformation.logoUrl,
+              startTime: new Date(configAndProjectInfo.config.startTime),
+              endTime: new Date(configAndProjectInfo.config.endTime),
+            },
+          ].sort((a, b) => a.startTime.getTime() - b.startTime.getTime()),
+      )
     }
   }
 
@@ -305,14 +256,14 @@ const CreateLaunchDialogContent = ({
             Building transaction
           </p>
         </div>
-      ) : buildInitTxResult ? (
+      ) : buildInitTxResult && configAndProjectInfo ? (
         <div className="space-y-1">
           <DataRow
             label="Collateral"
             value={
               <AssetQuantity
                 unit={LOVELACE_UNIT}
-                quantity={buildInitTxResult.launchConfig.collateral}
+                quantity={configAndProjectInfo.config.collateral}
               />
             }
             tooltip="The collateral is a deposit that is required to create a token launch. It will be returned to you after the launch."
@@ -365,6 +316,9 @@ const CreateLaunchDialogContent = ({
             title="Error while fetching wallet UTxOs"
             description={walletUtxosError.message}
           />
+        )}
+        {!starterUtxo && (
+          <ErrorAlert title="No UTxO with project token found" />
         )}
       </div>
 

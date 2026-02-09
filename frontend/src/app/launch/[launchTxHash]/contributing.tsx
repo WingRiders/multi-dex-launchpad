@@ -1,6 +1,10 @@
 'use client'
 
-import type {Unit} from '@meshsdk/core'
+import {
+  SLOT_CONFIG_NETWORK,
+  slotToBeginUnixTime,
+  type Unit,
+} from '@meshsdk/core'
 import {skipToken, useQuery, useQueryClient} from '@tanstack/react-query'
 import {
   type AddCreateCommitmentArgs,
@@ -329,11 +333,39 @@ const ActiveContributing = ({
   }, [buildCreateCommitmentTxResult, resetSignAndSubmitTx])
 
   const handleContribute = async () => {
-    if (buildCreateCommitmentTxResult == null) return
+    if (
+      buildCreateCommitmentTxResult == null ||
+      connectedWallet == null ||
+      debouncedCommitted == null
+    )
+      return
 
     const res = await signAndSubmitTx(buildCreateCommitmentTxResult.tx)
     if (res) {
       invalidateWalletQueries(queryClient)
+
+      queryClient.setQueryData(
+        trpc.userNodes.queryKey({
+          launchTxHash,
+          ownerPubKeyHash: connectedWallet.pubKeyHash,
+        }),
+        (current) => [
+          ...(current ?? []),
+          {
+            txHash: res.txHash,
+            outputIndex: 0, // new node is always the first output
+            keyHash: connectedWallet.pubKeyHash,
+            keyIndex: current?.length ?? 0,
+            committed: debouncedCommitted,
+            createdTime: new Date(
+              slotToBeginUnixTime(
+                validityInterval.validityEndSlot,
+                SLOT_CONFIG_NETWORK[network],
+              ),
+            ),
+          },
+        ],
+      )
     }
   }
 
@@ -393,6 +425,7 @@ const ActiveContributing = ({
           balanceState={walletBalanceState}
           singleItem
           showMaxButton
+          disabled={isSigningAndSubmittingTx}
         />
 
         <Tooltip>
@@ -407,7 +440,8 @@ const ActiveContributing = ({
                   committed < selectedTierMinCommitment ||
                   committed > selectedTierMaxCommitment ||
                   buildCreateCommitmentTxResult == null ||
-                  isBuildingCreateCommitmentTx
+                  isBuildingCreateCommitmentTx ||
+                  isSigningAndSubmittingTx
                 }
                 loading={
                   isBuildingCreateCommitmentTx ||
@@ -484,24 +518,29 @@ const ActiveContributing = ({
               />
             )}
 
-            {nodeToSpendError && (
-              <ErrorAlert
-                title="Error while fetching previous node in the linked list"
-                description={nodeToSpendError.message}
-              />
+            {committed != null && committed !== 0n && (
+              <>
+                {nodeToSpendError && (
+                  <ErrorAlert
+                    title="Error while fetching previous node in the linked list"
+                    description={nodeToSpendError.message}
+                  />
+                )}
+                {firstProjectTokensHolderUTxOError && (
+                  <ErrorAlert
+                    title="Error while fetching first project tokens holder UTxO"
+                    description={firstProjectTokensHolderUTxOError.message}
+                  />
+                )}
+                {isRefScriptsError && (
+                  <ErrorAlert
+                    title="Error while fetching reference scripts"
+                    description={refScriptsUniqueErrorMessages.join('. ')}
+                  />
+                )}
+              </>
             )}
-            {firstProjectTokensHolderUTxOError && (
-              <ErrorAlert
-                title="Error while fetching first project tokens holder UTxO"
-                description={firstProjectTokensHolderUTxOError.message}
-              />
-            )}
-            {isRefScriptsError && (
-              <ErrorAlert
-                title="Error while fetching reference scripts"
-                description={refScriptsUniqueErrorMessages.join('. ')}
-              />
-            )}
+
             {walletUtxosError && (
               <ErrorAlert
                 title="Error while fetching wallet UTxOs"
