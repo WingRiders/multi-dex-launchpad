@@ -3,6 +3,7 @@ import {
   MeshValue,
   SLOT_CONFIG_NETWORK,
   slotToBeginUnixTime,
+  type TxInput,
   type Unit,
   type UTxO,
 } from '@meshsdk/core'
@@ -28,7 +29,7 @@ export type AddCreateCommitmentArgs = {
   nodeToSpend: UTxO
   nodeValidatorRef: RefSCriptUTxO
   nodePolicyRef: RefSCriptUTxO
-  firstProjectTokensHolderUTxO: UTxO
+  firstProjectTokensHolderInput: TxInput
   ownerPubKeyHash: string
   ownerStakeKeyHash?: string
 }
@@ -44,7 +45,7 @@ export const addCreateCommitment = (
     nodeToSpend,
     nodeValidatorRef,
     nodePolicyRef,
-    firstProjectTokensHolderUTxO,
+    firstProjectTokensHolderInput,
     ownerPubKeyHash,
     ownerStakeKeyHash,
   }: AddCreateCommitmentArgs,
@@ -76,8 +77,8 @@ export const addCreateCommitment = (
   const slotConfig = SLOT_CONFIG_NETWORK[network]
 
   b.readOnlyTxInReference(
-    firstProjectTokensHolderUTxO.input.txHash,
-    firstProjectTokensHolderUTxO.input.outputIndex,
+    firstProjectTokensHolderInput.txHash,
+    firstProjectTokensHolderInput.outputIndex,
     0,
   )
     .requiredSignerHash(ownerPubKeyHash)

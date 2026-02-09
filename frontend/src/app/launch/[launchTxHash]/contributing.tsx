@@ -267,7 +267,7 @@ const ActiveContributing = ({
           nodeToSpend,
           nodeValidatorRef,
           nodePolicyRef,
-          firstProjectTokensHolderUTxO,
+          firstProjectTokensHolderInput: firstProjectTokensHolderUTxO.input,
           ownerPubKeyHash: connectedWallet.pubKeyHash,
         }
       : undefined

@@ -144,7 +144,7 @@ const processAddNodeTransactions = async (
     nodeToSpend,
     nodeValidatorRef,
     nodePolicyRef,
-    firstProjectTokensHolderUTxO,
+    firstProjectTokensHolderInput: firstProjectTokensHolderUTxO.input,
     ownerPubKeyHash,
     ownerStakeKeyHash,
   }
