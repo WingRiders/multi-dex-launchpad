@@ -4,12 +4,10 @@ import type {
   MetadatumDetailedSchema,
   Point,
   Transaction,
-  TransactionOutput,
   TransactionOutputReference,
-  Value,
 } from '@cardano-ogmios/schema'
 import {applyCborEncoding, resolveScriptHash} from '@meshsdk/core'
-import type {InputJsonValue, JsonValue} from '@prisma/client/runtime/client'
+import type {JsonValue} from '@prisma/client/runtime/client'
 import {
   createUnit,
   DAO_ADMIN_PUB_KEY_HASH,
@@ -17,8 +15,6 @@ import {
   decodeDatum,
   ensure,
   failProofDatumCborSchema,
-  type GeneratedPolicy,
-  type GeneratedValidator,
   generateLaunchpadContracts,
   getLaunchTxMetadataSchema,
   INIT_LAUNCH_AGENT_LOVELACE,
@@ -40,7 +36,7 @@ import type {
   TxOutputCreateManyInput,
 } from '../../../prisma/generated/models'
 import {config} from '../../config'
-import {serializeValue} from '../../db/helpers'
+import {makePrismaTxOutput} from '../../db/helpers'
 import {prisma} from '../../db/prisma-client'
 import {
   interestingLaunchByUnits,
@@ -52,6 +48,11 @@ import {
 import {logger} from '../../logger'
 import {CONSTANT_CONTRACTS} from '../constants'
 import {processLaunches} from '../launch-processing'
+import {
+  type LaunchUtxoType,
+  refScriptCarrierUtxoTypeFromValidatorHashType,
+} from '../launch-utxo-type'
+import {passesValidityToken} from '../validity'
 import {
   getWalletChangeAddress,
   getWalletPubKeyHash,
@@ -66,28 +67,6 @@ import {getOgmiosContext} from './ogmios'
 
 // Buffering is suitable when doing the initial sync
 const BUFFER_SIZE = 10_000
-
-type LaunchUtxoType =
-  | 'nodeValidatorRefScriptCarrier'
-  | 'nodePolicyRefScriptCarrier'
-  | 'firstProjectTokensHolderValidatorRefScriptCarrier'
-  | 'projectTokensHolderPolicyRefScriptCarrier'
-  | 'finalProjectTokensHolderValidatorRefScriptCarrier'
-  | 'commitFoldValidatorRefScriptCarrier'
-  | 'commitFoldPolicyRefScriptCarrier'
-  | 'rewardsFoldValidatorRefScriptCarrier'
-  | 'rewardsFoldPolicyRefScriptCarrier'
-  | 'node'
-  | 'rewardsHolder'
-  | 'firstProjectTokensHolder'
-  | 'finalProjectTokensHolder'
-  | 'commitFold'
-  | 'rewardsFold'
-  | 'failProof'
-  | 'wrPoolProof'
-  | 'sundaePoolProof'
-  | 'wrPool'
-  | 'sundaePool'
 
 type SyncEvent =
   | {
@@ -214,125 +193,6 @@ const parseSpentTxOutputs = (slot: number, transactions: Transaction[]) => {
     })
 }
 
-const refScriptCarrierUtxoTypeFromValidatorHashType = (
-  refScriptType: GeneratedValidator | GeneratedPolicy,
-): LaunchUtxoType => {
-  switch (refScriptType) {
-    case 'node':
-      return 'nodeValidatorRefScriptCarrier'
-    case 'firstProjectTokensHolder':
-      return 'firstProjectTokensHolderValidatorRefScriptCarrier'
-    case 'finalProjectTokensHolder':
-      return 'finalProjectTokensHolderValidatorRefScriptCarrier'
-    case 'commitFold':
-      return 'commitFoldValidatorRefScriptCarrier'
-    case 'rewardsFold':
-      return 'rewardsFoldValidatorRefScriptCarrier'
-    case 'nodePolicy':
-      return 'nodePolicyRefScriptCarrier'
-    case 'projectTokensHolderPolicy':
-      return 'projectTokensHolderPolicyRefScriptCarrier'
-    case 'commitFoldPolicy':
-      return 'commitFoldPolicyRefScriptCarrier'
-    case 'rewardsFoldPolicy':
-      return 'rewardsFoldPolicyRefScriptCarrier'
-    default: {
-      const _: never = refScriptType
-      ensure(false, {refScriptType}, 'Unknown ref script type')
-    }
-  }
-}
-
-const passesValidityToken = (
-  {contracts, type}: (typeof launchScriptHashes)[string],
-  value: Value,
-): boolean => {
-  // The policies should've been already rejected by that point
-  if (isGeneratedPolicyType(type)) return false
-
-  // These contracts don't require a validity token
-  if (
-    type === 'refScriptCarrier' ||
-    type === 'rewardsHolder' ||
-    type === 'finalProjectTokensHolder'
-  )
-    return true
-
-  switch (type) {
-    case 'node':
-      return (
-        value[contracts.nodePolicy.hash]?.[contracts.nodeValidator.hash] === 1n
-      )
-    case 'firstProjectTokensHolder':
-      return (
-        value[contracts.tokensHolderPolicy.hash]?.[
-          contracts.tokensHolderFirstValidator.hash
-        ] === 1n
-      )
-    case 'commitFold':
-      return (
-        value[contracts.commitFoldPolicy.hash]?.[
-          contracts.commitFoldValidator.hash
-        ] === 1n
-      )
-    case 'rewardsFold':
-      return (
-        value[contracts.rewardsFoldPolicy.hash]?.[
-          contracts.rewardsFoldValidator.hash
-        ] === 1n
-      )
-    case 'failProof':
-      return (
-        value[CONSTANT_CONTRACTS.failProofPolicy.hash]?.[
-          CONSTANT_CONTRACTS.failProofValidator.hash
-        ] === 1n
-      )
-    case 'poolProof':
-      return (
-        value[CONSTANT_CONTRACTS.poolProofPolicy.hash]?.[
-          CONSTANT_CONTRACTS.poolProofValidator.hash
-        ] === 1n
-      )
-    case 'wrPool':
-      // TODO: wr token
-      return true
-    case 'sundaePool':
-      // TODO: sundae token
-      return true
-    default: {
-      const _: never = type
-      ensure(false, {type}, 'Unknown validator type')
-    }
-  }
-}
-
-const makeTxOutput = (
-  slot: number,
-  txHash: string,
-  outputIndex: number,
-  txOutput: TransactionOutput,
-): SetNonNullable<Required<TxOutputCreateManyInput>, 'datum'> => {
-  ensure(
-    txOutput.datum != null,
-    {txHash, outputIndex},
-    'Tx output must have datum',
-  )
-
-  return {
-    txHash,
-    slot,
-    outputIndex,
-    spentTxHash: null,
-    spentSlot: null,
-    address: txOutput.address,
-    datum: txOutput.datum,
-    datumHash: txOutput.datumHash ?? null,
-    value: serializeValue(txOutput.value) as InputJsonValue,
-    scriptLanguage: txOutput.script?.language ?? null,
-    scriptCbor: txOutput.script?.cbor ?? null,
-  }
-}
-
 // Pushes sync events
 const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
   const txOuts = transactions.flatMap((tx) =>
@@ -368,7 +228,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
       pushSyncEvent({
         type: 'launchTxOutput',
         launchTxHash: launch.txHash,
-        txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+        txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
         outputType: type,
       })
       continue
@@ -398,7 +258,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
         pushSyncEvent({
           type: 'launchTxOutput',
           launchTxHash: lookup.launch.txHash,
-          txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+          txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType: 'failProof',
         })
         break
@@ -423,7 +283,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
         pushSyncEvent({
           type: 'launchTxOutput',
           launchTxHash: launch.txHash,
-          txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+          txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType:
             datum.dex === 'WingRidersV2' ? 'wrPoolProof' : 'sundaePoolProof',
         })
@@ -443,7 +303,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
         pushSyncEvent({
           type: 'launchTxOutput',
           launchTxHash: launch.txHash,
-          txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+          txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType: 'rewardsHolder',
         })
         break
@@ -466,7 +326,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
         pushSyncEvent({
           type: 'launchTxOutput',
           launchTxHash: lookup.launch.txHash,
-          txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+          txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType,
         })
         break
@@ -491,7 +351,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
         pushSyncEvent({
           type: 'launchTxOutput',
           launchTxHash: launch.txHash,
-          txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+          txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType: 'wrPool',
         })
         break
@@ -514,7 +374,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
         pushSyncEvent({
           type: 'launchTxOutput',
           launchTxHash: launch.txHash,
-          txOutput: makeTxOutput(slot, txHash, outputIndex, txOutput),
+          txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType: 'sundaePool',
         })
         break
@@ -835,11 +695,11 @@ const writeBuffersIfNecessary = async ({
       if (blockBuffer.length > 0)
         // Prisma when doing createMany doesn't use unnest, which is slower, so this raw query is more efficient
         await prisma.$executeRaw`INSERT INTO "Block" ("slot", "hash", "height")
-                           SELECT *
-                           FROM unnest(
-                                   ${blockBuffer.map(({data: {slot}}) => slot)}::integer[],
-                                   ${blockBuffer.map(({data: {hash}}) => hash)}::text[],
-                                   ${blockBuffer.map(({data: {height}}) => height)}::integer[])`
+                                 SELECT *
+                                 FROM unnest(
+                                         ${blockBuffer.map(({data: {slot}}) => slot)}::integer[],
+                                         ${blockBuffer.map(({data: {hash}}) => hash)}::text[],
+                                         ${blockBuffer.map(({data: {height}}) => height)}::integer[])`
 
       // NOTE: All events that add have .txOutput must be processed first
       //       Right now we only have launchTxOutput

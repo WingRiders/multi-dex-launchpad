@@ -1,12 +1,15 @@
-import type {Plutus, Value} from '@cardano-ogmios/schema'
+import type {Plutus, TransactionOutput, Value} from '@cardano-ogmios/schema'
 import type {UTxO} from '@meshsdk/common'
 import type {InputJsonValue} from '@prisma/client/runtime/client'
 import {
   createUnit,
+  ensure,
   type LaunchpadConfig,
 } from '@wingriders/multi-dex-launchpad-common'
 import superjson, {type SuperJSONResult} from 'superjson'
+import type {SetNonNullable} from 'type-fest'
 import type {Launch, TxOutput} from '../../prisma/generated/client'
+import type {TxOutputCreateManyInput} from '../../prisma/generated/models/TxOutput'
 import {ogmiosValueToMeshAssets} from '../agent/ogmios/helpers'
 import {encodeOgmiosScript} from '../helpers/script'
 import {prisma} from './prisma-client'
@@ -136,4 +139,31 @@ export const findNodeToSpend = async ({
   })
 
   return prismaTxOutputToMeshOutput(nodeToSpend.txOut)
+}
+
+export const makePrismaTxOutput = (
+  slot: number,
+  txHash: string,
+  outputIndex: number,
+  txOutput: TransactionOutput,
+): SetNonNullable<Required<TxOutputCreateManyInput>, 'datum'> => {
+  ensure(
+    txOutput.datum != null,
+    {txHash, outputIndex},
+    'Tx output must have datum',
+  )
+
+  return {
+    txHash,
+    slot,
+    outputIndex,
+    spentTxHash: null,
+    spentSlot: null,
+    address: txOutput.address,
+    datum: txOutput.datum,
+    datumHash: txOutput.datumHash ?? null,
+    value: serializeValue(txOutput.value) as InputJsonValue,
+    scriptLanguage: txOutput.script?.language ?? null,
+    scriptCbor: txOutput.script?.cbor ?? null,
+  }
 }
