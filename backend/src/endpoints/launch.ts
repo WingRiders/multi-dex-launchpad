@@ -153,6 +153,19 @@ export const getLaunch = async (
     throw new Error(`Launch with txHash ${txHash} not found`)
   }
 
+  const totalCommitted = await prisma.node.aggregate({
+    where: {
+      launchTxHash: txHash,
+      txOut: {
+        spentSlot: null,
+      },
+    },
+    _sum: {
+      // head node and separators have committed set to 0 so there is no need to filter them out
+      committed: true,
+    },
+  })
+
   return {
     projectInfo: {
       title: launch.projectTitle,
@@ -165,7 +178,7 @@ export const getLaunch = async (
       additionalUrl: launch.projectAdditionalUrl ?? undefined,
     },
     config: prismaLaunchToLaunchConfig(launch),
-    totalCommitted: 0n, // TODO: sum up the total committed amount
+    totalCommitted: totalCommitted._sum.committed ?? 0n,
   }
 }
 
@@ -176,7 +189,7 @@ export const getFirstProjectTokensHolderUTxO = async (
     // Gets the most recent first project tokens holder utxo
     await prisma.firstProjectTokensHolder.findFirst({
       select: {txOut: true},
-      where: {launchTxHash, txOut: {spentSlot: {not: null}}},
+      where: {launchTxHash, txOut: {spentSlot: null}},
     })
 
   if (firstProjectTokensHolder == null) {

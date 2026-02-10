@@ -65,7 +65,11 @@ export const LaunchDetails = ({launchTxHash}: LaunchDetailsProps) => {
           />
         </div>
         <div className="md:col-span-2">
-          <Contributing launchTxHash={launchTxHash} config={config} />
+          <Contributing
+            launchTxHash={launchTxHash}
+            config={config}
+            totalCommitted={totalCommitted}
+          />
         </div>
       </div>
 

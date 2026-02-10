@@ -33,6 +33,7 @@ import {Button} from '@/components/ui/button'
 import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
 import {env} from '@/config'
 import {getAssetQuantityFormatter} from '@/helpers/format-asset-quantity'
+import {bigIntMax} from '@/helpers/number'
 import {queryKeyFactory} from '@/helpers/query-key'
 import {useUpdatedTime} from '@/helpers/time'
 import {getTxFee, initTxBuilder} from '@/helpers/tx'
@@ -61,16 +62,22 @@ type ContributingLaunchConfig = Pick<
   | 'presaleTierMinCommitment'
   | 'defaultTierMaxCommitment'
   | 'presaleTierMaxCommitment'
+  | 'projectMaxCommitment'
 >
 
 type ContributingProps = {
   launchTxHash: string
   config: ContributingLaunchConfig
+  totalCommitted: bigint
 }
 
 const DEBOUNCE_DELAY = 100
 
-export const Contributing = ({launchTxHash, config}: ContributingProps) => {
+export const Contributing = ({
+  launchTxHash,
+  config,
+  totalCommitted,
+}: ContributingProps) => {
   const time = useUpdatedTime(useMemo(() => [config.endTime], [config.endTime]))
 
   const isPast = isAfter(time, config.endTime)
@@ -78,17 +85,25 @@ export const Contributing = ({launchTxHash, config}: ContributingProps) => {
   if (isPast)
     return <div className="text-muted-foreground">Contribution has ended</div>
 
-  return <ActiveContributing launchTxHash={launchTxHash} config={config} />
+  return (
+    <ActiveContributing
+      launchTxHash={launchTxHash}
+      config={config}
+      totalCommitted={totalCommitted}
+    />
+  )
 }
 
 type ActiveContributingProps = {
   launchTxHash: string
   config: ContributingLaunchConfig
+  totalCommitted: bigint
 }
 
 const ActiveContributing = ({
   launchTxHash,
   config,
+  totalCommitted,
 }: ActiveContributingProps) => {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
@@ -279,7 +294,7 @@ const ActiveContributing = ({
   } = useQuery({
     queryKey: queryKeyFactory.buildCreateCommitmentTx(
       launchTxHash,
-      committed,
+      debouncedCommitted,
       nodeToSpend?.input,
     ),
     queryFn:
@@ -357,6 +372,11 @@ const ActiveContributing = ({
             keyHash: connectedWallet.pubKeyHash,
             keyIndex: current?.length ?? 0,
             committed: debouncedCommitted,
+            overCommitted: bigIntMax(
+              debouncedCommitted -
+                bigIntMax(config.projectMaxCommitment - totalCommitted, 0n),
+              0n,
+            ),
             createdTime: new Date(
               slotToBeginUnixTime(
                 validityInterval.validityEndSlot,
@@ -365,6 +385,18 @@ const ActiveContributing = ({
             ),
           },
         ],
+      )
+
+      queryClient.setQueryData(
+        trpc.launch.queryKey({txHash: launchTxHash}),
+        (current) => {
+          if (current == null) return undefined
+
+          return {
+            ...current,
+            totalCommitted: current.totalCommitted + debouncedCommitted,
+          }
+        },
       )
     }
   }

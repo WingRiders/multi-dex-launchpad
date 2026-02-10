@@ -1,12 +1,12 @@
 import type {NodeKey} from '@wingriders/multi-dex-launchpad-common'
+import type {SetNonNullable} from 'type-fest'
+import type {Node} from '../../prisma/generated/client'
 
 type CalculateCutoffOptions = {
-  usersNodes: Array<
-    NodeKey & {
-      createdTime: number
-      committed: bigint
-    }
-  >
+  usersNodes: SetNonNullable<
+    Pick<Node, 'keyHash' | 'keyIndex' | 'createdTime' | 'committed'>,
+    'keyHash' | 'keyIndex'
+  >[]
   projectMaxCommitment: bigint
 }
 
@@ -23,9 +23,9 @@ export const calculateCutoff = ({
   let totalCommittedSum = 0n
   const sortedUsersNodes = [...usersNodes].sort(
     (a, b) =>
-      a.createdTime - b.createdTime ||
-      compareHexStrings(a.hash, b.hash) ||
-      a.index - b.index,
+      compareBigInts(a.createdTime, b.createdTime) ||
+      compareHexStrings(a.keyHash, b.keyHash) ||
+      a.keyIndex - b.keyIndex,
   )
 
   for (const node of sortedUsersNodes) {
@@ -33,10 +33,10 @@ export const calculateCutoff = ({
     if (totalCommittedSum > projectMaxCommitment) {
       return {
         cutoffKey: {
-          hash: node.hash,
-          index: node.index,
+          hash: node.keyHash,
+          index: node.keyIndex,
         },
-        createdTime: node.createdTime,
+        createdTime: Number(node.createdTime),
         overcommitted: totalCommittedSum - projectMaxCommitment,
       }
     }
@@ -67,6 +67,8 @@ export const getOverCommittedQuantity = (
   }
   return committed
 }
+
+const compareBigInts = (a: bigint, b: bigint) => (a > b ? 1 : a < b ? -1 : 0)
 
 const compareHexStrings = (a: string, b: string) =>
   Buffer.from(a, 'hex').compare(Buffer.from(b, 'hex'))

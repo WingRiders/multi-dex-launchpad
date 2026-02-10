@@ -1,13 +1,17 @@
 import {describe, expect, it} from 'bun:test'
-import {calculateCutoff, getOverCommittedQuantity} from '../../src/agent/cutoff'
+import {
+  type Cutoff,
+  calculateCutoff,
+  getOverCommittedQuantity,
+} from '../../src/agent/cutoff'
 
 describe('calculateCutoff', () => {
   it('returns null when total commitment is below project max', () => {
     const result = calculateCutoff({
       projectMaxCommitment: 100n,
       usersNodes: [
-        {hash: 'cafe', index: 0, createdTime: 1, committed: 30n},
-        {hash: 'dead', index: 0, createdTime: 2, committed: 40n},
+        {keyHash: 'cafe', keyIndex: 0, createdTime: 1n, committed: 30n},
+        {keyHash: 'dead', keyIndex: 0, createdTime: 2n, committed: 40n},
       ],
     })
 
@@ -18,8 +22,8 @@ describe('calculateCutoff', () => {
     const result = calculateCutoff({
       projectMaxCommitment: 70n,
       usersNodes: [
-        {hash: 'cafe', index: 0, createdTime: 1, committed: 30n},
-        {hash: 'dead', index: 0, createdTime: 2, committed: 40n},
+        {keyHash: 'cafe', keyIndex: 0, createdTime: 1n, committed: 30n},
+        {keyHash: 'dead', keyIndex: 0, createdTime: 2n, committed: 40n},
       ],
     })
 
@@ -30,8 +34,8 @@ describe('calculateCutoff', () => {
     const result = calculateCutoff({
       projectMaxCommitment: 50n,
       usersNodes: [
-        {hash: 'cafe', index: 0, createdTime: 1, committed: 30n},
-        {hash: 'dead', index: 0, createdTime: 2, committed: 40n},
+        {keyHash: 'cafe', keyIndex: 0, createdTime: 1n, committed: 30n},
+        {keyHash: 'dead', keyIndex: 0, createdTime: 2n, committed: 40n},
       ],
     })
 
@@ -46,8 +50,8 @@ describe('calculateCutoff', () => {
     const result = calculateCutoff({
       projectMaxCommitment: 60n,
       usersNodes: [
-        {hash: 'dead', index: 0, createdTime: 2, committed: 40n},
-        {hash: 'cafe', index: 0, createdTime: 1, committed: 30n},
+        {keyHash: 'dead', keyIndex: 0, createdTime: 2n, committed: 40n},
+        {keyHash: 'cafe', keyIndex: 0, createdTime: 1n, committed: 30n},
       ],
     })
 
@@ -58,8 +62,8 @@ describe('calculateCutoff', () => {
     const result = calculateCutoff({
       projectMaxCommitment: 50n,
       usersNodes: [
-        {hash: 'dead', index: 0, createdTime: 1, committed: 30n},
-        {hash: 'cafe', index: 0, createdTime: 1, committed: 30n},
+        {keyHash: 'dead', keyIndex: 0, createdTime: 1n, committed: 30n},
+        {keyHash: 'cafe', keyIndex: 0, createdTime: 1n, committed: 30n},
       ],
     })
 
@@ -74,8 +78,8 @@ describe('calculateCutoff', () => {
     const result = calculateCutoff({
       projectMaxCommitment: 40n,
       usersNodes: [
-        {hash: 'cafe', index: 1, createdTime: 1, committed: 30n},
-        {hash: 'cafe', index: 0, createdTime: 1, committed: 20n},
+        {keyHash: 'cafe', keyIndex: 1, createdTime: 1n, committed: 30n},
+        {keyHash: 'cafe', keyIndex: 0, createdTime: 1n, committed: 20n},
       ],
     })
 
@@ -88,7 +92,7 @@ describe('calculateCutoff', () => {
 })
 
 describe('getOverCommittedQuantity', () => {
-  const cutoff = {
+  const cutoff: Cutoff = {
     cutoffKey: {hash: 'cafe', index: 1},
     createdTime: 10,
     overcommitted: 15n,

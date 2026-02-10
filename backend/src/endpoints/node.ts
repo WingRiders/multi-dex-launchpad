@@ -1,5 +1,6 @@
 import type {UTxO} from '@meshsdk/common'
 import {ensure} from '@wingriders/multi-dex-launchpad-common'
+import {calculateCutoff, getOverCommittedQuantity} from '../agent/cutoff'
 import {prismaTxOutputToMeshOutput} from '../db/helpers'
 import {prisma} from '../db/prisma-client'
 
@@ -7,7 +8,7 @@ export const getUserNodes = async (
   launchTxHash: string,
   ownerPubKeyHash: string,
 ) => {
-  const nodes = await prisma.node.findMany({
+  const userNodes = await prisma.node.findMany({
     where: {
       keyHash: ownerPubKeyHash,
       launchTxHash,
@@ -28,8 +29,54 @@ export const getUserNodes = async (
     },
   })
 
-  return nodes.map(
-    ({txHash, outputIndex, keyHash, keyIndex, committed, createdTime}) => {
+  const launchWithAllUserNodes = await prisma.launch.findFirstOrThrow({
+    where: {
+      txHash: launchTxHash,
+    },
+    select: {
+      projectMaxCommitment: true,
+      nodes: {
+        select: {
+          keyHash: true,
+          keyIndex: true,
+          createdTime: true,
+          committed: true,
+        },
+        where: {
+          txOut: {
+            spentSlot: null,
+          },
+          // exclude separators
+          committed: {gt: 0n},
+          // exclude head node
+          keyHash: {not: null},
+          keyIndex: {not: null},
+        },
+      },
+    },
+  })
+
+  const cutoff = calculateCutoff({
+    projectMaxCommitment: launchWithAllUserNodes.projectMaxCommitment,
+    usersNodes: launchWithAllUserNodes.nodes.map((node) => {
+      const keyHash = node.keyHash
+      const keyIndex = node.keyIndex
+      ensure(keyHash != null, {node}, 'Found user node with null key hash')
+      ensure(keyIndex != null, {node}, 'Found user node with null key index')
+
+      return {...node, keyHash, keyIndex}
+    }),
+  })
+
+  return userNodes.map(
+    ({
+      txHash,
+      outputIndex,
+      keyHash,
+      keyIndex,
+      committed,
+      createdTime: createdTimeBigInt,
+    }) => {
       ensure(
         keyHash != null,
         {txHash, outputIndex},
@@ -41,13 +88,27 @@ export const getUserNodes = async (
         'Found user node with null key index',
       )
 
+      const createdTime = Number(createdTimeBigInt)
+
+      const overCommitted = cutoff
+        ? getOverCommittedQuantity(cutoff, {
+            nodeKey: {
+              hash: keyHash,
+              index: keyIndex,
+            },
+            createdTime,
+            committed,
+          })
+        : 0n
+
       return {
         txHash,
         outputIndex,
         keyHash,
         keyIndex,
         committed,
-        createdTime: new Date(Number(createdTime)),
+        overCommitted,
+        createdTime: new Date(createdTime),
       }
     },
   )
