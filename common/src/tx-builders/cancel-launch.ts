@@ -2,12 +2,12 @@ import type {MeshTxBuilder, UTxO} from '@meshsdk/core'
 
 import {ensure} from '../ensure'
 import {tokensHolderFirstRedeemerToMeshData} from '../redeemers'
-import type {RefSCriptUTxO} from '../types'
+import type {RefScriptUtxo} from '../types'
 
 export type AddCancelLaunchArgs = {
   tokensHolderFirstUTxO: UTxO
-  tokensHolderFirstValidatorRef: RefSCriptUTxO
-  tokensHolderPolicyRef: RefSCriptUTxO
+  tokensHolderFirstValidatorRef: RefScriptUtxo
+  tokensHolderPolicyRef: RefScriptUtxo
   ownerPubKeyHash: string
   lowerTimeLimitSlot: number
   upperTimeLimitSlot: number

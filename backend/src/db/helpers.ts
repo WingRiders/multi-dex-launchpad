@@ -1,6 +1,6 @@
 import type {Plutus, TransactionOutput, Value} from '@cardano-ogmios/schema'
 import type {UTxO} from '@meshsdk/common'
-import type {InputJsonValue} from '@prisma/client/runtime/client'
+import type {InputJsonValue, JsonValue} from '@prisma/client/runtime/client'
 import {
   createUnit,
   ensure,
@@ -68,11 +68,12 @@ export const serializeValue = (value: Value): InputJsonValue =>
   // trust me
   superjson.serialize(value) as object as InputJsonValue
 
+// TODO: ensure the shape
+export const deserializeValue = (value: JsonValue): Value =>
+  superjson.deserialize(value as unknown as SuperJSONResult)
+
 export const prismaTxOutputToMeshOutput = (output: TxOutput): UTxO => {
-  // TODO: ensure the shape
-  const value: Value = superjson.deserialize(
-    output.value as unknown as SuperJSONResult,
-  )
+  const value = deserializeValue(output.value)
 
   const script =
     output.scriptLanguage != null &&

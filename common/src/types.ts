@@ -25,7 +25,7 @@ export type SetNullable<T, K extends keyof T> = {
   [P in keyof T]: P extends K ? T[P] | null : T[P]
 }
 
-export type RefSCriptUTxO = {
+export type RefScriptUtxo = {
   input: TxInput
   output: SetRequired<TxOutput, 'scriptRef' | 'scriptHash'>
   scriptSize: number

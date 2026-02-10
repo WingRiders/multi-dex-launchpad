@@ -18,7 +18,7 @@ import {ensure} from '../ensure'
 import {createUnit, LOVELACE_UNIT, networkToNetworkId} from '../helpers'
 import type {LaunchConfig} from '../launch-configs'
 import {nodeRedeemerToMeshData} from '../redeemers'
-import type {RefSCriptUTxO} from '../types'
+import type {RefScriptUtxo} from '../types'
 
 export type AddCreateCommitmentArgs = {
   config: Pick<LaunchConfig, 'nodeAda' | 'raisingToken'>
@@ -27,8 +27,8 @@ export type AddCreateCommitmentArgs = {
   upperTimeLimitSlot: number
   tier: {type: 'default'} | {type: 'presale'; unit: Unit}
   nodeToSpend: UTxO
-  nodeValidatorRef: RefSCriptUTxO
-  nodePolicyRef: RefSCriptUTxO
+  nodeValidatorRef: RefScriptUtxo
+  nodePolicyRef: RefScriptUtxo
   firstProjectTokensHolderInput: TxInput
   ownerPubKeyHash: string
   ownerStakeKeyHash?: string

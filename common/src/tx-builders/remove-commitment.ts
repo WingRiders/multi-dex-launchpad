@@ -2,13 +2,13 @@ import type {MeshTxBuilder, UTxO} from '@meshsdk/core'
 import {decodeDatum, nodeDatumCborSchema, nodeDatumToMeshData} from '../datums'
 import {ensure} from '../ensure'
 import {nodeRedeemerToMeshData} from '../redeemers'
-import type {RefSCriptUTxO} from '../types'
+import type {RefScriptUtxo} from '../types'
 
 export type AddRemoveCommitmentArgs = {
   nodeUtxoToRemove: UTxO
   previousNodeUtxo: UTxO
-  nodeValidatorRef: RefSCriptUTxO
-  nodePolicyRef: RefSCriptUTxO
+  nodeValidatorRef: RefScriptUtxo
+  nodePolicyRef: RefScriptUtxo
   ownerPubKeyHash: string
   lowerTimeLimitSlot: number
   upperTimeLimitSlot: number

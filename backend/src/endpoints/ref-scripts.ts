@@ -1,6 +1,6 @@
 import {
   ensure,
-  type RefSCriptUTxO,
+  type RefScriptUtxo,
 } from '@wingriders/multi-dex-launchpad-common'
 import {
   RefScriptCarrierType,
@@ -9,7 +9,7 @@ import {
 import {prismaTxOutputToMeshOutput} from '../db/helpers'
 import {prisma} from '../db/prisma-client'
 
-const txOutputToRefScriptUtxo = (txOutput: TxOutput): RefSCriptUTxO => {
+const txOutputToRefScriptUtxo = (txOutput: TxOutput): RefScriptUtxo => {
   const utxo = prismaTxOutputToMeshOutput(txOutput)
 
   const scriptRef = utxo.output.scriptRef
@@ -33,7 +33,7 @@ const txOutputToRefScriptUtxo = (txOutput: TxOutput): RefSCriptUTxO => {
 
 export const getNodeValidatorRefScriptUtxo = async (
   launchTxHash: string,
-): Promise<RefSCriptUTxO> => {
+): Promise<RefScriptUtxo> => {
   const nodeValidatorRefScriptCarrier = await prisma.refScriptCarrier.findFirst(
     {
       where: {
@@ -54,7 +54,7 @@ export const getNodeValidatorRefScriptUtxo = async (
 
 export const getNodePolicyRefScriptUtxo = async (
   launchTxHash: string,
-): Promise<RefSCriptUTxO> => {
+): Promise<RefScriptUtxo> => {
   const nodePolicyRefScriptCarrier = await prisma.refScriptCarrier.findFirst({
     where: {
       launchTxHash,
@@ -73,7 +73,7 @@ export const getNodePolicyRefScriptUtxo = async (
 
 export const getFirstProjectTokensHolderValidatorRefScriptUtxo = async (
   launchTxHash: string,
-): Promise<RefSCriptUTxO> => {
+): Promise<RefScriptUtxo> => {
   const firstProjectTokensHolderValidatorRefScriptCarrier =
     await prisma.refScriptCarrier.findFirst({
       where: {
@@ -97,7 +97,7 @@ export const getFirstProjectTokensHolderValidatorRefScriptUtxo = async (
 
 export const getProjectTokensHolderPolicyRefScriptUtxo = async (
   launchTxHash: string,
-): Promise<RefSCriptUTxO> => {
+): Promise<RefScriptUtxo> => {
   const projectTokensHolderPolicyRefScriptCarrier =
     await prisma.refScriptCarrier.findFirst({
       where: {
