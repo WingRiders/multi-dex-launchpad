@@ -153,11 +153,20 @@ export const getLaunch = async (
     throw new Error(`Launch with txHash ${txHash} not found`)
   }
 
+  const launchEndSlot = unixTimeToEnclosingSlot(
+    Number(launch.endTime),
+    SLOT_CONFIG_NETWORK[config.NETWORK],
+  )
+
   const totalCommitted = await prisma.node.aggregate({
     where: {
       launchTxHash: txHash,
       txOut: {
-        spentSlot: null,
+        OR: [
+          {spentSlot: null},
+          // we want to include nodes that were spent after the launch ended (either reclaimed or folded)
+          {spentSlot: {gt: launchEndSlot}},
+        ],
       },
     },
     _sum: {

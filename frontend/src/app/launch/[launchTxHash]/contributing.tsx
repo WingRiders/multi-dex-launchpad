@@ -383,6 +383,7 @@ const ActiveContributing = ({
                 SLOT_CONFIG_NETWORK[network],
               ),
             ),
+            isSpent: false,
           },
         ],
       )
