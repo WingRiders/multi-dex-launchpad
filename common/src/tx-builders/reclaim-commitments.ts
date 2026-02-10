@@ -1,12 +1,12 @@
 import type {MeshTxBuilder, TxInput, UTxO} from '@meshsdk/core'
 import {ensure} from '../ensure'
 import {nodeRedeemerToMeshData} from '../redeemers'
-import type {RefSCriptUTxO} from '../types'
+import type {RefScriptUtxo} from '../types'
 
 export type AddReclaimCommitmentsArgs = {
   nodeUtxos: UTxO[]
-  nodeValidatorRef: RefSCriptUTxO
-  nodePolicyRef: RefSCriptUTxO
+  nodeValidatorRef: RefScriptUtxo
+  nodePolicyRef: RefScriptUtxo
   failProofInput: TxInput
   lowerTimeLimitSlot: number
   upperTimeLimitSlot: number
