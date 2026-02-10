@@ -1,6 +1,8 @@
 export * from './cancel-launch'
+export * from './claim-rewards'
 export * from './create-commitment'
 export * from './init-launch'
+export * from './reclaim-commitments'
 export * from './ref-script-carriers'
 export * from './remove-commitment'
 

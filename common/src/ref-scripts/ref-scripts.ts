@@ -1,4 +1,4 @@
-import type {Network} from '@/helpers/network'
+import type {Network} from '../helpers/network'
 import {mainnetConstantContracts} from './mainnet'
 import {preprodConstantContracts} from './preprod'
 
