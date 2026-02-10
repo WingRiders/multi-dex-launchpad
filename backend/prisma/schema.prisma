@@ -124,6 +124,16 @@ model CommitFold {
   launchTxHash String
   launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
 
+  nextKeyHash    String?
+  nextKeyIndex   Int?
+  cutoffKeyHash  String?
+  cutoffKeyIndex Int?
+  cutoffTime     BigInt? // POSIXTime
+  committed      BigInt
+  overcommitted  BigInt
+  nodeCount      Int
+  ownerAddress   String
+
   @@unique([txHash, outputIndex, launchTxHash])
 }
 

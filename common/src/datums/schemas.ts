@@ -1,5 +1,5 @@
 import z from 'zod'
-import {createUnit} from '../helpers'
+import {bech32AddressSchema, createUnit} from '../helpers'
 import {
   assetNameSchema,
   makeMaybeCborSchema,
@@ -8,6 +8,7 @@ import {
   scriptHashSchema,
 } from '../helpers/schemas'
 import type {
+  CommitFoldDatum,
   FailProofDatum,
   MultisigScript,
   NodeDatum,
@@ -51,6 +52,33 @@ export const nodeDatumCborSchema = z
       next: res.fields[1],
       createdTime: Number(res.fields[2].int),
       committed: res.fields[3].int,
+    }),
+  )
+
+export const commitFoldDatumCborSchema = z
+  .object({
+    constructor: z.literal(0n),
+    fields: z.tuple([
+      scriptHashSchema,
+      maybeNodeKeyCborSchema,
+      z.object({int: z.bigint()}),
+      maybeNodeKeyCborSchema,
+      makeMaybeCborSchema(z.object({int: z.bigint()})),
+      z.object({int: z.bigint()}),
+      z.object({int: z.bigint()}),
+      bech32AddressSchema,
+    ]),
+  })
+  .transform(
+    (res): CommitFoldDatum => ({
+      nodeScriptHash: res.fields[0],
+      next: res.fields[1],
+      committed: res.fields[2].int,
+      cutoffKey: res.fields[3],
+      cutoffTime: (res.fields[4] && Number(res.fields[4].int)) ?? null,
+      overcommitted: res.fields[5].int,
+      nodeCount: Number(res.fields[6].int),
+      owner: res.fields[7],
     }),
   )
 

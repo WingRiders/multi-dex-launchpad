@@ -9,6 +9,7 @@ import type {
 import {applyCborEncoding, resolveScriptHash} from '@meshsdk/core'
 import type {JsonValue} from '@prisma/client/runtime/client'
 import {
+  commitFoldDatumCborSchema,
   createUnit,
   DAO_ADMIN_PUB_KEY_HASH,
   DAO_FEE_RECEIVER_BECH32_ADDRESS,
@@ -914,11 +915,26 @@ const saveLaunchTxOutputsFields = async (
         break
       }
       case 'commitFold': {
+        const datum = decodeDatum(commitFoldDatumCborSchema, txOutput.datum)
+        ensure(
+          datum != null,
+          {txHash: txOutput.txHash},
+          'Found commit fold utxo with invalid datum',
+        )
         await prisma.commitFold.create({
           data: {
             launchTxHash,
             txHash: txOutput.txHash,
             outputIndex: txOutput.outputIndex,
+            nextKeyHash: datum.next?.hash,
+            nextKeyIndex: datum.next?.index,
+            cutoffKeyHash: datum.cutoffKey?.hash,
+            cutoffKeyIndex: datum.cutoffKey?.index,
+            cutoffTime: datum.cutoffTime && BigInt(datum.cutoffTime),
+            committed: datum.committed,
+            overcommitted: datum.overcommitted,
+            nodeCount: datum.nodeCount,
+            ownerAddress: datum.owner,
           },
         })
         break

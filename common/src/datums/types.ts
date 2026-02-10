@@ -25,10 +25,10 @@ export type TokensHolderFirstDatum = {
 export type CommitFoldDatum = {
   nodeScriptHash: string
   next: NodeKey | null
-  committed: number
+  committed: bigint
   cutoffKey: NodeKey | null
   cutoffTime: number | null
-  overcommitted: number
+  overcommitted: bigint
   nodeCount: number
   owner: string // Bech32 address
 }
