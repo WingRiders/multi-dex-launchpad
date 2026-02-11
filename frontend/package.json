@@ -59,7 +59,7 @@
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@typescript/native-preview": "7.0.0-dev.20251205.1",
+    "@typescript/native-preview": "7.0.0-dev.20260210.1",
     "@wingriders/multi-dex-launchpad-backend": "workspace:*",
     "babel-plugin-react-compiler": "1.0.0",
     "tailwindcss": "^4",
