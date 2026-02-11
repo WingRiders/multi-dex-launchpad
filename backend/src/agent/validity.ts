@@ -1,5 +1,5 @@
 import type {Value} from '@cardano-ogmios/schema'
-import {GeneratedPolicy} from '@wingriders/multi-dex-launchpad-common'
+import type {GeneratedPolicy} from '@wingriders/multi-dex-launchpad-common'
 import type {launchScriptHashes} from '../interesting-launches'
 import {CONSTANT_CONTRACTS} from './constants'
 

@@ -1,8 +1,4 @@
-import {
-  SLOT_CONFIG_NETWORK,
-  type UTxO,
-  unixTimeToEnclosingSlot,
-} from '@meshsdk/common'
+import type {UTxO} from '@meshsdk/common'
 import type {
   LaunchConfig,
   LaunchTimeStatus,
@@ -10,7 +6,7 @@ import type {
 } from '@wingriders/multi-dex-launchpad-common'
 import {max} from 'es-toolkit/compat'
 import type {Prisma} from '../../prisma/generated/client'
-import {config} from '../config'
+import {timeToSlot} from '../common'
 import {
   prismaLaunchToLaunchConfig,
   prismaTxOutputToMeshOutput,
@@ -133,8 +129,7 @@ const isLaunchCancelled = (
   firstTokensHolderSpentSlot: number | null | undefined,
 ) =>
   firstTokensHolderSpentSlot != null &&
-  firstTokensHolderSpentSlot <
-    unixTimeToEnclosingSlot(startTime, SLOT_CONFIG_NETWORK[config.NETWORK])
+  firstTokensHolderSpentSlot < timeToSlot(startTime)
 
 export const getLaunch = async (
   txHash: string,
@@ -153,10 +148,7 @@ export const getLaunch = async (
     throw new Error(`Launch with txHash ${txHash} not found`)
   }
 
-  const launchEndSlot = unixTimeToEnclosingSlot(
-    Number(launch.endTime),
-    SLOT_CONFIG_NETWORK[config.NETWORK],
-  )
+  const launchEndSlot = timeToSlot(launch.endTime)
 
   const totalCommitted = await prisma.node.aggregate({
     where: {

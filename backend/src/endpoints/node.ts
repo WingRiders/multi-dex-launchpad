@@ -1,11 +1,7 @@
-import {
-  SLOT_CONFIG_NETWORK,
-  type UTxO,
-  unixTimeToEnclosingSlot,
-} from '@meshsdk/common'
+import type {UTxO} from '@meshsdk/common'
 import {ensure} from '@wingriders/multi-dex-launchpad-common'
 import {calculateCutoff, getOverCommittedQuantity} from '../agent/cutoff'
-import {config} from '../config'
+import {timeToSlot} from '../common'
 import {prismaTxOutputToMeshOutput} from '../db/helpers'
 import {prisma} from '../db/prisma-client'
 
@@ -22,10 +18,7 @@ export const getUserNodes = async (
     },
   })
 
-  const launchEndSlot = unixTimeToEnclosingSlot(
-    Number(launch.endTime),
-    SLOT_CONFIG_NETWORK[config.NETWORK],
-  )
+  const launchEndSlot = timeToSlot(launch.endTime)
 
   const userNodes = await prisma.node.findMany({
     where: {
