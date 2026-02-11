@@ -1,22 +1,17 @@
 import type {Value} from '@cardano-ogmios/schema'
-import {
-  ensure,
-  isGeneratedPolicyType,
-} from '@wingriders/multi-dex-launchpad-common'
+import {GeneratedPolicy} from '@wingriders/multi-dex-launchpad-common'
 import type {launchScriptHashes} from '../interesting-launches'
 import {CONSTANT_CONTRACTS} from './constants'
 
 /**
  * Checks whether a TxOutput contains the required validity token for
  * the given validator type, ensuring the expected minting policy was successfully run.
+ * Also rejects policies.
  */
 export const passesValidityToken = (
   {contracts, type}: (typeof launchScriptHashes)[string],
   value: Value,
 ): boolean => {
-  // The policies should've been already rejected by that point
-  if (isGeneratedPolicyType(type)) return false
-
   // These contracts don't require a validity token
   if (
     type === 'refScriptCarrier' ||
@@ -67,8 +62,9 @@ export const passesValidityToken = (
       // TODO: sundae token
       return true
     default: {
-      const _: never = type
-      ensure(false, {type}, 'Unknown validator type')
+      // Policies on utxos are definitely not correct for launchpad
+      const _: GeneratedPolicy = type
+      return false
     }
   }
 }

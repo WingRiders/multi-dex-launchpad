@@ -214,10 +214,11 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
       txOutput: out,
       txHash: tx.id,
       outputIndex: i,
+      signatories: tx.signatories,
     })),
   )
 
-  for (const {txOutput, txHash, outputIndex} of txOuts) {
+  for (const {txOutput, txHash, outputIndex, signatories} of txOuts) {
     const address = tryDeserializeAddress(txOutput.address)
     if (!address) continue
 
@@ -233,9 +234,17 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
     // Is case we do, we skip those, they're definitely incorrect
     if (isGeneratedPolicyType(type)) continue
 
-    // We make sure the utxos have a validity token if applicable
+    // We also make sure the utxos have a validity token if applicable
     // otherwise we might track invalid/unspendable utxos
     if (!passesValidityToken(lookup, txOutput.value)) continue
+
+    // Additionally, we reject commit folds where the agent did not sign the transaction
+    // Doing that allows assuming we only have one unspent commit fold
+    if (
+      type === 'commitFold' &&
+      !signatories.some(({key}) => key === getWalletPubKeyHash())
+    )
+      continue
 
     if (launch) {
       // For types that have the launch, we can just push the event
