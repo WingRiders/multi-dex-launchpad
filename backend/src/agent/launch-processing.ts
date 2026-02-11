@@ -1,13 +1,19 @@
-import type {
-  Contract,
-  GeneratedContracts,
+import {
+  type Contract,
+  constantRefScriptsByNetwork,
+  type GeneratedContracts,
 } from '@wingriders/multi-dex-launchpad-common'
+
 import {Result} from 'better-result'
-import {RefScriptCarrierType} from '../../prisma/generated/client'
+import {
+  PoolProofType,
+  RefScriptCarrierType,
+} from '../../prisma/generated/client'
+import {config} from '../config'
 import {prisma} from '../db/prisma-client'
 import type {InterestingLaunch} from '../interesting-launches'
 import {logger} from '../logger'
-import {deployContracts} from './transactions'
+import {createPoolProof, deployContracts} from './transactions'
 
 // For passed launches run the next necessary step
 // Runs one step only
@@ -120,6 +126,54 @@ const processLaunch = async (
   }
 
   // TODO: the rest of the actions
+
+  // We check if there are pools but no pool proofs
+  // we create those if needed
+  const poolProofs = await prisma.poolProof.findMany({
+    where: {launchTxHash, txOut: {spentSlot: null}},
+    select: {type: true, txOut: true},
+  })
+
+  if (!poolProofs.some((p) => p.type === PoolProofType.WR)) {
+    const wrPool = await prisma.wrPool.findFirst({
+      where: {launchTxHash, txOut: {spentSlot: null}},
+      select: {txOut: true},
+    })
+    if (!wrPool) logger.info({launchTxHash}, 'No WingRiders pool created yet')
+    else {
+      logger.info({launchTxHash}, 'Creating WingRiders pool proof')
+      const txHash = await createPoolProof(
+        launch,
+        wrPool.txOut,
+        'WingRidersV2',
+        constantRefScriptsByNetwork[config.NETWORK].poolProofPolicy,
+      )
+      if (txHash)
+        logger.info({launchTxHash, txHash}, 'Created WingRiders pool proof')
+      else
+        logger.error({launchTxHash}, 'Failed to create WingRiders pool proof')
+    }
+  } else logger.info({launchTxHash}, 'WingRiders pool proof exists')
+
+  if (!poolProofs.some((p) => p.type === PoolProofType.SUNDAE)) {
+    const sundaePool = await prisma.sundaePool.findFirst({
+      where: {launchTxHash, txOut: {spentSlot: null}},
+      select: {txOut: true},
+    })
+    if (!sundaePool) logger.info({launchTxHash}, 'No Sundae pool created yet')
+    else {
+      logger.info({launchTxHash}, 'Creating Sundae pool proof')
+      const txHash = await createPoolProof(
+        launch,
+        sundaePool.txOut,
+        'SundaeSwapV3',
+        constantRefScriptsByNetwork[config.NETWORK].poolProofPolicy,
+      )
+      if (txHash)
+        logger.info({launchTxHash, txHash}, 'Created Sundae pool proof')
+      else logger.error({launchTxHash}, 'Failed to create Sundae pool proof')
+    }
+  } else logger.info({launchTxHash}, 'Sundae pool proof exists')
 }
 
 // Deployment is split into 4 phases so it fits into tx limits
