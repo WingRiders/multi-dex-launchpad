@@ -12,7 +12,10 @@ import type {Network} from './network'
 export const calculateTxValidityInterval = (
   network: Network,
   now = Date.now(),
-) => {
+): {
+  validityStartSlot: number
+  validityEndSlot: number
+} => {
   const slotConfig = SLOT_CONFIG_NETWORK[network]
 
   const validityStartTime = now - DEFAULT_TX_VALIDITY_START_BACKDATE_MS
@@ -35,7 +38,10 @@ export const calculateTxValidityIntervalBeforeLaunchStart = (
   network: Network,
   launchStartTime: number,
   now = Date.now(),
-) => {
+): {
+  validityStartSlot: number
+  validityEndSlot: number
+} => {
   if (now >= launchStartTime) {
     throw new Error(
       'Cannot calculate validity interval, launch has already started',

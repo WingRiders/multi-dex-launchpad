@@ -7,7 +7,7 @@ export * from './reclaim-commitments'
 export * from './ref-script-carriers'
 export * from './remove-commitment'
 
-import type {IEvaluator, ISubmitter, MeshTxBuilderBody} from '@meshsdk/common'
+import type {IEvaluator, ISubmitter} from '@meshsdk/common'
 import {MeshTxBuilder} from '@meshsdk/core'
 import {Result} from 'better-result'
 import type {Network} from '..'
@@ -28,19 +28,23 @@ export const makeBuilder = (
 export const buildTx = (b: MeshTxBuilder) =>
   Result.tryPromise(() => b.complete())
 
-export const getLogContextFromTxBuilderBody = (
-  txBuilderBody: MeshTxBuilderBody,
-) => ({
-  inputs: txBuilderBody.inputs,
-  outputs: txBuilderBody.outputs.map(({address, amount}) => ({
-    address,
-    amount,
-  })),
-  extraInputs: txBuilderBody.extraInputs.map(({input, output}) => ({
-    input,
-    output: {
-      address: output.address,
-      amount: output.amount,
-    },
-  })),
-})
+// Use this only if you can't use the normal buildTx() for some reason.
+// This will not verify the fee, you need to calculate it yourself.
+// This will not balance the transaction either, pass in a balanced builder.
+export const buildTxNeverUseUnlessManuallyBalancing = async (
+  b: MeshTxBuilder,
+  fee: bigint,
+) =>
+  // we need (b as any) to access protected fields
+  await Result.tryPromise(async () => {
+    ;(b as any).queueAllLastItem()
+    b.removeDuplicateInputs()
+    b.removeDuplicateRefInputs()
+    for (const collateral of b.meshTxBuilderBody.collaterals)
+      collateral.txIn.scriptSize = 0
+    await (b as any).completeTxParts()
+    await (b as any).sanitizeOutputs()
+    b.sortTxParts()
+    b.setFee(fee.toString())
+    return await (b as any).completeSerialization()
+  })

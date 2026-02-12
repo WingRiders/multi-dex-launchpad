@@ -875,7 +875,7 @@ const saveLaunchTxOutputsFields = async (
         const datum = decodeDatum(nodeDatumCborSchema, txOutput.datum)
         ensure(
           datum != null,
-          {txHash: txOutput.txHash},
+          {datum: txOutput.datum, txHash: txOutput.txHash},
           'Found node utxo with invalid datum',
         )
 

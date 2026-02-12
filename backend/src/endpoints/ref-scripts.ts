@@ -9,7 +9,7 @@ import {
 import {prismaTxOutputToMeshOutput} from '../db/helpers'
 import {prisma} from '../db/prisma-client'
 
-const txOutputToRefScriptUtxo = (txOutput: TxOutput): RefScriptUtxo => {
+export const txOutputToRefScriptUtxo = (txOutput: TxOutput): RefScriptUtxo => {
   const utxo = prismaTxOutputToMeshOutput(txOutput)
 
   const scriptRef = utxo.output.scriptRef

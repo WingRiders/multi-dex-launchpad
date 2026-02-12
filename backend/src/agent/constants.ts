@@ -11,3 +11,6 @@ export const CONSTANT_CONTRACTS = await generateConstantContracts({
   wrPoolValidatorHash: WR_POOL_VALIDATOR_HASH[config.NETWORK],
   sundaePoolScriptHash: SUNDAE_POOL_SCRIPT_HASH[config.NETWORK],
 })
+
+// maximum number of separators that can be inserted in one transaction
+export const SEPARATORS_TO_INSERT = 58

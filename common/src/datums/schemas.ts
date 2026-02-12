@@ -2,6 +2,7 @@ import z from 'zod'
 import {createUnit, getAddressSchema, type Network} from '../helpers'
 import {
   assetNameSchema,
+  hexStringSchema,
   makeMaybeCborSchema,
   policyIdSchema,
   pubKeyHashSchema,
@@ -23,7 +24,12 @@ export const nodeKeyCborSchema = z
   .object({
     constructor: z.literal(0n),
     fields: z.tuple([
-      z.object({bytes: pubKeyHashSchema}),
+      z.union([
+        // user nodes have full pub key hash here
+        z.object({bytes: pubKeyHashSchema}),
+        // separator nodes are 1 byte only => 2 hex characters
+        z.object({bytes: hexStringSchema.length(2)}),
+      ]),
       z.object({int: z.bigint()}),
     ]),
   })

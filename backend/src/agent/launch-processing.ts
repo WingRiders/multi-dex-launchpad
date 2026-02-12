@@ -1,19 +1,27 @@
 import {
   type Contract,
   constantRefScriptsByNetwork,
+  ensure,
   type GeneratedContracts,
 } from '@wingriders/multi-dex-launchpad-common'
 
 import {Result} from 'better-result'
+import type {Launch, TxOutput} from '../../prisma/generated/client'
 import {
   PoolProofType,
   RefScriptCarrierType,
 } from '../../prisma/generated/client'
 import {config} from '../config'
+
 import {prisma} from '../db/prisma-client'
 import type {InterestingLaunch} from '../interesting-launches'
 import {logger} from '../logger'
-import {createPoolProof, deployContracts} from './transactions'
+import {SEPARATORS_TO_INSERT} from './constants'
+import {
+  createPoolProof,
+  deployContracts,
+  insertSeparators,
+} from './transactions'
 
 // For passed launches run the next necessary step
 // Runs one step only
@@ -45,7 +53,7 @@ const processLaunch = async (
 ) => {
   // The first action we do is deploy the contracts if needed
   //
-  // TODO: Otherwise if the launch hasn't started yet and doesn't have separator nodes,
+  // Otherwise if the launch hasn't started yet and doesn't have separator nodes,
   // we insert those
   //
   // If the launch hasn't finished yet, we skip it
@@ -70,8 +78,8 @@ const processLaunch = async (
     },
     include: {
       refScriptCarriers: {
+        include: {txOut: true},
         where: {txOut: {spentSlot: null}},
-        select: {type: true},
       },
     },
   })
@@ -93,7 +101,7 @@ const processLaunch = async (
           phase,
           contracts: contractsToDeploy.map((c) => c.hash),
         },
-        `Deploying contracts from phase ${phase}`,
+        `Deploying contracts in phase ${phase}`,
       )
       const txHash = await deployContracts(contractsToDeploy)
       if (txHash)
@@ -104,7 +112,7 @@ const processLaunch = async (
             contracts: contractsToDeploy.map((c) => c.hash),
             phase,
           },
-          `Deployed contracts from phase ${phase}`,
+          `Deployed contracts in phase ${phase}`,
         )
       else
         logger.error(
@@ -124,6 +132,50 @@ const processLaunch = async (
     logger.info({launchTxHash}, 'Launch in progress, skipping')
     return
   }
+
+  // we can assume all the validators have been deployed by now
+  const nodeValidatorRefScriptCarrier = launch.refScriptCarriers.find(
+    (c) => c.type === RefScriptCarrierType.NODE_VALIDATOR,
+  )
+  ensure(
+    nodeValidatorRefScriptCarrier != null,
+    {launchTxHash},
+    'Node validator ref script carrier must exist',
+  )
+  const nodePolicyRefScriptCarrier = launch.refScriptCarriers.find(
+    (c) => c.type === RefScriptCarrierType.NODE_POLICY,
+  )
+  ensure(
+    nodePolicyRefScriptCarrier != null,
+    {launchTxHash},
+    'Node policy ref script carrier must exist',
+  )
+
+  // We check if we should insert separators:
+  //  - the launch has not started yet
+  //  - there's only the head node
+  const headNode = await findHeadNodeIfShouldInsertSeparators(time, launch)
+  if (headNode) {
+    logger.info(
+      {launchTxHash, SEPARATORS_TO_INSERT},
+      `Inserting ${SEPARATORS_TO_INSERT} separators`,
+    )
+    const txHash = await insertSeparators(
+      contracts,
+      launch,
+      headNode,
+      nodeValidatorRefScriptCarrier.txOut,
+      nodePolicyRefScriptCarrier.txOut,
+      SEPARATORS_TO_INSERT,
+    )
+    if (txHash) logger.info({launchTxHash, txHash}, 'Inserted separators')
+    else logger.error({launchTxHash}, 'Failed to insert separators')
+    return
+  } else
+    logger.info(
+      {launchTxHash},
+      'No separators to insert (either already inserted or the launch start time has passed)',
+    )
 
   // TODO: the rest of the actions
 
@@ -176,7 +228,7 @@ const processLaunch = async (
   } else logger.info({launchTxHash}, 'Sundae pool proof exists')
 }
 
-// Deployment is split into 4 phases so it fits into tx limits
+// Deployment is split into 5 phases so it fits into tx limits
 //
 // Phase 1:
 // - rewards fold policy
@@ -242,4 +294,29 @@ const getUndeployedLaunchContracts = (
   }
 
   return undeployedContracts
+}
+
+// It is only possible to insert separators before the start of the launch
+// We also try to insert all separators in one transactions.
+// That means we should do that if there's only one node in existence: the head node
+// We return it if the separators should be inserted
+// This name is horrendous.
+const findHeadNodeIfShouldInsertSeparators = async (
+  time: number,
+  launch: Launch,
+): Promise<TxOutput | null> => {
+  if (time >= launch.startTime) return null
+
+  const headNode = await prisma.node.findFirstOrThrow({
+    select: {nextIndex: true, txOut: true},
+    where: {
+      launchTxHash: launch.txHash,
+      keyHash: null,
+      txOut: {spentSlot: null},
+    },
+  })
+  // next != null means some nodes were inserted
+  if (headNode.nextIndex != null) return null
+
+  return headNode.txOut
 }
