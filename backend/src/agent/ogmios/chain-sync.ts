@@ -9,7 +9,6 @@ import type {
 import {applyCborEncoding, resolveScriptHash} from '@meshsdk/core'
 import type {JsonValue} from '@prisma/client/runtime/client'
 import {
-  commitFoldDatumCborSchema,
   createUnit,
   DAO_ADMIN_PUB_KEY_HASH,
   DAO_FEE_RECEIVER_BECH32_ADDRESS,
@@ -17,6 +16,7 @@ import {
   ensure,
   failProofDatumCborSchema,
   generateLaunchContracts,
+  getCommitFoldDatumCborSchema,
   getLaunchTxMetadataSchema,
   INIT_LAUNCH_AGENT_LOVELACE,
   INIT_LAUNCH_TX_METADATA_LABEL,
@@ -925,7 +925,10 @@ const saveLaunchTxOutputsFields = async (
         break
       }
       case 'commitFold': {
-        const datum = decodeDatum(commitFoldDatumCborSchema, txOutput.datum)
+        const datum = decodeDatum(
+          getCommitFoldDatumCborSchema(config.NETWORK),
+          txOutput.datum,
+        )
         ensure(
           datum != null,
           {txHash: txOutput.txHash},

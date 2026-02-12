@@ -12,9 +12,9 @@
     "test": "bun test && bun run tsgo --noEmit"
   },
   "dependencies": {
-    "@meshsdk/common": "^1.9.0-beta.93",
-    "@meshsdk/core": "^1.9.0-beta.93",
-    "@meshsdk/core-cst": "^1.9.0-beta.93",
+    "@meshsdk/common": "^1.9.0-beta.98",
+    "@meshsdk/core": "^1.9.0-beta.98",
+    "@meshsdk/core-cst": "^1.9.0-beta.98",
     "@wingriders/apply-params-to-script": "^0.1.2",
     "better-result": "^2.3.1",
     "zod": "4.1.13"

@@ -1,5 +1,5 @@
 import z from 'zod'
-import {bech32AddressSchema, createUnit} from '../helpers'
+import {createUnit, getAddressSchema, type Network} from '../helpers'
 import {
   assetNameSchema,
   makeMaybeCborSchema,
@@ -55,32 +55,33 @@ export const nodeDatumCborSchema = z
     }),
   )
 
-export const commitFoldDatumCborSchema = z
-  .object({
-    constructor: z.literal(0n),
-    fields: z.tuple([
-      scriptHashSchema,
-      maybeNodeKeyCborSchema,
-      z.object({int: z.bigint()}),
-      maybeNodeKeyCborSchema,
-      makeMaybeCborSchema(z.object({int: z.bigint()})),
-      z.object({int: z.bigint()}),
-      z.object({int: z.bigint()}),
-      bech32AddressSchema,
-    ]),
-  })
-  .transform(
-    (res): CommitFoldDatum => ({
-      nodeScriptHash: res.fields[0],
-      next: res.fields[1],
-      committed: res.fields[2].int,
-      cutoffKey: res.fields[3],
-      cutoffTime: (res.fields[4] && Number(res.fields[4].int)) ?? null,
-      overcommitted: res.fields[5].int,
-      nodeCount: Number(res.fields[6].int),
-      owner: res.fields[7],
-    }),
-  )
+export const getCommitFoldDatumCborSchema = (network: Network) =>
+  z
+    .object({
+      constructor: z.literal(0n),
+      fields: z.tuple([
+        z.object({bytes: scriptHashSchema}),
+        maybeNodeKeyCborSchema,
+        z.object({int: z.bigint()}),
+        maybeNodeKeyCborSchema,
+        makeMaybeCborSchema(z.object({int: z.bigint()})),
+        z.object({int: z.bigint()}),
+        z.object({int: z.bigint()}),
+        getAddressSchema(network),
+      ]),
+    })
+    .transform(
+      (res): CommitFoldDatum => ({
+        nodeScriptHash: res.fields[0].bytes,
+        next: res.fields[1],
+        committed: res.fields[2].int,
+        cutoffKey: res.fields[3],
+        cutoffTime: (res.fields[4] && Number(res.fields[4].int)) ?? null,
+        overcommitted: res.fields[5].int,
+        nodeCount: Number(res.fields[6].int),
+        owner: res.fields[7],
+      }),
+    )
 
 export const rewardsHolderDatumCborSchema = z
   .object({

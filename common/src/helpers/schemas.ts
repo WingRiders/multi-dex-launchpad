@@ -1,3 +1,9 @@
+import {
+  buildBaseAddress,
+  buildEnterpriseAddress,
+  CredentialType,
+  Hash28ByteBase16,
+} from '@meshsdk/core-cst'
 import z, {type ZodType} from 'zod'
 import {
   COMMIT_FOLD_FEE_ADA,
@@ -7,6 +13,7 @@ import {
   MAX_LENGTHS,
   type Network,
   NODE_ADA,
+  networkToNetworkId,
   OIL_ADA,
   SPLIT_BPS_BASE,
   SUNDAE_POOL_SCRIPT_HASH,
@@ -76,6 +83,87 @@ export const txInputSchema = z.object({
   txHash: txHashSchema,
   outputIndex: z.bigint().nonnegative().transform(Number),
 })
+
+// AddressCredential
+const pubKeyCredentialSchema = z.object({
+  constructor: z.literal(0n),
+  fields: z.tuple([z.object({bytes: pubKeyHashSchema})]),
+})
+
+const scriptCredentialSchema = z.object({
+  constructor: z.literal(1n),
+  fields: z.tuple([z.object({bytes: pubKeyHashSchema})]),
+})
+
+const addressCredentialSchema = z.union([
+  pubKeyCredentialSchema,
+  scriptCredentialSchema,
+])
+
+// StakingCredential
+const stakingHashSchema = z.object({
+  constructor: z.literal(0n),
+  fields: z.tuple([addressCredentialSchema]),
+})
+
+const stakingPtrSchema = z.object({
+  constructor: z.literal(1n),
+  fields: z.tuple([z.bigint(), z.bigint(), z.bigint()]), // blockIndex, txIndex, certificateIndex
+})
+
+const stakingCredentialSchema = z.union([stakingHashSchema, stakingPtrSchema])
+
+// MaybeStakingCredential
+const maybeStakingCredentialSchema = makeMaybeCborSchema(
+  stakingCredentialSchema,
+)
+
+// Full Address
+const addressCborSchema = z.object({
+  constructor: z.literal(0n),
+  fields: z.tuple([addressCredentialSchema, maybeStakingCredentialSchema]),
+})
+
+// Transform to Bech32 using Mesh
+export const getAddressSchema = (network: Network) =>
+  addressCborSchema.transform((addrCbor) => {
+    const [paymentCred, maybeStakeCred] = addrCbor.fields
+
+    const paymentKeyHash = Hash28ByteBase16(paymentCred.fields[0].bytes)
+
+    const credType = (cred: {constructor: 0n | 1n}) =>
+      cred.constructor === 0n
+        ? CredentialType.KeyHash
+        : CredentialType.ScriptHash
+
+    if (maybeStakeCred == null) {
+      return buildEnterpriseAddress(
+        networkToNetworkId[network],
+        paymentKeyHash,
+        // TODO Allow script enterprise address
+        // credType(paymentCred),
+      )
+        .toAddress()
+        .toBech32()
+        .toString()
+    }
+    if (maybeStakeCred.constructor === 1n) {
+      throw new Error('StakingPtr is not supported')
+    }
+    const stakeCred = maybeStakeCred.fields[0]
+    const stakeKeyHash = Hash28ByteBase16(stakeCred.fields[0].bytes)
+
+    return buildBaseAddress(
+      networkToNetworkId[network],
+      paymentKeyHash,
+      stakeKeyHash,
+      credType(paymentCred),
+      credType(stakeCred),
+    )
+      .toAddress()
+      .toBech32()
+      .toString()
+  })
 
 export const projectInfoTxMetadataSchema = z.object({
   title: metadataStringSchema().pipe(z.string().max(MAX_LENGTHS.title)),

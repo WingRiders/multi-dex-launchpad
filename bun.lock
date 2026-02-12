@@ -13,10 +13,10 @@
       "version": "0.1.0",
       "dependencies": {
         "@cardano-ogmios/client": "^6.14.0",
-        "@meshsdk/common": "^1.9.0-beta.93",
-        "@meshsdk/core": "^1.9.0-beta.93",
-        "@meshsdk/core-csl": "1.9.0-beta.93",
-        "@meshsdk/core-cst": "^1.9.0-beta.93",
+        "@meshsdk/common": "^1.9.0-beta.98",
+        "@meshsdk/core": "^1.9.0-beta.98",
+        "@meshsdk/core-csl": "1.9.0-beta.98",
+        "@meshsdk/core-cst": "^1.9.0-beta.98",
         "@prisma/adapter-pg": "^7.2.0",
         "@prisma/client": "^7.2.0",
         "@trpc/server": "^11.7.2",
@@ -48,9 +48,9 @@
       "name": "@wingriders/multi-dex-launchpad-common",
       "version": "0.1.0",
       "dependencies": {
-        "@meshsdk/common": "^1.9.0-beta.93",
-        "@meshsdk/core": "^1.9.0-beta.93",
-        "@meshsdk/core-cst": "^1.9.0-beta.93",
+        "@meshsdk/common": "^1.9.0-beta.98",
+        "@meshsdk/core": "^1.9.0-beta.98",
+        "@meshsdk/core-cst": "^1.9.0-beta.98",
         "@wingriders/apply-params-to-script": "^0.1.2",
         "better-result": "^2.3.1",
         "zod": "4.1.13",
@@ -66,8 +66,8 @@
     "frontend": {
       "name": "@wingriders/multi-dex-launchpad-frontend",
       "dependencies": {
-        "@meshsdk/core": "^1.9.0-beta.93",
-        "@meshsdk/core-csl": "^1.9.0-beta.93",
+        "@meshsdk/core": "^1.9.0-beta.98",
+        "@meshsdk/core-csl": "^1.9.0-beta.98",
         "@radix-ui/react-dialog": "^1.1.15",
         "@radix-ui/react-label": "^2.1.8",
         "@radix-ui/react-popover": "^1.1.15",
@@ -319,7 +319,7 @@
 
     "@meshsdk/core": ["@meshsdk/core@1.9.0-beta.98", "", { "dependencies": { "@meshsdk/common": "1.9.0-beta.98", "@meshsdk/core-cst": "1.9.0-beta.98", "@meshsdk/provider": "1.9.0-beta.98", "@meshsdk/transaction": "1.9.0-beta.98", "@meshsdk/wallet": "1.9.0-beta.98", "libsodium-wrappers-sumo": "0.7.15" } }, "sha512-4eALwwT/enkdhiZ7z3XbJHATDf3WMI9wP3YnKBRYEfD8IrM9zXyEBDb0xeV3+GZF776HNnqKDSB8Atrc9wRC0g=="],
 
-    "@meshsdk/core-csl": ["@meshsdk/core-csl@1.9.0-beta.93", "", { "dependencies": { "@meshsdk/common": "1.9.0-beta.93", "@sidan-lab/whisky-js-browser": "1.0.24", "@sidan-lab/whisky-js-nodejs": "1.0.24", "@types/base32-encoding": "1.0.2", "base32-encoding": "1.0.0", "bech32": "2.0.0", "json-bigint": "1.0.0" } }, "sha512-pDczWEcdNS3c63UIn2oTVSY3Fug9OFKhsUlxxXLVXZgnTrmtobT59/8oDvdqIeJKU9FAtjZ4/0WgYtfMr6TFYw=="],
+    "@meshsdk/core-csl": ["@meshsdk/core-csl@1.9.0-beta.98", "", { "dependencies": { "@meshsdk/common": "1.9.0-beta.98", "@sidan-lab/whisky-js-browser": "^1.0.11", "@sidan-lab/whisky-js-nodejs": "^1.0.11", "@types/base32-encoding": "^1.0.2", "base32-encoding": "^1.0.0", "bech32": "^2.0.0", "json-bigint": "^1.0.0" } }, "sha512-p2ihUjHtJxKuXvroU2brc9ki7nwRXZc/36iP5bPqFBQgTDqQWMGjf0B8kN6vmiDy7XZKh6wyzH8JnkbInddr+g=="],
 
     "@meshsdk/core-cst": ["@meshsdk/core-cst@1.9.0-beta.98", "", { "dependencies": { "@cardano-sdk/core": "0.46.11", "@cardano-sdk/crypto": "0.4.4", "@cardano-sdk/input-selection": "0.14.27", "@cardano-sdk/util": "0.17.1", "@harmoniclabs/cbor": "1.6.0", "@harmoniclabs/pair": "1.0.0", "@harmoniclabs/plutus-data": "1.2.6", "@harmoniclabs/uplc": "1.4.1", "@meshsdk/common": "1.9.0-beta.98", "@types/base32-encoding": "1.0.2", "base32-encoding": "1.0.0", "bech32": "2.0.0", "blakejs": "1.2.1", "bn.js": "5.2.2", "libsodium-wrappers-sumo": "0.7.15", "scalus": "0.14.2" } }, "sha512-60hCLSmnj+pH18cUl7G1MxcXSataaCth90nDi/k4UUbq1eMN2aELUijIzcojJ/eYK+hHL1F5MKfiS5rIMRncVw=="],
 
@@ -1182,8 +1182,6 @@
     "@chevrotain/gast/lodash": ["lodash@4.17.21", "", {}, "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg=="],
 
     "@libp2p/interface/@multiformats/multiaddr": ["@multiformats/multiaddr@13.0.1", "", { "dependencies": { "@chainsafe/is-ip": "2.1.0", "multiformats": "13.4.2", "uint8-varint": "2.0.4", "uint8arrays": "5.1.0" } }, "sha512-XToN915cnfr6Lr9EdGWakGJbPT0ghpg/850HvdC+zFX8XvpLZElwa8synCiwa8TuvKNnny6m8j8NVBNCxhIO3g=="],
-
-    "@meshsdk/core-csl/@meshsdk/common": ["@meshsdk/common@1.9.0-beta.93", "", { "dependencies": { "bech32": "2.0.0", "bip39": "3.1.0", "blake2b": "2.1.4", "blakejs": "1.2.1" } }, "sha512-TLKVQ0JsO3Iog7337HJcLjHHCiExU35haewpFTtuuYYwr2Hlqy8yIcQJyJpIIok/37VMsU8WW8BDoSrV2amOgw=="],
 
     "@prisma/client/typescript": ["typescript@6.0.0-dev.20260127", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-VJ7q/PPcmCqwwer09+0ONkt/Mv9fJKuKbyoX1bB6nW7ZTcq++dy+3dlPFYh5L3damda33mabVy/581HL9q+i+g=="],
 
