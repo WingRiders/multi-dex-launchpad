@@ -84,6 +84,9 @@ model RewardsHolder {
   launchTxHash String
   launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
 
+  ownerHash  String?
+  ownerIndex Int?
+
   @@unique([txHash, outputIndex, launchTxHash])
 }
 

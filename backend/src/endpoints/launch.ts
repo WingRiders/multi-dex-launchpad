@@ -1,4 +1,4 @@
-import type {UTxO} from '@meshsdk/common'
+import type {TxInput, UTxO} from '@meshsdk/common'
 import type {
   LaunchConfig,
   LaunchTimeStatus,
@@ -8,6 +8,7 @@ import {max} from 'es-toolkit/compat'
 import type {Prisma} from '../../prisma/generated/client'
 import {timeToSlot} from '../common'
 import {
+  deserializeValue,
   prismaLaunchToLaunchConfig,
   prismaTxOutputToMeshOutput,
 } from '../db/helpers'
@@ -201,3 +202,83 @@ export const getFirstProjectTokensHolderUTxO = async (
 
   return prismaTxOutputToMeshOutput(firstProjectTokensHolder.txOut)
 }
+
+export const getUserRewardsHolders = async (
+  launchTxHash: string,
+  ownerPubKeyHash: string,
+): Promise<
+  {
+    txHash: string
+    outputIndex: number
+    rewards: bigint
+    isSpent: boolean
+  }[]
+> => {
+  const rewardsHolders = await prisma.rewardsHolder.findMany({
+    where: {
+      launchTxHash,
+      ownerHash: ownerPubKeyHash,
+    },
+    select: {
+      txOut: {
+        select: {
+          txHash: true,
+          outputIndex: true,
+          spentSlot: true,
+          value: true,
+        },
+      },
+      launch: {
+        select: {
+          projectTokenPolicyId: true,
+          projectTokenAssetName: true,
+        },
+      },
+    },
+  })
+
+  return rewardsHolders.map(
+    ({
+      txOut: {txHash, outputIndex, spentSlot, value: valueRaw},
+      launch: {projectTokenPolicyId, projectTokenAssetName},
+    }) => {
+      const value = deserializeValue(valueRaw)
+
+      return {
+        txHash,
+        outputIndex,
+        rewards: value[projectTokenPolicyId]?.[projectTokenAssetName] ?? 0n,
+        isSpent: spentSlot != null,
+      }
+    },
+  )
+}
+
+// rewards can be unlocked using any of the available pool proofs (WR or Sundae)
+export const getPoolProofInput = async (
+  launchTxHash: string,
+): Promise<TxInput | null> =>
+  prisma.poolProof.findFirst({
+    where: {
+      launchTxHash,
+      txOut: {spentSlot: null},
+    },
+    select: {
+      txHash: true,
+      outputIndex: true,
+    },
+  })
+
+export const getFailProofInput = async (
+  launchTxHash: string,
+): Promise<TxInput | null> =>
+  prisma.failProof.findFirst({
+    where: {
+      launchTxHash,
+      txOut: {spentSlot: null},
+    },
+    select: {
+      txHash: true,
+      outputIndex: true,
+    },
+  })

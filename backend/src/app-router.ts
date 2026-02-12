@@ -11,9 +11,12 @@ import {
 import {submitTx} from './agent/ogmios/tx-submission-client'
 import {findNodeToSpend} from './db/helpers'
 import {
+  getFailProofInput,
   getFirstProjectTokensHolderUTxO,
   getLaunch,
   getLaunches,
+  getPoolProofInput,
+  getUserRewardsHolders,
 } from './endpoints/launch'
 import {getPreviousNodeUTxO, getUserNodes} from './endpoints/node'
 import {
@@ -23,7 +26,7 @@ import {
   getProjectTokensHolderPolicyRefScriptUtxo,
 } from './endpoints/ref-scripts'
 import {getTokenMetadata, getTokensMetadata} from './endpoints/token-metadata'
-import {getUTxO} from './endpoints/utxo'
+import {getUTxO, getUtxos} from './endpoints/utxo'
 
 export const t = initTRPC.create({
   transformer: superjson,
@@ -84,9 +87,17 @@ export const createServerRouter = () =>
       .query(({input: {launchTxHash, keyHash, keyIndex}}) =>
         getPreviousNodeUTxO(launchTxHash, keyHash, keyIndex),
       ),
+    userRewardsHolders: publicProcedure
+      .input(z.object({launchTxHash: z.string(), ownerPubKeyHash: z.string()}))
+      .query(({input: {launchTxHash, ownerPubKeyHash}}) =>
+        getUserRewardsHolders(launchTxHash, ownerPubKeyHash),
+      ),
     utxo: publicProcedure
       .input(z.object({txHash: z.string(), outputIndex: z.number()}))
       .query(({input: {txHash, outputIndex}}) => getUTxO(txHash, outputIndex)),
+    utxos: publicProcedure
+      .input(z.array(z.object({txHash: z.string(), outputIndex: z.number()})))
+      .query(({input}) => getUtxos(input)),
     nodeValidatorRef: publicProcedure
       .input(z.object({launchTxHash: z.string()}))
       .query(({input: {launchTxHash}}) =>
@@ -112,6 +123,12 @@ export const createServerRouter = () =>
       .query(({input: {launchTxHash}}) =>
         getFirstProjectTokensHolderUTxO(launchTxHash),
       ),
+    poolProofInput: publicProcedure
+      .input(z.object({launchTxHash: z.string()}))
+      .query(({input: {launchTxHash}}) => getPoolProofInput(launchTxHash)),
+    failProofInput: publicProcedure
+      .input(z.object({launchTxHash: z.string()}))
+      .query(({input: {launchTxHash}}) => getFailProofInput(launchTxHash)),
   })
 
 export const createAgentRouter = () =>

@@ -895,11 +895,20 @@ const saveLaunchTxOutputsFields = async (
         break
       }
       case 'rewardsHolder': {
+        const datum = decodeDatum(rewardsHolderDatumCborSchema, txOutput.datum)
+        ensure(
+          datum != null,
+          {txHash: txOutput.txHash},
+          'Found rewards holder utxo with invalid datum',
+        )
+
         await prisma.rewardsHolder.create({
           data: {
             launchTxHash,
             txHash: txOutput.txHash,
             outputIndex: txOutput.outputIndex,
+            ownerHash: datum.owner.hash,
+            ownerIndex: datum.owner.index,
           },
         })
         break

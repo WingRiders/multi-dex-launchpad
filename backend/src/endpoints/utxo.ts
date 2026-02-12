@@ -22,3 +22,18 @@ export const getUTxO = async (
   }
   return prismaTxOutputToMeshOutput(txOutput)
 }
+
+export const getUtxos = async (
+  inputs: {txHash: string; outputIndex: number}[],
+): Promise<UTxO[]> => {
+  const txOutputs = await prisma.txOutput.findMany({
+    where: {
+      OR: inputs.map((input) => ({
+        txHash: input.txHash,
+        outputIndex: input.outputIndex,
+      })),
+      spentSlot: null,
+    },
+  })
+  return txOutputs.map(prismaTxOutputToMeshOutput)
+}
