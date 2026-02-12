@@ -3,11 +3,12 @@ import type {
   Plutus,
   Point,
   ProtocolParameters,
+  Signatory,
   Utxo,
   Value,
 } from '@cardano-ogmios/schema'
 import type {Asset, LanguageVersion, Protocol, UTxO} from '@meshsdk/common'
-
+import {Ed25519PublicKey, Ed25519PublicKeyHex} from '@meshsdk/core-cst'
 import {
   createUnit,
   ensure,
@@ -143,3 +144,7 @@ export const ogmiosProtocolParametersToMeshProtocolParameters = (
   coinsPerUtxoSize: params.minUtxoDepositCoefficient,
   minFeeRefScriptCostPerByte: params.minFeeReferenceScripts!.multiplier,
 })
+
+// Ogmios exposes only paymentKey, not it's hash
+export const getSignatoryKeyHash = ({key}: Signatory): string =>
+  Ed25519PublicKey.fromHex(Ed25519PublicKeyHex(key)).hash().hex()

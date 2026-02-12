@@ -65,6 +65,7 @@ import {
   updateWalletUtxos,
 } from '../wallet'
 import {
+  getSignatoryKeyHash,
   ogmiosPlutusVersionToMeshVersion,
   originPoint,
   parseOgmiosMetadatum,
@@ -242,7 +243,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
     // Doing that allows assuming we only have one unspent commit fold
     if (
       type === 'commitFold' &&
-      !signatories.some(({key}) => key === getWalletPubKeyHash())
+      !signatories.some((s) => getSignatoryKeyHash(s) === getWalletPubKeyHash())
     )
       continue
 
