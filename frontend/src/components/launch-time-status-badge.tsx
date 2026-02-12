@@ -6,7 +6,7 @@ type LaunchTimeStatusBadgeProps = {
   status: LaunchTimeStatus
 }
 
-const statusVariants = cva('', {
+const statusVariants = cva('text-sm', {
   variants: {
     status: {
       upcoming:

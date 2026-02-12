@@ -1,11 +1,11 @@
 import {resolveFingerprint, type Unit} from '@meshsdk/core'
 import {parseUnit} from '@wingriders/multi-dex-launchpad-common'
 import {CheckIcon, CopyIcon} from 'lucide-react'
-import {GridItem} from '@/components/grid-item'
 import {Button} from '@/components/ui/button'
 import {Skeleton} from '@/components/ui/skeleton'
 import {WithClipboard} from '@/components/with-clipboard'
 import {shortLabel} from '@/helpers/short-label'
+import {cn} from '@/lib/utils'
 import {useTokenMetadata} from '@/metadata/queries'
 
 type ProjectTokenInfoProps = {
@@ -18,101 +18,91 @@ export const ProjectTokenInfo = ({projectToken}: ProjectTokenInfoProps) => {
   const [policyId, assetName] = parseUnit(projectToken)
 
   return (
-    <div className="space-y-2">
-      <h2 className="font-bold text-2xl">Token information</h2>
+    <section className="space-y-4">
+      <h2 className="font-bold text-2xl tracking-tight">Token information</h2>
 
       {isLoading ? (
-        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-64 w-full rounded-xl" />
       ) : (
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-          <Item
+        <div className="grid gap-2 md:grid-cols-3">
+          <InfoItem
             label="Asset fingerprint"
             value={resolveFingerprint(policyId, assetName)}
-            showCopyButton
+            showCopy
             short
           />
-          <Item label="Policy ID" value={policyId} showCopyButton short />
-          <Item
-            label="Asset name (HEX)"
-            value={assetName}
-            isLoading={isLoading}
-            showCopyButton
-            short
-          />
-          <Item
-            label="Full name"
-            value={metadata?.name}
-            isLoading={isLoading}
-          />
-          <Item label="Ticker" value={metadata?.ticker} isLoading={isLoading} />
-          <Item
-            label="Decimals"
-            value={metadata?.decimals}
-            isLoading={isLoading}
-          />
-          <Item
+          <InfoItem label="Policy ID" value={policyId} showCopy short />
+          <InfoItem label="Asset name (HEX)" value={assetName} showCopy short />
+
+          <InfoItem label="Full name" value={metadata?.name} />
+          <InfoItem label="Ticker" value={metadata?.ticker} />
+          <InfoItem label="Decimals" value={metadata?.decimals} />
+
+          <InfoItem
             label="About"
             value={metadata?.description}
-            isLoading={isLoading}
-            className="md:col-span-3"
+            className="col-span-full"
           />
         </div>
       )}
-    </div>
+    </section>
   )
 }
 
-type ItemProps = {
+type InfoItemProps = {
   label: string
   value: string | number | undefined
-  isLoading?: boolean
-  className?: string
-  showCopyButton?: boolean
+  showCopy?: boolean
   short?: boolean
+  className?: string
 }
 
-const Item = ({
+const InfoItem = ({
   label,
   value,
-  isLoading,
-  className,
-  showCopyButton,
+  showCopy,
   short,
-}: ItemProps) => {
-  const valueToDisplay =
-    short && value != null ? shortLabel(value.toString(), 10, 10) : value
+  className,
+}: InfoItemProps) => {
+  const displayValue =
+    value != null
+      ? short
+        ? shortLabel(value.toString(), 10, 10)
+        : value.toString()
+      : null
 
   return (
-    <GridItem
-      label={label}
-      value={
-        value != null ? (
-          showCopyButton ? (
-            <div className="flex flex-row items-center gap-2">
-              <WithClipboard text={value.toString()}>
+    <div className={cn('rounded-lg border p-4', className)}>
+      <div className="text-muted-foreground">
+        <span className="font-medium text-sm">{label}</span>
+      </div>
+      <div className="mt-2 flex items-center gap-2">
+        {displayValue != null ? (
+          <>
+            <p className="font-medium font-mono text-sm">{displayValue}</p>
+            {showCopy && (
+              <WithClipboard text={value!.toString()}>
                 {({copy, isCopied}) => (
-                  <>
-                    <p className="text-sm">{valueToDisplay}</p>
-                    <Button variant="ghost" size="sm" onClick={copy}>
-                      {isCopied ? (
-                        <CheckIcon className="size-4" />
-                      ) : (
-                        <CopyIcon className="size-4" />
-                      )}
-                    </Button>
-                  </>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 shrink-0"
+                    onClick={copy}
+                  >
+                    {isCopied ? (
+                      <CheckIcon className="size-4 text-success" />
+                    ) : (
+                      <CopyIcon className="size-4" />
+                    )}
+                  </Button>
                 )}
               </WithClipboard>
-            </div>
-          ) : (
-            <p className="text-sm">{valueToDisplay}</p>
-          )
+            )}
+          </>
         ) : (
-          <p className="text-sm">-</p>
-        )
-      }
-      isLoading={isLoading}
-      className={className}
-    />
+          <p className="text-muted-foreground text-sm italic">—</p>
+        )}
+      </div>
+    </div>
   )
 }

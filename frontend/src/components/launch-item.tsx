@@ -1,5 +1,6 @@
 'use client'
 
+import {ArrowUpRightIcon} from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {formatDateTime} from '@/helpers/format'
@@ -10,7 +11,6 @@ import {LaunchTimeStatusBadge} from './launch-time-status-badge'
 import {Button} from './ui/button'
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -31,45 +31,57 @@ export const LaunchItem = ({launch}: LaunchItemProps) => {
       : ['Ends', launch.endTime]
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="gap-3">
-        <div className="flex items-start justify-between gap-4">
-          <CardTitle className="text-2xl">{launch.title}</CardTitle>
-          <LaunchTimeStatusBadge status={timeStatus} />
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <Link
-          href={`/launch/${launch.txHash}`}
-          className="block overflow-hidden rounded-lg"
-        >
+    <Card className="group overflow-hidden border-border/60 pt-0 transition-all duration-300 hover:border-border hover:shadow-lg hover:shadow-primary/5">
+      <Link href={`/launch/${launch.txHash}`}>
+        <div className="relative aspect-video w-full overflow-hidden bg-muted/50">
           <Image
             src={ipfsToHttps(launch.logoIpfsUrl)}
-            className="h-52 w-full object-cover transition-transform duration-300 hover:scale-[1.02]"
+            className="object-cover transition-all duration-500 group-hover:scale-105"
             alt={launch.title}
             loading="eager"
-            width={500}
-            height={500}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-        </Link>
-        <CardDescription className="text-sm">
+          <div
+            className="absolute inset-0 bg-linear-to-t from-0% from-card via-25% via-card/40 to-40% to-transparent"
+            aria-hidden
+          />
+          <div className="absolute right-3 bottom-3 left-3 flex items-end justify-between">
+            <LaunchTimeStatusBadge status={timeStatus} />
+          </div>
+        </div>
+      </Link>
+
+      <CardHeader>
+        <CardTitle className="line-clamp-2 font-semibold text-xl tracking-tight">
+          {launch.title}
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent className="flex min-h-0 flex-1 flex-col">
+        <CardDescription className="line-clamp-3 text-muted-foreground text-sm leading-relaxed">
           {launch.description}
         </CardDescription>
       </CardContent>
-      <CardFooter className="flex items-center justify-between gap-4">
-        <div className="text-muted-foreground text-sm">
+
+      <CardFooter className="flex flex-col gap-4 border-border/60 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-sm">
           <span className="font-medium text-foreground">{timeLabel}</span>
-          <span className="ml-2">
-            <time dateTime={new Date(timeValue).toISOString()}>
-              {formatDateTime(timeValue)}
-            </time>
-          </span>
+          <span className="text-muted-foreground">·</span>
+          <time
+            dateTime={new Date(timeValue).toISOString()}
+            className="text-muted-foreground"
+          >
+            {formatDateTime(timeValue)}
+          </time>
         </div>
-        <CardAction>
-          <Button asChild>
-            <Link href={`/launch/${launch.txHash}`}>View details</Link>
-          </Button>
-        </CardAction>
+
+        <Button asChild variant="ghost">
+          <Link href={`/launch/${launch.txHash}`}>
+            View details
+            <ArrowUpRightIcon className="size-4" />
+          </Link>
+        </Button>
       </CardFooter>
     </Card>
   )

@@ -3,7 +3,7 @@ import type {SetRequired} from 'type-fest'
 
 export type TokenMetadata = {
   subject: string
-  description: string
+  description?: string
   name: string
   ticker?: string
   symbol?: string

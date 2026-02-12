@@ -14,7 +14,7 @@ const getDefaultMetadata = (unit: Unit): TokenMetadata => {
   const decodedAssetName = decodeAssetName(assetName)
 
   return {
-    description: '',
+    description: undefined,
     name: decodedAssetName,
     ticker: decodedAssetName.slice(0, 8),
     subject: `${policyId}${assetName}`,

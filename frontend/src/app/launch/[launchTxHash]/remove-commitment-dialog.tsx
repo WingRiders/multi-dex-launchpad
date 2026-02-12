@@ -242,6 +242,18 @@ const RemoveCommitmentDialogContent = ({
               !(n.txHash === node.txHash && n.outputIndex === node.outputIndex),
           ),
       )
+
+      queryClient.setQueryData(
+        trpc.launch.queryKey({txHash: launchTxHash}),
+        (current) => {
+          if (current == null) return undefined
+
+          return {
+            ...current,
+            totalCommitted: current.totalCommitted - node.committed,
+          }
+        },
+      )
     }
   }
 

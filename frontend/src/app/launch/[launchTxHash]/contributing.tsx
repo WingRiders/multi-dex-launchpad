@@ -404,7 +404,7 @@ const ActiveContributing = ({
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <h2 className="font-bold text-2xl">Contribute</h2>
 
         {buildingTxForTier === 'presale' &&

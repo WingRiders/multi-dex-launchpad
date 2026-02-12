@@ -267,7 +267,7 @@ const CreateLaunchDialogContent = ({
                 quantity={configAndProjectInfo.config.collateral}
               />
             }
-            tooltip="The collateral is a deposit that is required to create a token launch. It will be returned to you after the launch."
+            tooltip="Required deposit to create a token launch. It will be returned to you after the launch ends."
           />
 
           <DataRow
@@ -278,7 +278,7 @@ const CreateLaunchDialogContent = ({
                 quantity={INIT_LAUNCH_AGENT_LOVELACE}
               />
             }
-            tooltip="The deposit for the launchpad agent is a deposit that is required to deploy the launch smart contracts. Part of this will be returned to you after the launch."
+            tooltip="Required deposit to deploy smart contracts. It will be partially returned to you after the launch ends."
           />
 
           <DataRow

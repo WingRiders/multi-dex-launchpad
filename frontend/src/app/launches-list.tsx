@@ -49,7 +49,7 @@ export const LaunchesList = ({
 
   return (
     <WithLaunchesSectionTitle title={title} wrap={hideIfEmpty}>
-      <div className="flex h-40 items-center justify-center rounded-md bg-muted text-md">
+      <div className="flex h-40 items-center justify-center rounded-md bg-muted/70 text-md">
         No launches found
       </div>
     </WithLaunchesSectionTitle>

@@ -41,7 +41,7 @@ export const UserNodes = ({
 
   return (
     <>
-      <div className="space-y-2">
+      <div className="space-y-4">
         <h2 className="font-bold text-2xl">Your contributions</h2>
 
         {data ? (
@@ -145,9 +145,18 @@ const NodeItem = ({node, config, onWithdraw}: NodeItemProps) => {
             </Tooltip>
           )}
         </div>
-        <p className="text-muted-foreground text-sm">
-          {formatDateTime(node.createdTime, {showSeconds: true})}
-        </p>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <p className="text-muted-foreground text-sm">
+              {formatDateTime(node.createdTime, {showSeconds: true})}
+            </p>
+          </TooltipTrigger>
+          <TooltipContent>
+            Time of your contribution that is recorded on the blockchain. It is
+            used to determine users that are eligible for rewards.
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       {canCreateRemoveTxAfter < config.endTime && (

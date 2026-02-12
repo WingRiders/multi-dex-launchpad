@@ -83,9 +83,9 @@ export const LaunchDetails = ({launchTxHash}: LaunchDetailsProps) => {
         )}
       </OnlyWithWallet>
 
-      <Allocation config={config} />
-
       <Progress config={config} totalCommitted={totalCommitted} />
+
+      <Allocation config={config} />
 
       <ProjectTokenInfo projectToken={config.projectToken} />
 
