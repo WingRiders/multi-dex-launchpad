@@ -37,12 +37,6 @@ export const DAO_FEE_RECEIVER_BECH32_ADDRESS = {
     'addr_test1qzuz2e6p4z54thrj0u5nnpg5523jkmnvqjtu78p6873daddnq89ztzv3zmk7lyr9krkt4dpdaw37x5v3daf5muspw0rqwhnlz5',
 }
 
-// TODO: that should be the agent
-export const DAO_ADMIN_PUB_KEY_HASH = {
-  mainnet: 'todo',
-  preprod: 'b8256741a8a955dc727f29398514a2a32b6e6c0497cf1c3a3fa2deb5',
-}
-
 export const NODE_ADA = 2_000_000n
 export const COMMIT_FOLD_FEE_ADA = 2_000_000n
 export const OIL_ADA = 6_000_000n

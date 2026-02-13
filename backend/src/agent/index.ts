@@ -11,6 +11,6 @@ export const startAgent = async () => {
   if (config.WALLET_MNEMONIC != null) {
     await initWallet()
     await updateFetcherProtocolParametersFromOgmios()
+    startChainSyncClient()
   }
-  startChainSyncClient()
 }

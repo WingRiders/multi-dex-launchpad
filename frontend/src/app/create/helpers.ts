@@ -1,11 +1,11 @@
 import type {TxInput, Unit, UTxO} from '@meshsdk/core'
 import {
   COMMIT_FOLD_FEE_ADA,
-  DAO_ADMIN_PUB_KEY_HASH,
   DAO_FEE_DENOMINATOR,
   DAO_FEE_NUMERATOR,
   DAO_FEE_RECEIVER_BECH32_ADDRESS,
   DISABLED_TIER_CS,
+  ensure,
   LAUNCH_COLLATERAL,
   type LaunchConfig,
   MAX_INT64,
@@ -15,6 +15,7 @@ import {
   type ProjectInfoTxMetadata,
   SUNDAE_POOL_SCRIPT_HASH,
   SUNDAE_SETTINGS_SYMBOL,
+  tryDeserializeAddress,
   VESTING_PERIOD_DURATION,
   VESTING_PERIOD_DURATION_TO_FIRST_UNLOCK,
   VESTING_PERIOD_INSTALLMENTS,
@@ -25,6 +26,7 @@ import {
 } from '@wingriders/multi-dex-launchpad-common'
 import {min as minDate} from 'date-fns'
 import {compact} from 'es-toolkit'
+import {env} from '@/config'
 import {SUNDAE_FEE_TOLERANCE} from '../constants'
 import type {
   AllDraftStagesAfter,
@@ -107,6 +109,14 @@ export const buildConfigAndProjectInfo = (
 
   const launchStartTime = getLaunchStartTimeForce(userAccess)
 
+  const agentAddress = env('NEXT_PUBLIC_AGENT_ADDRESS')
+  const agentPubKeyHash = tryDeserializeAddress(agentAddress)?.pubKeyHash
+  ensure(
+    agentPubKeyHash != null,
+    {agentAddress},
+    'Agent address is not a valid pub key hash',
+  )
+
   const config: LaunchConfig = {
     ownerBech32Address,
     splitBps: specification.splitBps,
@@ -131,7 +141,7 @@ export const buildConfigAndProjectInfo = (
     daoFeeNumerator: DAO_FEE_NUMERATOR,
     daoFeeDenominator: DAO_FEE_DENOMINATOR,
     daoFeeReceiverBech32Address: DAO_FEE_RECEIVER_BECH32_ADDRESS[network],
-    daoAdminPubKeyHash: DAO_ADMIN_PUB_KEY_HASH[network],
+    daoAdminPubKeyHash: agentPubKeyHash,
     collateral: LAUNCH_COLLATERAL,
     starter: starterUtxo,
     vestingPeriodDuration: VESTING_PERIOD_DURATION,

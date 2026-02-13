@@ -10,7 +10,6 @@ import {applyCborEncoding, resolveScriptHash} from '@meshsdk/core'
 import type {JsonValue} from '@prisma/client/runtime/client'
 import {
   createUnit,
-  DAO_ADMIN_PUB_KEY_HASH,
   DAO_FEE_RECEIVER_BECH32_ADDRESS,
   decodeDatum,
   ensure,
@@ -21,6 +20,7 @@ import {
   INIT_LAUNCH_AGENT_LOVELACE,
   INIT_LAUNCH_TX_METADATA_LABEL,
   isGeneratedPolicyType,
+  type LaunchTxMetadataSchema,
   nodeDatumCborSchema,
   parseUnit,
   poolProofDatumCborSchema,
@@ -163,7 +163,10 @@ const resetTrackedUtxos = async () => {
 }
 
 // Aggregation logic is here
-const processBlock = async (block: BlockPraos) => {
+const processBlock = async (
+  block: BlockPraos,
+  launchTxMetadataSchema: LaunchTxMetadataSchema,
+) => {
   pushSyncEvent({
     type: 'block',
     data: {
@@ -176,7 +179,11 @@ const processBlock = async (block: BlockPraos) => {
   // The order is important: we want to parse launch initializations as soon as possible
   // otherwise we might miss transactions;
   // we also want to parse spent tx outputs last as not to miss anything
-  await parseInitLaunch(block.slot, block.transactions || [])
+  await parseInitLaunch(
+    block.slot,
+    block.transactions || [],
+    launchTxMetadataSchema,
+  )
   parseLaunchTxOutputs(block.slot, block.transactions || [])
   parseSpentTxOutputs(block.slot, block.transactions || [])
 }
@@ -411,19 +418,17 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
   }
 }
 
-const launchTxMetadataSchema = getLaunchTxMetadataSchema({
-  network: config.NETWORK,
-  daoAdminPubKeyHash: DAO_ADMIN_PUB_KEY_HASH[config.NETWORK],
-  daoFeeReceiverBech32Address: DAO_FEE_RECEIVER_BECH32_ADDRESS[config.NETWORK],
-})
-
 // To parse a launch creation we rely on the transaction metadata
 // We also verify the configuration is correct here
 // NOTE: We check the tx outputs are created with the correct tokens
 //       Most of the other checks are done by the policies
 //
 // Pushes sync events
-const parseInitLaunch = async (slot: number, transactions: Transaction[]) => {
+const parseInitLaunch = async (
+  slot: number,
+  transactions: Transaction[],
+  launchTxMetadataSchema: LaunchTxMetadataSchema,
+) => {
   for (const tx of transactions) {
     // First we check the tx metadata;
     // if it's missing or doesn't match the schema, we skip
@@ -1043,7 +1048,15 @@ const findIntersect = async () => {
 
 // Start the chain sync client, and add a listener on the underlying socket - connection to Ogmios
 // If that closes try to restart the chain sync again
+// NOTE: Expects the wallet to be initialized
 export const startChainSyncClient = async () => {
+  const launchTxMetadataSchema = getLaunchTxMetadataSchema({
+    network: config.NETWORK,
+    daoAdminPubKeyHash: getWalletPubKeyHash(),
+    daoFeeReceiverBech32Address:
+      DAO_FEE_RECEIVER_BECH32_ADDRESS[config.NETWORK],
+  })
+
   // Before starting reset the event buffer;
   // required in case of restarts to get rid of stale
   // data and prevent double writes
@@ -1068,7 +1081,7 @@ export const startChainSyncClient = async () => {
         'Roll forward',
       )
 
-      await processBlock(response.block)
+      await processBlock(response.block, launchTxMetadataSchema)
 
       const latestLedgerHeight =
         response.tip === 'origin' ? originPoint.height : response.tip.height

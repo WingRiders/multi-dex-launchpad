@@ -4,7 +4,6 @@ import {
   bech32AddressSchema,
   COMMIT_FOLD_FEE_ADA,
   calculateTxValidityIntervalBeforeLaunchStart,
-  DAO_ADMIN_PUB_KEY_HASH,
   DAO_FEE_DENOMINATOR,
   DAO_FEE_NUMERATOR,
   DAO_FEE_RECEIVER_BECH32_ADDRESS,
@@ -36,7 +35,7 @@ import {
   ogmiosProvider,
   updateFetcherFromOgmios,
 } from '../agent/providers'
-import {getWallet, initWallet} from '../agent/wallet'
+import {getWallet, getWalletPubKeyHash, initWallet} from '../agent/wallet'
 import {config} from '../config'
 import {logger} from '../logger'
 import {parseDuration} from './helpers'
@@ -158,7 +157,7 @@ export const buildInitLaunchCommand = () => {
         starter: starterUtxo.input,
         daoFeeReceiverBech32Address:
           DAO_FEE_RECEIVER_BECH32_ADDRESS[config.NETWORK],
-        daoAdminPubKeyHash: DAO_ADMIN_PUB_KEY_HASH[config.NETWORK],
+        daoAdminPubKeyHash: getWalletPubKeyHash(),
         wrPoolValidatorHash: WR_POOL_VALIDATOR_HASH[config.NETWORK],
         wrFactoryValidatorHash: WR_FACTORY_VALIDATOR_HASH[config.NETWORK],
         wrPoolCurrencySymbol: WR_POOL_SYMBOL[config.NETWORK],

@@ -324,3 +324,7 @@ export const getLaunchTxMetadataSchema = (
 export type LaunchTxMetadata = z.infer<
   ReturnType<typeof getLaunchTxMetadataSchema>
 >
+
+export type LaunchTxMetadataSchema = ReturnType<
+  typeof getLaunchTxMetadataSchema
+>
