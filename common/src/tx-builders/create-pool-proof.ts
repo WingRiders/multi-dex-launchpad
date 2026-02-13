@@ -25,24 +25,24 @@ export const addCreatePoolProof = (
   const [projectSymbol, projectToken] = parseUnit(launchConfig.projectToken)
   const [raisingSymbol, raisingToken] = parseUnit(launchConfig.raisingToken)
 
-  b.readOnlyTxInReference(
+  b.readOnlyTxInReference(poolInput.txHash, poolInput.outputIndex)
+
+  b.txOut(
     scriptHashToBech32(
-      poolInput.txHash,
+      constantContracts.poolProofValidator.hash,
       undefined,
       networkToNetworkId[network],
     ),
-    poolInput.outputIndex,
-  )
-
-  b.txOut(constantContracts.poolProofValidator.hash, [
-    {
-      unit: createUnit(
-        constantContracts.poolProofPolicy.hash,
-        constantContracts.poolProofValidator.hash,
-      ),
-      quantity: '1',
-    },
-  ]).txOutInlineDatumValue(
+    [
+      {
+        unit: createUnit(
+          constantContracts.poolProofPolicy.hash,
+          constantContracts.poolProofValidator.hash,
+        ),
+        quantity: '1',
+      },
+    ],
+  ).txOutInlineDatumValue(
     poolProofDatumToMeshData({
       dex,
       projectSymbol,
