@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.7 AS builder
+FROM oven/bun:1.3.9 AS builder
 
 ARG NEXT_PUBLIC_NETWORK
 ENV NEXT_PUBLIC_NETWORK=$NEXT_PUBLIC_NETWORK
@@ -25,7 +25,7 @@ RUN bun run --filter ./frontend build
 # Install only production dependencies after build
 RUN bun install --production --frozen-lockfile
 
-FROM oven/bun:1.3.7-slim
+FROM oven/bun:1.3.9-slim
 
 # Install wget
 RUN apt-get update && \
