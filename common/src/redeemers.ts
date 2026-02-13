@@ -80,6 +80,7 @@ export const commitFoldRedeemerToMeshData = (redeemer: CommitFoldRedeemer) => {
       return mConStr2([])
     default: {
       const _exhaustiveCheck: never = redeemer
+      throw new Error(`Unknown commit fold redeemer: ${_exhaustiveCheck}`)
     }
   }
 }
@@ -115,6 +116,7 @@ export const rewardsFoldRedeemerToMeshData = (
       return mConStr1([])
     default: {
       const _exhaustiveCheck: never = redeemer
+      throw new Error(`Unknown rewards fold redeemer: ${_exhaustiveCheck}`)
     }
   }
 }
