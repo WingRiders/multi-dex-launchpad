@@ -14,3 +14,5 @@ export const CONSTANT_CONTRACTS = await generateConstantContracts({
 
 // maximum number of separators that can be inserted in one transaction
 export const SEPARATORS_TO_INSERT = 58
+
+export const COMMIT_FOLDING_BATCH_SIZE = 50 // TODO Adjust based on performance testing

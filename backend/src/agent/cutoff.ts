@@ -1,6 +1,7 @@
 import type {NodeKey} from '@wingriders/multi-dex-launchpad-common'
 import type {SetNonNullable} from 'type-fest'
 import type {Node} from '../../prisma/generated/client'
+import {compareBigInts, compareHexStrings} from './helpers'
 
 type CalculateCutoffOptions = {
   usersNodes: SetNonNullable<
@@ -67,8 +68,3 @@ export const getOverCommittedQuantity = (
   }
   return committed
 }
-
-const compareBigInts = (a: bigint, b: bigint) => (a > b ? 1 : a < b ? -1 : 0)
-
-const compareHexStrings = (a: string, b: string) =>
-  Buffer.from(a, 'hex').compare(Buffer.from(b, 'hex'))

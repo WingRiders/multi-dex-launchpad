@@ -4,7 +4,7 @@ import {
   unixTimeToEnclosingSlot,
 } from '@meshsdk/common'
 import {
-  DEFAULT_TX_TTL,
+  DEFAULT_TX_TTL_MS,
   DEFAULT_TX_VALIDITY_START_BACKDATE_MS,
 } from '../constants'
 import type {Network} from './network'
@@ -24,7 +24,7 @@ export const calculateTxValidityInterval = (
     slotConfig,
   )
 
-  const validityEndTime = validityStartTime + DEFAULT_TX_TTL
+  const validityEndTime = validityStartTime + DEFAULT_TX_TTL_MS
   const validityEndSlot = unixTimeToEnclosingSlot(validityEndTime, slotConfig)
 
   return {

@@ -1111,7 +1111,7 @@ export const startChainSyncClient = async () => {
         //   that would get the up-to-date wallet utxos from ogmios
         //   and discard the stale cache of the spent ones
         await updateWalletUtxos()
-        await processLaunches(interestingLaunches)
+        await processLaunches(interestingLaunches, response.block.slot)
       }
 
       return nextBlock()

@@ -3,9 +3,13 @@ import type {Network} from './helpers/network'
 import {LOVELACE_UNIT} from './helpers/unit'
 
 // Validity start of a transaction must be before the last block on the blockchain, using 2 minutes should be enough to be safe
-export const DEFAULT_TX_VALIDITY_START_BACKDATE_MS = 2 * 60 * 1000 // 2 minutes
+export const DEFAULT_TX_VALIDITY_START_BACKDATE_SLOTS = 2 * 60 // 2 minutes
+export const DEFAULT_TX_VALIDITY_START_BACKDATE_MS =
+  DEFAULT_TX_VALIDITY_START_BACKDATE_SLOTS * 1000
+
 // 1 hour after the validity start
-export const DEFAULT_TX_TTL = 60 * 60 * 1000 // 1 hour
+export const DEFAULT_TX_TTL_SLOTS = 60 * 60 // 1 hour
+export const DEFAULT_TX_TTL_MS = DEFAULT_TX_TTL_SLOTS * 1000
 
 export const SCRIPT_HASH_LENGTH = 28
 
