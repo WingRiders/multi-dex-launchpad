@@ -4,6 +4,7 @@ import {
   type Network,
   walletNetworkIdToNetwork,
 } from '@wingriders/multi-dex-launchpad-common'
+import {delay} from 'es-toolkit'
 import {create} from 'zustand'
 import {persist} from 'zustand/middleware'
 import {queryKeyFactory} from '@/helpers/query-key'
@@ -18,7 +19,7 @@ const WAIT_FOR_WALLET_EXTENSION_DELAY_MS = 300
 const waitForWalletExtension = async (walletId: string) => {
   for (let i = 0; i < WAIT_FOR_WALLET_EXTENSION_MAX_ATTEMPTS; i++) {
     if (window.cardano?.[walletId] != null) return true
-    await Bun.sleep(WAIT_FOR_WALLET_EXTENSION_DELAY_MS)
+    await delay(WAIT_FOR_WALLET_EXTENSION_DELAY_MS)
   }
   return false
 }
