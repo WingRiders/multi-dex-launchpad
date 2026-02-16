@@ -1,5 +1,4 @@
 import {
-  type Contract,
   constantRefScriptsByNetwork,
   ensure,
   type GeneratedContracts,
@@ -17,11 +16,8 @@ import {prisma} from '../db/prisma-client'
 import type {InterestingLaunch} from '../interesting-launches'
 import {logger} from '../logger'
 import {SEPARATORS_TO_INSERT} from './constants'
-import {
-  createPoolProof,
-  deployContracts,
-  insertSeparators,
-} from './transactions'
+import {deployContractsIfNeeded} from './deploy-contracts'
+import {createPoolProof, insertSeparators} from './transactions'
 
 // For passed launches run the next necessary step
 // Runs one step only
@@ -84,47 +80,10 @@ const processLaunch = async (
     },
   })
 
-  // Deploy contracts if needed
-  // We split the deployment into 5 phases so we fit into tx limits
-  // It's important we always do that first so we always have contracts deployed
-  for (const phase of [1, 2, 3, 4, 5] as const) {
-    // TODO: we should chain these transactions
-    const contractsToDeploy = getUndeployedLaunchContracts(
-      launch.refScriptCarriers,
-      contracts,
-      phase,
-    )
-    if (contractsToDeploy.length > 0) {
-      logger.info(
-        {
-          launchTxHash,
-          phase,
-          contracts: contractsToDeploy.map((c) => c.hash),
-        },
-        `Deploying contracts in phase ${phase}`,
-      )
-      const txHash = await deployContracts(contractsToDeploy)
-      if (txHash)
-        logger.info(
-          {
-            launchTxHash,
-            txHash,
-            contracts: contractsToDeploy.map((c) => c.hash),
-            phase,
-          },
-          `Deployed contracts in phase ${phase}`,
-        )
-      else
-        logger.error(
-          {launchTxHash, phase},
-          `Failed to deploy contracts from phase ${phase}`,
-        )
-      return
-    }
-    logger.info(
-      {launchTxHash, phase},
-      `No contracts to deploy in phase ${phase}`,
-    )
+  const deployWasNeeded = await deployContractsIfNeeded(launch, contracts)
+  if (deployWasNeeded) {
+    // Wait for next block so we aggregate everything correctly
+    return
   }
 
   // We check if the launch is in-progress and skip it
@@ -226,74 +185,6 @@ const processLaunch = async (
       else logger.error({launchTxHash}, 'Failed to create Sundae pool proof')
     }
   } else logger.info({launchTxHash}, 'Sundae pool proof exists')
-}
-
-// Deployment is split into 5 phases so it fits into tx limits
-//
-// Phase 1:
-// - rewards fold policy
-// - node policy
-// - commit fold policy
-// - project tokens holder policy
-//
-// Phase 2:
-// - commit fold validator
-//
-// NOTE: phases 2 and 3 can be unified probably if not using traces
-//
-// Phase 3:
-// - final project tokens holder validator
-//
-// Phase 4:
-// - rewards fold validator
-// - first project tokens holder validator
-//
-// Phase 5:
-// - node validator
-const getUndeployedLaunchContracts = (
-  deployedRefScriptCarriers: {type: RefScriptCarrierType}[],
-  contracts: GeneratedContracts,
-  phase: 1 | 2 | 3 | 4 | 5,
-) => {
-  const isDeployed = (t: RefScriptCarrierType) =>
-    deployedRefScriptCarriers.some((c) => c.type === t)
-
-  const undeployedContracts: Contract[] = []
-
-  if (phase === 1) {
-    if (!isDeployed(RefScriptCarrierType.REWARDS_FOLD_POLICY))
-      undeployedContracts.push(contracts.rewardsFoldPolicy)
-    if (!isDeployed(RefScriptCarrierType.NODE_POLICY))
-      undeployedContracts.push(contracts.nodePolicy)
-    if (!isDeployed(RefScriptCarrierType.COMMIT_FOLD_POLICY))
-      undeployedContracts.push(contracts.commitFoldPolicy)
-    if (!isDeployed(RefScriptCarrierType.PROJECT_TOKENS_HOLDER_POLICY))
-      undeployedContracts.push(contracts.tokensHolderPolicy)
-  }
-
-  if (phase === 2) {
-    if (!isDeployed(RefScriptCarrierType.COMMIT_FOLD_VALIDATOR))
-      undeployedContracts.push(contracts.commitFoldValidator)
-  }
-
-  if (phase === 3) {
-    if (!isDeployed(RefScriptCarrierType.FINAL_PROJECT_TOKENS_HOLDER_VALIDATOR))
-      undeployedContracts.push(contracts.tokensHolderFinalValidator)
-  }
-
-  if (phase === 4) {
-    if (!isDeployed(RefScriptCarrierType.REWARDS_FOLD_VALIDATOR))
-      undeployedContracts.push(contracts.rewardsFoldValidator)
-    if (!isDeployed(RefScriptCarrierType.FIRST_PROJECT_TOKENS_HOLDER_VALIDATOR))
-      undeployedContracts.push(contracts.tokensHolderFirstValidator)
-  }
-
-  if (phase === 5) {
-    if (!isDeployed(RefScriptCarrierType.NODE_VALIDATOR))
-      undeployedContracts.push(contracts.nodeValidator)
-  }
-
-  return undeployedContracts
 }
 
 // It is only possible to insert separators before the start of the launch

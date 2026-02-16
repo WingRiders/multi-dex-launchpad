@@ -1,6 +1,12 @@
-import {deserializeAddress, MeshWallet, type UTxO} from '@meshsdk/core'
+import {
+  deserializeAddress,
+  type MeshTxBuilder,
+  MeshWallet,
+  type UTxO,
+} from '@meshsdk/core'
 import {
   ensure,
+  getTxInParameterUtxoId,
   getUtxoId,
   networkToNetworkId,
 } from '@wingriders/multi-dex-launchpad-common'
@@ -107,8 +113,26 @@ export const updateWalletUtxos = async () => {
   tickSpentUtxosTtl()
 }
 
-export const trackSpentUtxo = (utxoId: string) => {
+const trackSpentUtxo = (utxoId: string) => {
   spentUtxosTtl[utxoId] = SPENT_WALLET_UTXOS_TTL
+}
+
+// NOTE: we don't _need_ to track spent non-wallet utxos,
+//       but we still do
+// TODO: We have a data race here
+//       there's an await point between getSpendableWalletUtxos() and
+//       trackSpentInputs()
+//       we need a lock
+export const trackSpentInputs = (b: MeshTxBuilder) =>
+  b.meshTxBuilderBody.inputs.forEach((input) => {
+    trackSpentUtxo(getTxInParameterUtxoId(input.txIn))
+  })
+
+// Use when submitting transaction when a tx chaining is expected
+export const trackNewWalletUtxos = (utxos: UTxO[]) => {
+  for (const utxo of utxos) {
+    availableWalletUtxos.add(utxo)
+  }
 }
 
 // NOTE: only utxos on the wallet change address are allowed to be spent
