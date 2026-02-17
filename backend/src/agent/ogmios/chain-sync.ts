@@ -26,6 +26,7 @@ import {
   nodeDatumCborSchema,
   parseUnit,
   poolProofDatumCborSchema,
+  type RewardsHolderDatum,
   rewardsHolderDatumCborSchema,
   sundaePoolDatumCborSchema,
   tryDeserializeAddress,
@@ -91,7 +92,10 @@ type SyncEvent =
       >
     } & (
       | {
-          outputType: Exclude<LaunchUtxoType, 'node' | 'commitFold'>
+          outputType: Exclude<
+            LaunchUtxoType,
+            'node' | 'commitFold' | 'rewardsHolder'
+          >
         }
       | {
           outputType: 'node'
@@ -100,6 +104,10 @@ type SyncEvent =
       | {
           outputType: 'commitFold'
           commitFoldDatum: CommitFoldDatum
+        }
+      | {
+          outputType: 'rewardsHolder'
+          rewardsHolderDatum: RewardsHolderDatum
         }
     ))
   | {
@@ -393,11 +401,20 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
       case 'rewardsHolder': {
         // We skip rewards holders with no/hash datums
         if (!txOutput.datum) continue
-        const datum = decodeDatum(rewardsHolderDatumCborSchema, txOutput.datum)
+        const rewardsHolderDatum = decodeDatum(
+          rewardsHolderDatumCborSchema,
+          txOutput.datum,
+        )
         // We also skip rewards holders with invalid datums
-        if (!datum) continue
-        const projectUnit = createUnit(datum.projectSymbol, datum.projectToken)
-        const raisingUnit = createUnit(datum.raisingSymbol, datum.raisingToken)
+        if (!rewardsHolderDatum) continue
+        const projectUnit = createUnit(
+          rewardsHolderDatum.projectSymbol,
+          rewardsHolderDatum.projectToken,
+        )
+        const raisingUnit = createUnit(
+          rewardsHolderDatum.raisingSymbol,
+          rewardsHolderDatum.raisingToken,
+        )
         const launch = interestingLaunchByUnits(projectUnit, raisingUnit)
         if (!launch) continue
         pushSyncEvent({
@@ -405,6 +422,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
           launchTxHash: launch.txHash,
           txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType: 'rewardsHolder',
+          rewardsHolderDatum,
         })
         break
       }
@@ -964,13 +982,7 @@ const saveLaunchTxOutputsFields = async (
         break
       }
       case 'rewardsHolder': {
-        const datum = decodeDatum(rewardsHolderDatumCborSchema, txOutput.datum)
-        ensure(
-          datum != null,
-          {txHash: txOutput.txHash},
-          'Found rewards holder utxo with invalid datum',
-        )
-
+        const datum = syncEvent.rewardsHolderDatum
         await prisma.rewardsHolder.create({
           data: {
             launchTxHash,
