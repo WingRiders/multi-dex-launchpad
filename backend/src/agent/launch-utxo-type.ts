@@ -3,6 +3,7 @@ import {
   type GeneratedPolicy,
   type GeneratedValidator,
 } from '@wingriders/multi-dex-launchpad-common'
+import type {ExtractStrict} from 'type-fest'
 
 export type LaunchUtxoType =
   | 'nodeValidatorRefScriptCarrier'
@@ -26,9 +27,22 @@ export type LaunchUtxoType =
   | 'wrPool'
   | 'sundaePool'
 
+type RefScriptCarrierLaunchUtxoType = ExtractStrict<
+  LaunchUtxoType,
+  | 'nodeValidatorRefScriptCarrier'
+  | 'firstProjectTokensHolderValidatorRefScriptCarrier'
+  | 'finalProjectTokensHolderValidatorRefScriptCarrier'
+  | 'commitFoldValidatorRefScriptCarrier'
+  | 'rewardsFoldValidatorRefScriptCarrier'
+  | 'nodePolicyRefScriptCarrier'
+  | 'projectTokensHolderPolicyRefScriptCarrier'
+  | 'commitFoldPolicyRefScriptCarrier'
+  | 'rewardsFoldPolicyRefScriptCarrier'
+>
+
 export const refScriptCarrierUtxoTypeFromValidatorHashType = (
   refScriptType: GeneratedValidator | GeneratedPolicy,
-): LaunchUtxoType => {
+): RefScriptCarrierLaunchUtxoType => {
   switch (refScriptType) {
     case 'node':
       return 'nodeValidatorRefScriptCarrier'

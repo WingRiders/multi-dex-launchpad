@@ -9,6 +9,7 @@ import type {
 import {applyCborEncoding, resolveScriptHash} from '@meshsdk/core'
 import type {JsonValue} from '@prisma/client/runtime/client'
 import {
+  type CommitFoldDatum,
   createUnit,
   DAO_FEE_RECEIVER_BECH32_ADDRESS,
   decodeDatum,
@@ -80,15 +81,22 @@ type SyncEvent =
       type: 'block'
       data: Block
     }
-  | {
+  | ({
       type: 'launchTxOutput'
       launchTxHash: string
       txOutput: SetNonNullable<
         SetRequired<TxOutputCreateManyInput, 'datum'>,
         'datum'
       >
-      outputType: LaunchUtxoType
-    }
+    } & (
+      | {
+          outputType: Exclude<LaunchUtxoType, 'commitFold'>
+        }
+      | {
+          outputType: 'commitFold'
+          commitFoldDatum: CommitFoldDatum
+        }
+    ))
   | {
       type: 'spentTxOutput'
       data: {
@@ -246,16 +254,46 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
     // otherwise we might track invalid/unspendable utxos
     if (!passesValidityToken(lookup, txOutput.value)) continue
 
-    // Additionally, we reject commit folds where the agent did not sign the transaction
-    // Doing that allows assuming we only have one unspent commit fold
-    if (
-      type === 'commitFold' &&
-      !signatories.some((s) => getSignatoryKeyHash(s) === getWalletPubKeyHash())
-    )
-      continue
-
     if (launch) {
-      // For types that have the launch, we can just push the event
+      if (type === 'commitFold') {
+        // Commit folds may be submitted by third parties; require that the agent
+        // actually signed the transaction before we aggregate it.
+        if (
+          !signatories.some(
+            (s) => getSignatoryKeyHash(s) === getWalletPubKeyHash(),
+          )
+        )
+          continue
+
+        // Commit folds must carry an inline datum; validate and decode it now and
+        // attach the decoded datum to the pushed event so the DB writer can reuse
+        // the already-decoded structure instead of decoding again.
+        ensure(
+          txOutput.datum != null,
+          {txOutput},
+          'Commit fold must have inline datum',
+        )
+        const commitFoldDatum = decodeDatum(
+          getCommitFoldDatumCborSchema(config.NETWORK),
+          txOutput.datum,
+        )
+        ensure(
+          commitFoldDatum != null,
+          {txOutput},
+          'Commit fold must have valid inline datum',
+        )
+        pushSyncEvent({
+          type: 'launchTxOutput',
+          launchTxHash: launch.txHash,
+          txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
+          outputType: 'commitFold',
+          commitFoldDatum,
+        })
+        continue
+      }
+
+      // For other launch-associated types we can push the event directly; they
+      // don't need extra decoded datum attached to the event.
       pushSyncEvent({
         type: 'launchTxOutput',
         launchTxHash: launch.txHash,
@@ -775,7 +813,8 @@ const writeBuffersIfNecessary = async ({
 const saveLaunchTxOutputsFields = async (
   launchTxOutputBuffer: (SyncEvent & {type: 'launchTxOutput'})[],
 ) => {
-  for (const {launchTxHash, outputType, txOutput} of launchTxOutputBuffer) {
+  for (const syncEvent of launchTxOutputBuffer) {
+    const {launchTxHash, outputType, txOutput} = syncEvent
     switch (outputType) {
       case 'nodeValidatorRefScriptCarrier': {
         await prisma.refScriptCarrier.create({
@@ -939,15 +978,7 @@ const saveLaunchTxOutputsFields = async (
         break
       }
       case 'commitFold': {
-        const datum = decodeDatum(
-          getCommitFoldDatumCborSchema(config.NETWORK),
-          txOutput.datum,
-        )
-        ensure(
-          datum != null,
-          {txHash: txOutput.txHash},
-          'Found commit fold utxo with invalid datum',
-        )
+        const datum = syncEvent.commitFoldDatum
         await prisma.commitFold.create({
           data: {
             launchTxHash,
