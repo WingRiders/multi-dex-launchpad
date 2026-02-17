@@ -6,6 +6,7 @@ on:
     branches:
       - main
     paths:
+      - 'ca-certificates/**'
       - 'common/**'
       - 'backend/**'
       - '.github/workflows/deploy.yml'

@@ -8,6 +8,7 @@ COPY package.json bun.lock ./
 COPY common/package.json common/package.json
 COPY backend/package.json backend/package.json
 COPY backend/prisma backend/prisma
+COPY backend/prisma.config.ts backend/prisma.config.ts
 COPY frontend/package.json frontend/package.json
 
 # Install Python (required for building native dependencies)
@@ -38,6 +39,7 @@ COPY --from=install /app/backend/package.json ./backend/package.json
 COPY --from=install /app/backend/node_modules ./backend/node_modules
 COPY backend/src ./backend/src
 COPY --from=install /app/backend/prisma ./backend/prisma
+COPY backend/prisma.config.ts backend/prisma.config.ts
 COPY backend/.env.prod ./backend/.env
 
 ENV NODE_ENV=production

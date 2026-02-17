@@ -28,5 +28,5 @@ export const ensureDbMigrated = async () => {
     },
     'bun prisma:deploy exited',
   )
-  ensure(exitCode !== 0, {exitCode}, 'Unable to run migrations')
+  ensure(exitCode === 0, {exitCode}, 'Unable to run migrations')
 }
