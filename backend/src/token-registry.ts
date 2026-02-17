@@ -1,4 +1,5 @@
 import type {TokenMetadata} from '@wingriders/multi-dex-launchpad-common'
+import {sleep} from 'bun'
 import {chunk, keyBy} from 'es-toolkit'
 import {z} from 'zod'
 import {config} from './config'
@@ -156,7 +157,7 @@ const chunkedSubjectsFetcher = async (
       logger.info(
         `Chunk[${chunkSize}] ${chunkNumber}: successfully fetched metadata for ${response.length} subjects, metadataResponses has ${metadataResponses.length} rows`,
       )
-      await Bun.sleep(1000)
+      await sleep(1000)
     } catch (e) {
       logger.warn(
         `Chunk[${chunkSize}] ${chunkNumber}: failing, trying smaller chunks`,
@@ -203,6 +204,6 @@ export const tokensMetadataLoop = async () => {
       logger.warn(`Error fetching token metadata: ${error.message}`)
     }
 
-    await Bun.sleep(LOOP_INTERVAL)
+    await sleep(LOOP_INTERVAL)
   }
 }

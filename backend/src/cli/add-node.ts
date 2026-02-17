@@ -6,6 +6,7 @@ import {
   makeBuilder,
 } from '@wingriders/multi-dex-launchpad-common'
 import {Result} from 'better-result'
+import {file, JSON5, sleep} from 'bun'
 import {Command} from 'commander'
 import {z} from 'zod'
 import {
@@ -70,7 +71,7 @@ const processAddNodeTransactions = async (
     logger.info(
       `Default tier not started yet, waiting ${waitForDefaultStart / 1000}s`,
     )
-    await Bun.sleep(waitForDefaultStart)
+    await sleep(waitForDefaultStart)
     return processAddNodeTransactions(
       launchTxHash,
       launchConfig,
@@ -187,8 +188,8 @@ export const buildAddNodeCommand = () => {
     )
     .action(async (opts) => {
       logger.info('📄 Loading add-node transactions plan...')
-      const text = await Bun.file(opts.config).text()
-      const raw = Bun.JSON5.parse(text)
+      const text = await file(opts.config).text()
+      const raw = JSON5.parse(text)
       const parsedFile = inputFileSchema.parse(raw)
 
       logger.info('Loading launch from DB...')

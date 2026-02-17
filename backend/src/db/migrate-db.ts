@@ -1,4 +1,5 @@
 import {ensure} from '@wingriders/multi-dex-launchpad-common'
+import {spawn} from 'bun'
 import {config} from '../config'
 import {logger} from '../logger'
 
@@ -16,7 +17,7 @@ export const ensureDbMigrated = async () => {
   // Currently we don't have any direct method to invoke prisma migration programmatically.
   // As a workaround, we spawn migration script as a child process and wait for its completion.
   // Please also refer to the following GitHub issue: https://github.com/prisma/prisma/issues/4703
-  const proc = Bun.spawn(['bun', 'prisma:deploy'])
+  const proc = spawn(['bun', 'prisma:deploy'])
   const exitCode = await proc.exited
   logger.info(
     {

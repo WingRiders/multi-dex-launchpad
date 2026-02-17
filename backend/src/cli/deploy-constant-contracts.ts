@@ -9,6 +9,7 @@ import {
   WR_POOL_SYMBOL,
   WR_POOL_VALIDATOR_HASH,
 } from '@wingriders/multi-dex-launchpad-common'
+import {spawn, write} from 'bun'
 import {Command} from 'commander'
 import {
   offlineEvaluator,
@@ -126,12 +127,12 @@ export const buildDeployConstantContractsCommand = () => {
       ].join('\n')
 
       const filename = `${FOLDER_NAME}/${config.NETWORK}.ts`
-      await Bun.write(filename, fileContent)
+      await write(filename, fileContent)
       logger.info(`Reference scripts written to ${filename}`)
 
       // format the file
       await new Promise((resolve, _) => {
-        Bun.spawn(['biome', 'check', filename, '--write'], {
+        spawn(['biome', 'check', filename, '--write'], {
           onExit(proc, exitCode, signalCode, error) {
             if (error != null) {
               logger.error(

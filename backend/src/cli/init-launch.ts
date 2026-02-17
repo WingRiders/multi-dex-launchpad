@@ -28,6 +28,7 @@ import {
   WR_POOL_SYMBOL,
   WR_POOL_VALIDATOR_HASH,
 } from '@wingriders/multi-dex-launchpad-common'
+import {file, JSON5} from 'bun'
 import {Command} from 'commander'
 import {z} from 'zod'
 import {
@@ -106,8 +107,8 @@ export const buildInitLaunchCommand = () => {
     )
     .action(async (opts) => {
       logger.info('📄 Loading launch config...')
-      const text = await Bun.file(opts.config).text()
-      const raw = Bun.JSON5.parse(text)
+      const text = await file(opts.config).text()
+      const raw = JSON5.parse(text)
       const parsedFile = inputFileSchema.parse(raw)
 
       logger.info('⏱ Calculating schedule...')
