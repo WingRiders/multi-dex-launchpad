@@ -47,7 +47,11 @@ export const LaunchItem = ({launch}: LaunchItemProps) => {
             aria-hidden
           />
           <div className="absolute right-3 bottom-3 left-3 flex items-end justify-between">
-            <LaunchTimeStatusBadge status={timeStatus} />
+            <LaunchTimeStatusBadge
+              startTime={launch.startTime.getTime()}
+              defaultStartTime={launch.defaultStartTime.getTime()}
+              endTime={launch.endTime.getTime()}
+            />
           </div>
         </div>
       </Link>

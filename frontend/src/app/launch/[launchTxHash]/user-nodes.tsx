@@ -10,6 +10,7 @@ import {ErrorAlert} from '@/components/error-alert'
 import {Button} from '@/components/ui/button'
 import {Skeleton} from '@/components/ui/skeleton'
 import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {UnitDisplay} from '@/components/unit-display'
 import {formatDateTime} from '@/helpers/format'
 import {useUpdatedTime} from '@/helpers/time'
 import type {ConnectedWallet} from '@/store/connected-wallet'
@@ -107,56 +108,65 @@ const NodeItem = ({node, config, onWithdraw}: NodeItemProps) => {
 
   return (
     <div className="flex items-center justify-between rounded-md bg-gray-800 p-4">
-      <div className="space-y-1">
-        <div className="flex flex-row items-center gap-3">
-          <p className="font-bold text-md">
-            <AssetQuantity
-              unit={config.raisingToken}
-              quantity={node.committed}
-            />
-          </p>
-          {node.overCommitted > 0n && (
-            <Tooltip>
-              <TooltipTrigger>
-                <p className="text-xs text-yellow-500">
-                  (
-                  {node.overCommitted !== node.committed && (
-                    <>
-                      <AssetQuantity
-                        unit={config.raisingToken}
-                        quantity={node.overCommitted}
-                      />{' '}
-                    </>
-                  )}
-                  after max value was raised)
-                </p>
-              </TooltipTrigger>
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-12">
+        <div className="space-y-1">
+          <div className="flex flex-row items-center gap-3">
+            <p className="font-bold text-md">
+              <AssetQuantity
+                unit={config.raisingToken}
+                quantity={node.committed}
+              />
+            </p>
+            {node.overCommitted > 0n && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <p className="text-xs text-yellow-500">
+                    (
+                    {node.overCommitted !== node.committed && (
+                      <>
+                        <AssetQuantity
+                          unit={config.raisingToken}
+                          quantity={node.overCommitted}
+                        />{' '}
+                      </>
+                    )}
+                    after max value was raised)
+                  </p>
+                </TooltipTrigger>
 
-              <TooltipContent className="whitespace-pre-line">
-                {node.overCommitted === node.committed
-                  ? 'This contribution was created after launch reached its maximum amount to raise.'
-                  : 'Part of this contribution was created after launch reached its maximum amount to raise.'}
+                <TooltipContent className="whitespace-pre-line">
+                  {node.overCommitted === node.committed
+                    ? 'This contribution was created after launch reached its maximum amount to raise.'
+                    : 'Part of this contribution was created after launch reached its maximum amount to raise.'}
 
-                {time < config.endTime &&
-                  (node.overCommitted === node.committed
-                    ? '\nYou will receive your contribution back unless someone who created a contribution before you withdraws from the launch.'
-                    : '\nYou will receive that part of your contribution back unless someone who created a contribution before you withdraws from the launch.')}
-              </TooltipContent>
-            </Tooltip>
-          )}
+                  {time < config.endTime &&
+                    (node.overCommitted === node.committed
+                      ? '\nYou will receive your contribution back unless someone who created a contribution before you withdraws from the launch.'
+                      : '\nYou will receive that part of your contribution back unless someone who created a contribution before you withdraws from the launch.')}
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <p className="text-muted-foreground text-sm">
+                {formatDateTime(node.createdTime, {showSeconds: true})}
+              </p>
+            </TooltipTrigger>
+            <TooltipContent>
+              Time of your contribution that is recorded on the blockchain. It
+              is used to determine users that are eligible for rewards.
+            </TooltipContent>
+          </Tooltip>
         </div>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <p className="text-muted-foreground text-sm">
-              {formatDateTime(node.createdTime, {showSeconds: true})}
-            </p>
-          </TooltipTrigger>
-          <TooltipContent>
-            Time of your contribution that is recorded on the blockchain. It is
-            used to determine users that are eligible for rewards.
-          </TooltipContent>
-        </Tooltip>
+        {node.presaleTierUnit != null && (
+          <div className="space-y-1">
+            <p className="text-muted-foreground text-sm">Presale token</p>
+            <UnitDisplay unit={node.presaleTierUnit} />
+          </div>
+        )}
       </div>
 
       {canCreateRemoveTxAfter < config.endTime && (

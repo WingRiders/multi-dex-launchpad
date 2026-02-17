@@ -1,16 +1,18 @@
+import type {Unit} from '@meshsdk/core'
 import type {LaunchConfig} from '@wingriders/multi-dex-launchpad-common'
 import {cva} from 'class-variance-authority'
 import {formatDistanceStrict} from 'date-fns'
 import {round} from 'es-toolkit'
-import {ActivityIcon, CheckIcon, CircleIcon} from 'lucide-react'
+import {ActivityIcon, CheckIcon, CircleIcon, LockIcon} from 'lucide-react'
 import {Fragment, useMemo} from 'react'
+import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
 import {formatDateTime} from '@/helpers/format'
 import {useUpdatedTime} from '@/helpers/time'
 
 type LaunchTimelineProps = {
   config: Pick<
     LaunchConfig,
-    'presaleTierStartTime' | 'defaultStartTime' | 'endTime'
+    'presaleTierStartTime' | 'defaultStartTime' | 'endTime' | 'presaleTierCs'
   >
 }
 
@@ -18,6 +20,7 @@ type TimelineItemData = {
   label: string
   time: number
   additionalLabel?: string
+  requiredUnit?: Unit
 } & (
   | {
       status: 'completed' | 'upcoming'
@@ -29,7 +32,7 @@ type TimelineItemData = {
 )
 
 export const LaunchTimeline = ({
-  config: {presaleTierStartTime, defaultStartTime, endTime},
+  config: {presaleTierStartTime, defaultStartTime, endTime, presaleTierCs},
 }: LaunchTimelineProps) => {
   const time = useUpdatedTime(
     useMemo(
@@ -50,6 +53,7 @@ export const LaunchTimeline = ({
       dataItems.push({
         label: 'Presale',
         time: presaleTierStartTime,
+        requiredUnit: presaleTierCs,
       })
 
     if (defaultStartTime < endTime)
@@ -91,7 +95,7 @@ export const LaunchTimeline = ({
               }),
         }
       })
-  }, [time, endTime, presaleTierStartTime, defaultStartTime])
+  }, [time, endTime, presaleTierStartTime, defaultStartTime, presaleTierCs])
 
   return (
     <div className="flex w-full flex-row justify-between">
@@ -174,7 +178,20 @@ const TimelineItem = ({data, iconAnchorName}: TimelineItemProps) => {
         <Icon className="size-4" />
       </div>
 
-      <p className="mt-3 font-bold text-md">{data.label}</p>
+      <div className="mt-3 flex flex-row items-center gap-2 font-bold text-md">
+        <p>{data.label}</p>
+        {data.requiredUnit && (
+          <Tooltip>
+            <TooltipTrigger>
+              <LockIcon className="size-4" />
+            </TooltipTrigger>
+            <TooltipContent>
+              In order to participate you must hold a token with policy ID{' '}
+              {data.requiredUnit}
+            </TooltipContent>
+          </Tooltip>
+        )}
+      </div>
       <p className="mt-1 text-muted-foreground text-sm">
         {formatDateTime(data.time)}
       </p>

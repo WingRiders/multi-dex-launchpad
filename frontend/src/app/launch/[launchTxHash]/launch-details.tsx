@@ -2,6 +2,7 @@
 
 import {useSuspenseQuery} from '@tanstack/react-query'
 import Image from 'next/image'
+import {LaunchTimeStatusBadge} from '@/components/launch-time-status-badge'
 import {OnlyWithWallet} from '@/components/only-with-wallet'
 import {UnitDisplay} from '@/components/unit-display'
 import {ipfsToHttps} from '@/helpers/url'
@@ -31,7 +32,14 @@ export const LaunchDetails = ({launchTxHash}: LaunchDetailsProps) => {
     <div className="space-y-8">
       <div className="flex flex-row items-center justify-between space-x-4">
         <div>
-          <h1 className="font-bold text-4xl"> {projectInfo.title}</h1>
+          <div className="flex flex-row items-center gap-4">
+            <h1 className="font-bold text-4xl"> {projectInfo.title}</h1>
+            <LaunchTimeStatusBadge
+              startTime={config.startTime}
+              defaultStartTime={config.defaultStartTime}
+              endTime={config.endTime}
+            />
+          </div>
           <p className="mt-2 text-muted-foreground">
             {projectInfo.description}
           </p>

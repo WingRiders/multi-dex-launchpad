@@ -217,6 +217,9 @@ const CreateLaunchDialogContent = ({
               description: projectInformation.description,
               logoIpfsUrl: projectInformation.logoUrl,
               startTime: new Date(configAndProjectInfo.config.startTime),
+              defaultStartTime: new Date(
+                configAndProjectInfo.config.defaultStartTime,
+              ),
               endTime: new Date(configAndProjectInfo.config.endTime),
             },
           ].sort((a, b) => a.startTime.getTime() - b.startTime.getTime()),

@@ -10,6 +10,7 @@ import {
   type AddCreateCommitmentArgs,
   addCreateCommitment,
   calculateTxValidityIntervalForInsertNode,
+  DEFAULT_TX_VALIDITY_START_BACKDATE_MS,
   type LaunchConfig,
   LOVELACE_UNIT,
   parseUnit,
@@ -28,13 +29,15 @@ import {ErrorAlert} from '@/components/error-alert'
 import {GridItem} from '@/components/grid-item'
 import {InfoTooltip} from '@/components/info-tooltip'
 import {TxSubmittedDialog} from '@/components/tx-submitted-dialog'
-import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert'
+import {Alert, AlertDescription} from '@/components/ui/alert'
 import {Button} from '@/components/ui/button'
 import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
 import {env} from '@/config'
+import {formatDateTime} from '@/helpers/format'
 import {getAssetQuantityFormatter} from '@/helpers/format-asset-quantity'
 import {bigIntMax} from '@/helpers/number'
 import {queryKeyFactory} from '@/helpers/query-key'
+import {shortLabel} from '@/helpers/short-label'
 import {useUpdatedTime} from '@/helpers/time'
 import {getTxFee, initTxBuilder} from '@/helpers/tx'
 import {useTokenMetadata} from '@/metadata/queries'
@@ -126,15 +129,10 @@ const ActiveContributing = ({
     10_000,
   )
 
-  const {
-    connectedWallet,
-    isWalletConnecting,
-    isHydrated: isWalletStoreHydrated,
-  } = useConnectedWalletStore(
-    useShallow(({connectedWallet, isWalletConnecting, isHydrated}) => ({
+  const {connectedWallet, isWalletConnecting} = useConnectedWalletStore(
+    useShallow(({connectedWallet, isWalletConnecting}) => ({
       connectedWallet,
       isWalletConnecting,
-      isHydrated,
     })),
   )
 
@@ -196,6 +194,7 @@ const ActiveContributing = ({
       ? (walletBalance[config.raisingToken] ?? 0n) >= committed + config.nodeAda
       : undefined
 
+  const hasDefaultTier = config.defaultStartTime < config.endTime
   const hasPresaleTier = config.presaleTierStartTime < config.endTime
 
   const availableUnitsForPresaleTier = useMemo(() => {
@@ -224,29 +223,35 @@ const ActiveContributing = ({
 
   const buildingTxForTier: Tier = (() => {
     if (currentlyActiveTier === 'default') return 'default'
-    return hasPresaleTierAndCanParticipate ? 'presale' : 'default'
+    return hasPresaleTierAndCanParticipate || !hasDefaultTier
+      ? 'presale'
+      : 'default'
   })()
-
-  const hasActiveOrUpcomingPresaleTier =
-    currentlyActiveTier === 'presale' ||
-    (currentlyActiveTier === 'upcoming' && hasPresaleTier)
 
   const [
     selectedTierMinCommitment,
     selectedTierMaxCommitment,
     selectedTierStartTime,
+    selectedTierName,
   ] = {
     default: [
       config.defaultTierMinCommitment,
       config.defaultTierMaxCommitment,
       config.defaultStartTime,
+      'public',
     ] as const,
     presale: [
       config.presaleTierMinCommitment,
       config.presaleTierMaxCommitment,
       config.presaleTierStartTime,
+      'presale',
     ] as const,
   }[buildingTxForTier]
+
+  const cannotParticipateAtAll =
+    buildingTxForTier === 'presale' &&
+    (availableUnitsForPresaleTier == null ||
+      availableUnitsForPresaleTier.length === 0)
 
   useEffect(() => {
     setSelectedTierUnit(availableUnitsForPresaleTier?.[0] ?? null)
@@ -258,6 +263,13 @@ const ActiveContributing = ({
     config.endTime,
     time,
   )
+
+  const isBuildingTxTooSoon =
+    slotToBeginUnixTime(
+      validityInterval.validityStartSlot,
+      SLOT_CONFIG_NETWORK[network],
+    ) >
+    time - DEFAULT_TX_VALIDITY_START_BACKDATE_MS
 
   const buildArgs: AddCreateCommitmentArgs | undefined =
     debouncedCommitted != null &&
@@ -384,6 +396,10 @@ const ActiveContributing = ({
               ),
             ),
             isSpent: false,
+            presaleTierUnit:
+              buildingTxForTier === 'presale'
+                ? (selectedTierUnit ?? undefined)
+                : undefined,
           },
         ],
       )
@@ -409,41 +425,38 @@ const ActiveContributing = ({
 
         {buildingTxForTier === 'presale' &&
           availableUnitsForPresaleTier != null && (
-            <div className="flex flex-row items-center justify-between gap-2 rounded-md bg-gray-800 p-3 pl-7">
-              <div className="flex flex-row items-center gap-3">
-                <p className="text-sm">Presale token</p>
-                <InfoTooltip content="One unit of this token will be locked with your contribution in order to participate in the presale. You will be able to redeem it when claiming your received tokens after the launch ends." />
+            <div className="space-y-2 rounded-md bg-gray-800 p-7 pr-3">
+              <p className="whitespace-pre-line text-muted-foreground text-sm">
+                In order to participate in the presale, you must hold a token
+                with policy ID:{' '}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="break-all font-mono">
+                      {shortLabel(config.presaleTierCs, 10, 10)}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>{config.presaleTierCs}</TooltipContent>
+                </Tooltip>
+                .
+              </p>
+
+              <div className="flex flex-row items-center justify-between gap-2">
+                <div className="flex flex-row items-center gap-3">
+                  <p className="text-sm">Presale token</p>
+                  <InfoTooltip content="One unit of this token will be locked with your contribution in order to participate in the presale. You will be able to redeem it when claiming your received tokens after the launch ends." />
+                </div>
+
+                <UnitSelect
+                  items={availableUnitsForPresaleTier.map((unit) => ({
+                    unit,
+                    balance: walletBalance?.[unit] ?? 0n,
+                  }))}
+                  value={selectedTierUnit}
+                  onChange={setSelectedTierUnit}
+                  balanceState={walletBalanceState}
+                />
               </div>
-
-              <UnitSelect
-                items={availableUnitsForPresaleTier.map((unit) => ({
-                  unit,
-                  balance: walletBalance?.[unit] ?? 0n,
-                }))}
-                value={selectedTierUnit}
-                onChange={setSelectedTierUnit}
-                balanceState={walletBalanceState}
-              />
             </div>
-          )}
-
-        {connectedWallet != null &&
-          isWalletStoreHydrated &&
-          !isWalletConnecting &&
-          !isLoadingWalletUtxos &&
-          hasActiveOrUpcomingPresaleTier &&
-          buildingTxForTier === 'default' && (
-            <Alert>
-              <AlertTriangleIcon className="size-4 shrink-0" />
-              <AlertTitle>
-                You are not eligible to contribute in the presale
-              </AlertTitle>
-              <AlertDescription>
-                In order to be able to contribute in the presale, you must hold
-                a token with the selected policy ID for the presale. You can
-                still build a transaction to contribute to the public sale.
-              </AlertDescription>
-            </Alert>
           )}
 
         <AssetInput
@@ -494,11 +507,14 @@ const ActiveContributing = ({
           </TooltipTrigger>
           {(committed == null ||
             committed === 0n ||
-            connectedWallet == null) && (
+            connectedWallet == null ||
+            cannotParticipateAtAll) && (
             <TooltipContent>
               {connectedWallet == null
                 ? 'Connect your wallet to contribute'
-                : 'Enter the amount of tokens you want to contribute'}
+                : cannotParticipateAtAll
+                  ? 'No token with the required policy ID found in your wallet'
+                  : 'Enter the amount of tokens you want to contribute'}
             </TooltipContent>
           )}
         </Tooltip>
@@ -525,6 +541,24 @@ const ActiveContributing = ({
               className="justify-between"
               tooltip="Additional ADA that is required in your commitment UTxO. You can reclaim part of it when claiming your received tokens after the launch ends."
             />
+            {isBuildingTxTooSoon && (
+              <Alert className="mt-4" variant="warning">
+                <AlertTriangleIcon className="size-4 shrink-0" />
+
+                <AlertDescription>
+                  <p className="whitespace-pre-line">
+                    You are pre-building contribution for the{' '}
+                    <strong>{selectedTierName}</strong> tier which starts at{' '}
+                    <strong>{formatDateTime(selectedTierStartTime)}</strong>.
+                    {'\n\n'}
+                    Your transaction will be most likely rejected because your
+                    wallet might not have the information about the latest block
+                    created after the tier start time. If the submission fails,
+                    try submitting it again.
+                  </p>
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
         )}
 

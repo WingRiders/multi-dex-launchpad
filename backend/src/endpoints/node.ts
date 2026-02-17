@@ -1,8 +1,8 @@
 import type {UTxO} from '@meshsdk/common'
-import {ensure} from '@wingriders/multi-dex-launchpad-common'
+import {createUnit, ensure} from '@wingriders/multi-dex-launchpad-common'
 import {calculateCutoff, getOverCommittedQuantity} from '../agent/cutoff'
 import {timeToSlot} from '../common'
-import {prismaTxOutputToMeshOutput} from '../db/helpers'
+import {deserializeValue, prismaTxOutputToMeshOutput} from '../db/helpers'
 import {prisma} from '../db/prisma-client'
 
 export const getUserNodes = async (
@@ -15,6 +15,7 @@ export const getUserNodes = async (
     },
     select: {
       endTime: true,
+      presaleTierCs: true,
     },
   })
 
@@ -42,6 +43,7 @@ export const getUserNodes = async (
       txOut: {
         select: {
           spentSlot: true,
+          value: true,
         },
       },
     },
@@ -101,7 +103,7 @@ export const getUserNodes = async (
       keyIndex,
       committed,
       createdTime: createdTimeBigInt,
-      txOut: {spentSlot},
+      txOut: {spentSlot, value: valueRaw},
     }) => {
       ensure(
         keyHash != null,
@@ -115,6 +117,15 @@ export const getUserNodes = async (
       )
 
       const createdTime = Number(createdTimeBigInt)
+
+      const value = deserializeValue(valueRaw)
+      const presaleTierAssetName = Object.keys(
+        value[launch.presaleTierCs] ?? {},
+      )[0]
+      const presaleTierUnit =
+        presaleTierAssetName != null
+          ? createUnit(launch.presaleTierCs, presaleTierAssetName)
+          : undefined
 
       const overCommitted = cutoff
         ? getOverCommittedQuantity(cutoff, {
@@ -136,6 +147,7 @@ export const getUserNodes = async (
         overCommitted,
         createdTime: new Date(createdTime),
         isSpent: spentSlot != null,
+        presaleTierUnit,
       }
     },
   )

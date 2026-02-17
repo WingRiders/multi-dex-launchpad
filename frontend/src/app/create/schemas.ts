@@ -185,7 +185,9 @@ export const userAccessSchema = z
     presaleTier: baseTierSchema
       .safeExtend({
         nftPolicyId: z
-          .string()
+          .string({
+            error: 'Enter a policy ID of the tier NFT',
+          })
           .regex(
             /^([0-9a-fA-F]{2})*$/,
             'Enter a valid policy ID of the tier NFT (must be a hex string)',

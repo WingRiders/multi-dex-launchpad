@@ -23,6 +23,7 @@ export const getLaunches = async (
     description: string
     logoIpfsUrl: string
     startTime: Date
+    defaultStartTime: Date
     endTime: Date
   }[]
 > => {
@@ -74,6 +75,7 @@ export const getLaunches = async (
       projectDescription: true,
       projectLogoUrl: true,
       startTime: true,
+      defaultStartTime: true,
       endTime: true,
       firstProjectTokensHolders: {
         where: {
@@ -111,6 +113,7 @@ export const getLaunches = async (
           projectDescription,
           projectLogoUrl,
           startTime,
+          defaultStartTime,
           endTime,
         }) => ({
           txHash,
@@ -118,6 +121,7 @@ export const getLaunches = async (
           description: projectDescription,
           logoIpfsUrl: projectLogoUrl,
           startTime: new Date(Number(startTime)),
+          defaultStartTime: new Date(Number(defaultStartTime)),
           endTime: new Date(Number(endTime)),
         }),
       )

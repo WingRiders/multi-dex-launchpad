@@ -136,6 +136,12 @@ export const addCreateCommitment = (
     unit: config.raisingToken,
     quantity: committed.toString(),
   })
+  if (tier.type === 'presale') {
+    newNodeValue.addAsset({
+      unit: tier.unit,
+      quantity: '1',
+    })
+  }
 
   b.txOut(
     scriptHashToBech32(
