@@ -22,6 +22,7 @@ import {
   INIT_LAUNCH_TX_METADATA_LABEL,
   isGeneratedPolicyType,
   type LaunchTxMetadataSchema,
+  type NodeDatum,
   nodeDatumCborSchema,
   parseUnit,
   poolProofDatumCborSchema,
@@ -90,7 +91,11 @@ type SyncEvent =
       >
     } & (
       | {
-          outputType: Exclude<LaunchUtxoType, 'commitFold'>
+          outputType: Exclude<LaunchUtxoType, 'node' | 'commitFold'>
+        }
+      | {
+          outputType: 'node'
+          nodeDatum: NodeDatum
         }
       | {
           outputType: 'commitFold'
@@ -288,6 +293,32 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
           txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType: 'commitFold',
           commitFoldDatum,
+        })
+        continue
+      }
+
+      if (type === 'node') {
+        // Nodes must carry an inline datum; validate and decode it now and
+        // attach the decoded datum to the pushed event so the DB writer can reuse
+        // the already-decoded structure instead of decoding again.
+        ensure(
+          txOutput.datum != null,
+          {txOutput},
+          'Node must have inline datum',
+        )
+        const nodeDatum = decodeDatum(nodeDatumCborSchema, txOutput.datum)
+        ensure(
+          nodeDatum != null,
+          {txOutput},
+          'Node must have valid inline datum',
+        )
+
+        pushSyncEvent({
+          type: 'launchTxOutput',
+          launchTxHash: launch.txHash,
+          txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
+          outputType: 'node',
+          nodeDatum,
         })
         continue
       }
@@ -916,13 +947,7 @@ const saveLaunchTxOutputsFields = async (
         break
       }
       case 'node': {
-        const datum = decodeDatum(nodeDatumCborSchema, txOutput.datum)
-        ensure(
-          datum != null,
-          {datum: txOutput.datum, txHash: txOutput.txHash},
-          'Found node utxo with invalid datum',
-        )
-
+        const datum = syncEvent.nodeDatum
         await prisma.node.create({
           data: {
             txHash: txOutput.txHash,
