@@ -26,6 +26,7 @@ const envSchema = z.object({
   OGMIOS_HOST: z.string(),
   OGMIOS_PORT: z.coerce.number().positive(),
   CORS_ENABLED_FOR: z.string().optional(),
+  LAUNCH_TO_PROCESS: z.string().optional(),
 })
 
 const parsedEnv = envSchema.safeParse(process.env)
