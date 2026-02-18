@@ -14,7 +14,9 @@ import {ogmiosValueToMeshAssets} from '../agent/ogmios/helpers'
 import {encodeOgmiosScript} from '../helpers/script'
 import {prisma} from './prisma-client'
 
-export const prismaLaunchToLaunchConfig = (launch: Launch): LaunchConfig => ({
+export const prismaLaunchToLaunchConfig = (
+  launch: Omit<Launch, 'slot'>,
+): LaunchConfig => ({
   ownerBech32Address: launch.ownerBech32Address,
   splitBps: launch.splitBps,
   wrPoolValidatorHash: launch.wrPoolValidatorHash,

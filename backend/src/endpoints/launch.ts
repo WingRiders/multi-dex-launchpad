@@ -136,16 +136,142 @@ const isLaunchCancelled = (
   firstTokensHolderSpentSlot != null &&
   firstTokensHolderSpentSlot < timeToSlot(startTime)
 
+export const getLaunchesOwnedBy = async (
+  ownerBech32Address: string,
+): Promise<
+  {
+    txHash: string
+    title: string
+    projectToken: string
+    totalTokens: bigint
+    isCancelled: boolean
+  }[]
+> => {
+  const launches = await prisma.launch.findMany({
+    where: {ownerBech32Address},
+    orderBy: {startTime: 'desc'},
+    select: {
+      txHash: true,
+      projectTitle: true,
+      projectTokenPolicyId: true,
+      projectTokenAssetName: true,
+      totalTokens: true,
+      startTime: true,
+      firstProjectTokensHolders: {
+        where: {
+          txOut: {
+            spentSlot: {not: null},
+          },
+        },
+        select: {
+          txOut: {
+            select: {spentSlot: true},
+          },
+        },
+      },
+    },
+  })
+
+  return launches.map(
+    ({
+      txHash,
+      projectTitle,
+      projectTokenPolicyId,
+      projectTokenAssetName,
+      totalTokens,
+      startTime,
+      firstProjectTokensHolders,
+    }) => {
+      const isCancelled = isLaunchCancelled(
+        Number(startTime),
+        max(firstProjectTokensHolders.map((h) => h.txOut.spentSlot)),
+      )
+      return {
+        txHash,
+        title: projectTitle,
+        projectToken: `${projectTokenPolicyId}${projectTokenAssetName}`,
+        totalTokens,
+        isCancelled,
+      }
+    },
+  )
+}
+
 export const getLaunch = async (
   txHash: string,
 ): Promise<{
   projectInfo: ProjectInfoTxMetadata
   config: LaunchConfig
   totalCommitted: bigint
+  isCancelled: boolean
 }> => {
   const launch = await prisma.launch.findUnique({
     where: {
       txHash,
+    },
+    select: {
+      txHash: true,
+      projectTitle: true,
+      projectDescription: true,
+      projectUrl: true,
+      projectLogoUrl: true,
+      projectTokenomicsUrl: true,
+      projectWhitepaperUrl: true,
+      projectTermsAndConditionsUrl: true,
+      projectAdditionalUrl: true,
+      ownerBech32Address: true,
+      splitBps: true,
+      wrPoolValidatorHash: true,
+      wrFactoryValidatorHash: true,
+      wrPoolCurrencySymbol: true,
+      sundaePoolScriptHash: true,
+      sundaeFeeTolerance: true,
+      sundaeSettingsCurrencySymbol: true,
+      startTime: true,
+      endTime: true,
+      projectTokenPolicyId: true,
+      projectTokenAssetName: true,
+      raisingTokenPolicyId: true,
+      raisingTokenAssetName: true,
+      projectMinCommitment: true,
+      projectMaxCommitment: true,
+      totalTokens: true,
+      tokensToDistribute: true,
+      raisedTokensPoolPartPercentage: true,
+      daoFeeNumerator: true,
+      daoFeeDenominator: true,
+      daoFeeReceiverBech32Address: true,
+      daoAdminPubKeyHash: true,
+      collateral: true,
+      starterTxHash: true,
+      starterOutputIndex: true,
+      vestingPeriodDuration: true,
+      vestingPeriodDurationToFirstUnlock: true,
+      vestingPeriodInstallments: true,
+      vestingPeriodStart: true,
+      vestingValidatorHash: true,
+      presaleTierCs: true,
+      presaleTierStartTime: true,
+      defaultStartTime: true,
+      presaleTierMinCommitment: true,
+      defaultTierMinCommitment: true,
+      presaleTierMaxCommitment: true,
+      defaultTierMaxCommitment: true,
+      nodeAda: true,
+      commitFoldFeeAda: true,
+      oilAda: true,
+      firstProjectTokensHolders: {
+        where: {
+          txOut: {
+            spentSlot: {not: null},
+          },
+        },
+        select: {
+          txOut: {
+            select: {spentSlot: true},
+          },
+        },
+      },
     },
   })
 
@@ -185,6 +311,10 @@ export const getLaunch = async (
     },
     config: prismaLaunchToLaunchConfig(launch),
     totalCommitted: totalCommitted._sum.committed ?? 0n,
+    isCancelled: isLaunchCancelled(
+      Number(launch.startTime),
+      max(launch.firstProjectTokensHolders.map((h) => h.txOut.spentSlot)),
+    ),
   }
 }
 

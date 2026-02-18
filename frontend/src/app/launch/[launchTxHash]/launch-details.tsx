@@ -2,6 +2,7 @@
 
 import {useSuspenseQuery} from '@tanstack/react-query'
 import Image from 'next/image'
+import {CancelledLaunchedBadge} from '@/components/cancelled-launched-badge'
 import {LaunchTimeStatusBadge} from '@/components/launch-time-status-badge'
 import {OnlyWithWallet} from '@/components/only-with-wallet'
 import {UnitDisplay} from '@/components/unit-display'
@@ -26,7 +27,7 @@ export const LaunchDetails = ({launchTxHash}: LaunchDetailsProps) => {
     trpc.launch.queryOptions({txHash: launchTxHash}),
   )
 
-  const {projectInfo, config, totalCommitted} = data
+  const {projectInfo, config, totalCommitted, isCancelled} = data
 
   return (
     <div className="space-y-8">
@@ -34,11 +35,15 @@ export const LaunchDetails = ({launchTxHash}: LaunchDetailsProps) => {
         <div>
           <div className="flex flex-row items-center gap-4">
             <h1 className="font-bold text-4xl"> {projectInfo.title}</h1>
-            <LaunchTimeStatusBadge
-              startTime={config.startTime}
-              defaultStartTime={config.defaultStartTime}
-              endTime={config.endTime}
-            />
+            {isCancelled ? (
+              <CancelledLaunchedBadge className="text-sm" />
+            ) : (
+              <LaunchTimeStatusBadge
+                startTime={config.startTime}
+                defaultStartTime={config.defaultStartTime}
+                endTime={config.endTime}
+              />
+            )}
           </div>
           <p className="mt-2 text-muted-foreground">
             {projectInfo.description}
@@ -59,7 +64,7 @@ export const LaunchDetails = ({launchTxHash}: LaunchDetailsProps) => {
         <LaunchLink label="Additional" href={projectInfo.additionalUrl} />
       </div>
 
-      <LaunchTimeline config={config} />
+      <LaunchTimeline config={config} isCancelled={isCancelled} />
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-5">
         <div className="relative h-[300px] w-full md:col-span-3 md:h-[450px]">
@@ -77,6 +82,7 @@ export const LaunchDetails = ({launchTxHash}: LaunchDetailsProps) => {
             launchTxHash={launchTxHash}
             config={config}
             totalCommitted={totalCommitted}
+            isCancelled={isCancelled}
           />
         </div>
       </div>
@@ -97,15 +103,17 @@ export const LaunchDetails = ({launchTxHash}: LaunchDetailsProps) => {
 
       <ProjectTokenInfo projectToken={config.projectToken} />
 
-      <OnlyWithWallet address={config.ownerBech32Address}>
-        {(connectedWallet) => (
-          <CancelLaunch
-            launchTxHash={launchTxHash}
-            config={config}
-            connectedWallet={connectedWallet}
-          />
-        )}
-      </OnlyWithWallet>
+      {!isCancelled && (
+        <OnlyWithWallet address={config.ownerBech32Address}>
+          {(connectedWallet) => (
+            <CancelLaunch
+              launchTxHash={launchTxHash}
+              config={config}
+              connectedWallet={connectedWallet}
+            />
+          )}
+        </OnlyWithWallet>
+      )}
     </div>
   )
 }

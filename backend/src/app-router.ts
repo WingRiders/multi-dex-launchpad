@@ -15,6 +15,7 @@ import {
   getFirstProjectTokensHolderUTxO,
   getLaunch,
   getLaunches,
+  getLaunchesOwnedBy,
   getPoolProofInput,
   getUserRewardsHolders,
 } from './endpoints/launch'
@@ -63,6 +64,9 @@ export const createServerRouter = () =>
         }),
       )
       .query(({input}) => getLaunch(input.txHash)),
+    launchesOwnedBy: publicProcedure
+      .input(z.object({ownerBech32Address: z.string()}))
+      .query(({input}) => getLaunchesOwnedBy(input.ownerBech32Address)),
     nodeToSpend: publicProcedure
       .input(
         z.object({

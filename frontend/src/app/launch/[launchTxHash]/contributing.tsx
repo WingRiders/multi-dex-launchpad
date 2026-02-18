@@ -72,6 +72,7 @@ type ContributingProps = {
   launchTxHash: string
   config: ContributingLaunchConfig
   totalCommitted: bigint
+  isCancelled: boolean
 }
 
 const DEBOUNCE_DELAY = 100
@@ -80,13 +81,21 @@ export const Contributing = ({
   launchTxHash,
   config,
   totalCommitted,
+  isCancelled,
 }: ContributingProps) => {
   const time = useUpdatedTime(useMemo(() => [config.endTime], [config.endTime]))
 
   const isPast = isAfter(time, config.endTime)
 
-  if (isPast)
-    return <div className="text-muted-foreground">Contribution has ended</div>
+  if (isPast || isCancelled)
+    return (
+      <div className="space-y-4">
+        <h2 className="font-bold text-2xl">Contribute</h2>
+        <div className="text-muted-foreground">
+          {isCancelled ? 'Launch was cancelled' : 'Contribution has ended'}
+        </div>
+      </div>
+    )
 
   return (
     <ActiveContributing

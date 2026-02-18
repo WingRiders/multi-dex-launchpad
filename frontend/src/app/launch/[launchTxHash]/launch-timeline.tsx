@@ -14,6 +14,7 @@ type LaunchTimelineProps = {
     LaunchConfig,
     'presaleTierStartTime' | 'defaultStartTime' | 'endTime' | 'presaleTierCs'
   >
+  isCancelled: boolean
 }
 
 type TimelineItemData = {
@@ -33,6 +34,7 @@ type TimelineItemData = {
 
 export const LaunchTimeline = ({
   config: {presaleTierStartTime, defaultStartTime, endTime, presaleTierCs},
+  isCancelled,
 }: LaunchTimelineProps) => {
   const time = useUpdatedTime(
     useMemo(
@@ -82,20 +84,29 @@ export const LaunchTimeline = ({
                 progress:
                   (time - data.time) / ((nextTime ?? Infinity) - data.time),
                 additionalLabel:
-                  nextTime != null
+                  nextTime != null && !isCancelled
                     ? `Ends ${formatDistanceStrict(nextTime, time, {addSuffix: true})}`
                     : undefined,
               }
             : {
                 status,
                 additionalLabel:
-                  status === 'upcoming' && index !== dataItems.length - 1
+                  status === 'upcoming' &&
+                  index !== dataItems.length - 1 &&
+                  !isCancelled
                     ? `Starts ${formatDistanceStrict(data.time, time, {addSuffix: true})}`
                     : undefined,
               }),
         }
       })
-  }, [time, endTime, presaleTierStartTime, defaultStartTime, presaleTierCs])
+  }, [
+    time,
+    endTime,
+    presaleTierStartTime,
+    defaultStartTime,
+    presaleTierCs,
+    isCancelled,
+  ])
 
   return (
     <div className="flex w-full flex-row justify-between">

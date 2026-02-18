@@ -2,9 +2,9 @@ import {Loader2Icon, PlusIcon} from 'lucide-react'
 import Link from 'next/link'
 import {Suspense} from 'react'
 import {LaunchesSection} from '@/app/launches-section'
+import {UserLaunches} from '@/app/user-launches'
 import {PageContainer} from '@/components/page-container'
 import {Button} from '@/components/ui/button'
-import {CurrentDraft} from './create/current-draft'
 
 const Dashboard = () => {
   return (
@@ -24,7 +24,6 @@ const Dashboard = () => {
         created across multiple decentralized exchanges, including WingRiders
         and SundaeSwap, at the end of each token launch.
       </p>
-      <CurrentDraft />
 
       <Suspense
         fallback={
@@ -51,6 +50,8 @@ const Dashboard = () => {
           />
         </div>
       </Suspense>
+
+      <UserLaunches />
     </PageContainer>
   )
 }

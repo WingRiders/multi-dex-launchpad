@@ -203,6 +203,7 @@ const CreateLaunchDialogContent = ({
           config: configAndProjectInfo.config,
           projectInfo: configAndProjectInfo.projectInfo,
           totalCommitted: 0n,
+          isCancelled: false,
         },
       )
 
