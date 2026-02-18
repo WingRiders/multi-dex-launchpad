@@ -6,7 +6,6 @@ import {
 } from '@wingriders/multi-dex-launchpad-common'
 
 import {Result} from 'better-result'
-import type {Launch, TxOutput} from '../../prisma/generated/client'
 import {
   PoolProofType,
   RefScriptCarrierType,
@@ -59,9 +58,9 @@ const processLaunch = async (
   //
   // If the launch hasn't finished yet, we skip it
   //
-  // TODO: If the launch has ended and there's no commit fold, we create it
+  // If the launch has ended and there's no commit fold, we create it
   //
-  // TODO: If the launch has ended and there's a commit fold and unfolded nodes, we fold nodes
+  // If the launch has ended and there's a commit fold and unfolded nodes, we fold nodes
   //
   // TODO: If the launch has ended and there's a finished commit fold, we create a rewards fold
   //
@@ -91,10 +90,76 @@ const processLaunch = async (
     return
   }
 
+  // we can assume all the validators have been deployed by now
+  const nodeValidatorRefScriptCarrier = launch.refScriptCarriers.find(
+    (c) => c.type === RefScriptCarrierType.NODE_VALIDATOR,
+  )
+  ensure(
+    nodeValidatorRefScriptCarrier != null,
+    {launchTxHash},
+    'Node validator ref script carrier must exist',
+  )
+  const nodePolicyRefScriptCarrier = launch.refScriptCarriers.find(
+    (c) => c.type === RefScriptCarrierType.NODE_POLICY,
+  )
+  ensure(
+    nodePolicyRefScriptCarrier != null,
+    {launchTxHash},
+    'Node policy ref script carrier must exist',
+  )
+
+  if (time < launch.startTime) {
+    // If there is only head node, we insert separators
+    const headNode = await prisma.node.findFirst({
+      select: {txOut: true},
+      where: {
+        launchTxHash,
+        keyHash: null,
+        keyIndex: null,
+        nextHash: null,
+        nextIndex: null,
+        txOut: {spentSlot: null},
+      },
+    })
+    if (headNode) {
+      logger.info(
+        {launchTxHash, SEPARATORS_TO_INSERT},
+        `Inserting ${SEPARATORS_TO_INSERT} separators`,
+      )
+      const txHash = await insertSeparators(
+        contracts,
+        launch,
+        headNode.txOut,
+        nodeValidatorRefScriptCarrier.txOut,
+        nodePolicyRefScriptCarrier.txOut,
+        SEPARATORS_TO_INSERT,
+      )
+      if (txHash) logger.info({launchTxHash, txHash}, 'Inserted separators')
+      else logger.error({launchTxHash}, 'Failed to insert separators')
+      return
+    }
+    logger.info(
+      {
+        launchTxHash,
+        secondsToStart: (Number(launch.startTime) - time) / 1000,
+      },
+      'No separators to insert (already inserted)',
+    )
+    // No other action needed before launch starts
+    return
+  } else
+    logger.info(
+      {launchTxHash},
+      'No separators to insert (launch start time has passed)',
+    )
+
   // We check if the launch is in-progress and skip it
   const endSlot = timeToSlot(launch.endTime)
-  if (time >= launch.startTime && latestSlot <= endSlot) {
-    logger.info({launchTxHash}, 'Launch in progress, skipping')
+  if (latestSlot <= endSlot) {
+    logger.info(
+      {launchTxHash, slotsToEnd: endSlot - latestSlot},
+      'Launch in progress, skipping',
+    )
     return
   }
 
@@ -138,50 +203,6 @@ const processLaunch = async (
     })
     if (wasTxSubmitted) return
   }
-
-  // we can assume all the validators have been deployed by now
-  const nodeValidatorRefScriptCarrier = launch.refScriptCarriers.find(
-    (c) => c.type === RefScriptCarrierType.NODE_VALIDATOR,
-  )
-  ensure(
-    nodeValidatorRefScriptCarrier != null,
-    {launchTxHash},
-    'Node validator ref script carrier must exist',
-  )
-  const nodePolicyRefScriptCarrier = launch.refScriptCarriers.find(
-    (c) => c.type === RefScriptCarrierType.NODE_POLICY,
-  )
-  ensure(
-    nodePolicyRefScriptCarrier != null,
-    {launchTxHash},
-    'Node policy ref script carrier must exist',
-  )
-
-  // We check if we should insert separators:
-  //  - the launch has not started yet
-  //  - there's only the head node
-  const headNode = await findHeadNodeIfShouldInsertSeparators(time, launch)
-  if (headNode) {
-    logger.info(
-      {launchTxHash, SEPARATORS_TO_INSERT},
-      `Inserting ${SEPARATORS_TO_INSERT} separators`,
-    )
-    const txHash = await insertSeparators(
-      contracts,
-      launch,
-      headNode,
-      nodeValidatorRefScriptCarrier.txOut,
-      nodePolicyRefScriptCarrier.txOut,
-      SEPARATORS_TO_INSERT,
-    )
-    if (txHash) logger.info({launchTxHash, txHash}, 'Inserted separators')
-    else logger.error({launchTxHash}, 'Failed to insert separators')
-    return
-  } else
-    logger.info(
-      {launchTxHash},
-      'No separators to insert (either already inserted or the launch start time has passed)',
-    )
 
   // TODO: the rest of the actions
 
@@ -232,29 +253,4 @@ const processLaunch = async (
       else logger.error({launchTxHash}, 'Failed to create Sundae pool proof')
     }
   } else logger.info({launchTxHash}, 'Sundae pool proof exists')
-}
-
-// It is only possible to insert separators before the start of the launch
-// We also try to insert all separators in one transactions.
-// That means we should do that if there's only one node in existence: the head node
-// We return it if the separators should be inserted
-// This name is horrendous.
-const findHeadNodeIfShouldInsertSeparators = async (
-  time: number,
-  launch: Launch,
-): Promise<TxOutput | null> => {
-  if (time >= launch.startTime) return null
-
-  const headNode = await prisma.node.findFirstOrThrow({
-    select: {nextIndex: true, txOut: true},
-    where: {
-      launchTxHash: launch.txHash,
-      keyHash: null,
-      txOut: {spentSlot: null},
-    },
-  })
-  // next != null means some nodes were inserted
-  if (headNode.nextIndex != null) return null
-
-  return headNode.txOut
 }
