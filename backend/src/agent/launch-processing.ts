@@ -7,6 +7,8 @@ import {
 
 import {Result} from 'better-result'
 import {
+  type CommitFold,
+  type Launch,
   PoolProofType,
   RefScriptCarrierType,
 } from '../../prisma/generated/client'
@@ -204,6 +206,42 @@ const processLaunch = async (
     if (wasTxSubmitted) return
   }
 
+  const finishedCommitFold = await prisma.commitFold.findFirst({
+    include: {txOut: true},
+    where: {
+      // related to this launch
+      launchTxHash,
+      // finished: no next node to fold
+      nextKeyIndex: null,
+      // unspent
+      txOut: {spentSlot: null},
+    },
+  })
+  if (finishedCommitFold) {
+    // Head node will be spent in the next transaction, which is either:
+    // - initial rewards fold
+    // - fail proof
+    const headNode = await prisma.node.findFirst({
+      select: {txOut: true},
+      where: {
+        launchTxHash,
+        keyHash: null,
+        txOut: {spentSlot: null},
+      },
+    })
+    ensure(
+      headNode != null,
+      {launchTxHash, finishedCommitFold},
+      'Head node must exist if there is finishedCommitFold',
+    )
+    if (didLaunchSucceed(launch, finishedCommitFold)) {
+      // TODO Create initial rewards fold
+      return
+    }
+    // TODO Create fail proof
+    return
+  }
+
   // TODO: the rest of the actions
 
   // We check if there are pools but no pool proofs
@@ -254,3 +292,6 @@ const processLaunch = async (
     }
   } else logger.info({launchTxHash}, 'Sundae pool proof exists')
 }
+
+const didLaunchSucceed = (launch: Launch, finishedCommitFold: CommitFold) =>
+  finishedCommitFold.committed >= launch.projectMinCommitment
