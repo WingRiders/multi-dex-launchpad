@@ -17,7 +17,6 @@ import {
   type Tier,
 } from '@wingriders/multi-dex-launchpad-common'
 
-import {isAfter} from 'date-fns'
 import {AlertTriangleIcon} from 'lucide-react'
 import {useEffect, useMemo, useState} from 'react'
 import {useDebounce} from 'use-debounce'
@@ -85,7 +84,7 @@ export const Contributing = ({
 }: ContributingProps) => {
   const time = useUpdatedTime(useMemo(() => [config.endTime], [config.endTime]))
 
-  const isPast = isAfter(time, config.endTime)
+  const isPast = time >= config.endTime
 
   if (isPast || isCancelled)
     return (

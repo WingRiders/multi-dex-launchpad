@@ -41,6 +41,7 @@ export const LaunchTimeline = ({
       () => [presaleTierStartTime, defaultStartTime, endTime],
       [presaleTierStartTime, defaultStartTime, endTime],
     ),
+    Date.now() < endTime ? 1000 : undefined,
   )
 
   const itemsData = useMemo(() => {
