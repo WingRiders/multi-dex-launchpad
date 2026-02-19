@@ -7,6 +7,7 @@ import {
   DEFAULT_TX_TTL_MS,
   DEFAULT_TX_VALIDITY_START_BACKDATE_MS,
 } from '../constants'
+import {ensure} from '../ensure'
 import type {Network} from './network'
 
 export const calculateTxValidityInterval = (
@@ -42,11 +43,11 @@ export const calculateTxValidityIntervalBeforeLaunchStart = (
   validityStartSlot: number
   validityEndSlot: number
 } => {
-  if (now >= launchStartTime) {
-    throw new Error(
-      'Cannot calculate validity interval, launch has already started',
-    )
-  }
+  ensure(
+    now < launchStartTime,
+    {now, launchStartTime},
+    'Cannot calculate validity interval, launch has already started',
+  )
 
   const slotConfig = SLOT_CONFIG_NETWORK[network]
   const validityInterval = calculateTxValidityInterval(network, now)
@@ -73,9 +74,11 @@ export const calculateTxValidityIntervalForInsertNode = (
   launchEndTime: number,
   now = Date.now(),
 ) => {
-  if (now >= launchEndTime) {
-    throw new Error('Cannot calculate validity interval, launch has ended.')
-  }
+  ensure(
+    now < launchEndTime,
+    {now, launchEndTime},
+    'Cannot calculate validity interval, launch has already ended',
+  )
 
   // if user is trying to build the tx before tierStartTime, we act as if it was built 1 second after tierStartTime,
   // which is the soonest possible time for building the tx (we are allowing users to build the tx but it will be rejected by node)
@@ -114,11 +117,11 @@ export const calculateTxValidityIntervalForInsertNode = (
     slotConfig,
   )
 
-  if (validityInterval.validityStartSlot > validityInterval.validityEndSlot) {
-    throw new Error(
-      'Cannot calculate validity interval: tier window is too narrow (validity start would be after validity end).',
-    )
-  }
+  ensure(
+    validityInterval.validityStartSlot <= validityInterval.validityEndSlot,
+    {validityInterval},
+    'Cannot calculate validity interval: tier window is too narrow (validity start would be after validity end).',
+  )
 
   return validityInterval
 }
@@ -129,11 +132,11 @@ export const calculateTxValidityIntervalBeforeLaunchEnd = (
   launchEndTime: number,
   now = Date.now(),
 ) => {
-  if (now >= launchEndTime) {
-    throw new Error(
-      'Cannot calculate validity interval, launch has already ended',
-    )
-  }
+  ensure(
+    now < launchEndTime,
+    {now, launchEndTime},
+    'Cannot calculate validity interval, launch has already ended',
+  )
 
   const slotConfig = SLOT_CONFIG_NETWORK[network]
   const validityInterval = calculateTxValidityInterval(network, now)
@@ -152,4 +155,27 @@ export const calculateTxValidityIntervalBeforeLaunchEnd = (
   )
 
   return validityInterval
+}
+
+export const calculateTxValidityIntervalAfterLaunchEnd = (
+  network: Network,
+  launchEndTime: number,
+  now = Date.now(),
+) => {
+  ensure(
+    now > launchEndTime,
+    {now, launchEndTime},
+    'Cannot calculate validity interval, launch has not ended yet',
+  )
+  const slotConfig = SLOT_CONFIG_NETWORK[network]
+  const validityStartSlot =
+    unixTimeToEnclosingSlot(launchEndTime, slotConfig) + 1
+  const validityEndSlot = unixTimeToEnclosingSlot(
+    now + DEFAULT_TX_TTL_MS,
+    slotConfig,
+  )
+  return {
+    validityStartSlot,
+    validityEndSlot,
+  }
 }

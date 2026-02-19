@@ -21,7 +21,11 @@ import {logger} from '../logger'
 import {executeCommitFolding} from './commit-fold/execute-commit-folding'
 import {SEPARATORS_TO_INSERT} from './constants'
 import {deployContractsIfNeeded} from './deploy-contracts'
-import {createPoolProof, insertSeparators} from './transactions'
+import {
+  createPoolProof,
+  createRewardsFold,
+  insertSeparators,
+} from './transactions'
 
 // For passed launches run the next necessary step
 // Runs one step only
@@ -64,13 +68,15 @@ const processLaunch = async (
   //
   // If the launch has ended and there's a commit fold and unfolded nodes, we fold nodes
   //
-  // TODO: If the launch has ended and there's a finished commit fold, we create a rewards fold
+  // If the launch has ended and there's a finished commit fold, we create a rewards fold
   //
   // TODO: If the launch has ended and there's a rewards fold and unfolded nodes, we fold nodes
   //
   // TODO: If the launch has ended and there are final project tokens holders, we create pools
   //
-  // TODO: If there are pools and no pool proofs, we create them
+  // If there are pools and no pool proofs, we create them
+  //
+  // TODO: fail proof if needed
   const time = Date.now()
 
   // TODO: that probably can be cached in the interestingLaunches
@@ -108,6 +114,30 @@ const processLaunch = async (
     nodePolicyRefScriptCarrier != null,
     {launchTxHash},
     'Node policy ref script carrier must exist',
+  )
+  const commitFoldValidatorRefScriptCarrier = launch.refScriptCarriers.find(
+    (c) => c.type === RefScriptCarrierType.COMMIT_FOLD_VALIDATOR,
+  )
+  ensure(
+    commitFoldValidatorRefScriptCarrier != null,
+    {launchTxHash},
+    'Commit fold ref script carrier must exist',
+  )
+  const commitFoldPolicyRefScriptCarrier = launch.refScriptCarriers.find(
+    (c) => c.type === RefScriptCarrierType.COMMIT_FOLD_POLICY,
+  )
+  ensure(
+    commitFoldPolicyRefScriptCarrier != null,
+    {launchTxHash},
+    'Commit fold policy ref script carrier must exist',
+  )
+  const rewardsFoldPolicyRefScriptCarrier = launch.refScriptCarriers.find(
+    (c) => c.type === RefScriptCarrierType.REWARDS_FOLD_POLICY,
+  )
+  ensure(
+    rewardsFoldPolicyRefScriptCarrier != null,
+    {launchTxHash},
+    'Rewards fold policy ref script carrier must exist',
   )
 
   if (time < launch.startTime) {
@@ -221,7 +251,7 @@ const processLaunch = async (
     // Head node will be spent in the next transaction, which is either:
     // - initial rewards fold
     // - fail proof
-    const headNode = await prisma.node.findFirst({
+    const headNode = await prisma.node.findFirstOrThrow({
       select: {txOut: true},
       where: {
         launchTxHash,
@@ -234,16 +264,29 @@ const processLaunch = async (
       {launchTxHash, finishedCommitFold},
       'Head node must exist if there is finishedCommitFold',
     )
+    // For successful launches, we create rewards fold
     if (didLaunchSucceed(launch, finishedCommitFold)) {
-      // TODO Create initial rewards fold
+      logger.info({launchTxHash}, 'Creating rewards fold')
+      const txHash = await createRewardsFold(
+        launch,
+        contracts,
+        commitFoldValidatorRefScriptCarrier.txOut,
+        commitFoldPolicyRefScriptCarrier.txOut,
+        rewardsFoldPolicyRefScriptCarrier.txOut,
+        nodeValidatorRefScriptCarrier.txOut,
+        nodePolicyRefScriptCarrier.txOut,
+        finishedCommitFold.txOut,
+        headNode.txOut,
+      )
+      if (txHash) logger.info({launchTxHash, txHash}, 'Created rewards fold')
+      else logger.error({launchTxHash}, 'Failed to create rewards fold')
       return
     }
-    // TODO Create fail proof
+    // TODO: create fail proof
     return
   }
 
-  // TODO: the rest of the actions
-
+  // TODO: keep cache of submitted pool proofs like with commit fold
   // We check if there are pools but no pool proofs
   // we create those if needed
   const poolProofs = await prisma.poolProof.findMany({
@@ -269,6 +312,7 @@ const processLaunch = async (
         logger.info({launchTxHash, txHash}, 'Created WingRiders pool proof')
       else
         logger.error({launchTxHash}, 'Failed to create WingRiders pool proof')
+      return
     }
   } else logger.info({launchTxHash}, 'WingRiders pool proof exists')
 
@@ -289,6 +333,7 @@ const processLaunch = async (
       if (txHash)
         logger.info({launchTxHash, txHash}, 'Created Sundae pool proof')
       else logger.error({launchTxHash}, 'Failed to create Sundae pool proof')
+      return
     }
   } else logger.info({launchTxHash}, 'Sundae pool proof exists')
 }

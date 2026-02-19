@@ -1,4 +1,5 @@
 import {mConStr, mConStr0, mConStr1, mConStr2} from '@meshsdk/common'
+import {ensure} from './ensure'
 import type {Tier} from './types'
 
 export type InsertNodeRedeemer = {type: 'insert-node'; tier: Tier}
@@ -60,7 +61,7 @@ export const nodeRedeemerToMeshData = (redeemer: NodeRedeemer) => {
 
     default: {
       const _exhaustiveCheck: never = redeemer
-      throw new Error(`Unknown node redeemer: ${_exhaustiveCheck}`)
+      ensure(false, {redeemer}, 'Unknown node redeemer')
     }
   }
 }
@@ -80,7 +81,7 @@ export const commitFoldRedeemerToMeshData = (redeemer: CommitFoldRedeemer) => {
       return mConStr2([])
     default: {
       const _exhaustiveCheck: never = redeemer
-      throw new Error(`Unknown commit fold redeemer: ${_exhaustiveCheck}`)
+      ensure(false, {redeemer}, 'Unknown commit fold redeemer')
     }
   }
 }
@@ -116,7 +117,7 @@ export const rewardsFoldRedeemerToMeshData = (
       return mConStr1([])
     default: {
       const _exhaustiveCheck: never = redeemer
-      throw new Error(`Unknown rewards fold redeemer: ${_exhaustiveCheck}`)
+      ensure(false, {redeemer}, 'Unknown rewards fold redeemer')
     }
   }
 }

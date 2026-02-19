@@ -53,7 +53,7 @@ export const rewardsFoldDatumToMeshData = (datum: RewardsFoldDatum) =>
     maybeToMeshData(datum.cutoffTime, (t) => t),
     datum.committed,
     datum.overcommitted,
-    datum.commitFoldOwner,
+    bech32AddressToMeshData(datum.commitFoldOwner),
   ])
 
 export const rewardsHolderDatumToMeshData = (datum: RewardsHolderDatum) =>

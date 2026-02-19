@@ -38,8 +38,8 @@ export type RewardsFoldDatum = {
   next: NodeKey | null
   cutoffKey: NodeKey | null
   cutoffTime: number | null
-  committed: number
-  overcommitted: number
+  committed: bigint
+  overcommitted: bigint
   commitFoldOwner: string
 }
 

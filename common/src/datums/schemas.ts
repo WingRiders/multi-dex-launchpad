@@ -15,6 +15,7 @@ import type {
   NodeDatum,
   NodeKey,
   PoolProofDatum,
+  RewardsFoldDatum,
   RewardsHolderDatum,
   SundaePoolDatum,
   WrPoolDatum,
@@ -86,6 +87,32 @@ export const getCommitFoldDatumCborSchema = (network: Network) =>
         overcommitted: res.fields[5].int,
         nodeCount: Number(res.fields[6].int),
         owner: res.fields[7],
+      }),
+    )
+
+export const getRewardsFoldDatumCborSchema = (network: Network) =>
+  z
+    .object({
+      constructor: z.literal(0n),
+      fields: z.tuple([
+        z.object({bytes: scriptHashSchema}),
+        maybeNodeKeyCborSchema,
+        maybeNodeKeyCborSchema,
+        makeMaybeCborSchema(z.object({int: z.bigint()})),
+        z.object({int: z.bigint()}),
+        z.object({int: z.bigint()}),
+        getAddressSchema(network),
+      ]),
+    })
+    .transform(
+      (res): RewardsFoldDatum => ({
+        nodeScriptHash: res.fields[0].bytes,
+        next: res.fields[1],
+        cutoffKey: res.fields[2],
+        cutoffTime: (res.fields[3] && Number(res.fields[3].int)) ?? null,
+        committed: res.fields[4].int,
+        overcommitted: res.fields[5].int,
+        commitFoldOwner: res.fields[6],
       }),
     )
 
