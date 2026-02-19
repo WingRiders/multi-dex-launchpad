@@ -4,6 +4,7 @@ This package contains the source code for the backend. The service can run eithe
 
 The agent is responsible for collecting on-chain data for the Launchpad, storing it in the database, and executing the Launchpad.
 The server exposes API endpoints for the frontend.
+
 ---
 
 ## Note for development in IntelliJ
@@ -13,30 +14,56 @@ The server exposes API endpoints for the frontend.
 
 ---
 
-## Setup & Usage
+## Run the application
 
-### 1. Generate the Prisma client
+To run the Multi DEX Launchpad backend application, you need to have the following services running on your machine:
+
+- Cardano node
+- Ogmios
+- Postgres database
+
+### 1. Setup environment variables
+
+```bash
+cp .env.example .env
+```
+
+You will need to adjust the values to match your environment (connection to the database, Ogmios, and wallet mnemonic).
+
+### 2. Generate the prisma client
 
 ```bash
 bun prisma:generate
 ```
 
-TODO
+### 3. Run the database migrations
+
+```bash
+bun prisma:dev
+```
+
+### 4. Run the application
+
+```bash
+bun dev
+```
 
 # Architecture
 
 ## Launch flow
 
 Users creates and signs a transaction:
-  - Sends funds to the agent
-  - Creates the first project tokens holder
-  - Creates the head node
-  - Submits the launch config in the metadata
-The starter is the first input of the transaction
+
+- Sends funds to the agent
+- Creates the first project tokens holder
+- Creates the head node
+- Submits the launch config in the metadata
+  The starter is the first input of the transaction
 
 Then the agent has to:
-  - Generate and deploy the reference scripts
-  - Insert separator nodes <- ! has to happen before the start
+
+- Generate and deploy the reference scripts
+- Insert separator nodes <- ! has to happen before the start
 
 After that the initialization is done and the launch starts.
 Users make contributions.
