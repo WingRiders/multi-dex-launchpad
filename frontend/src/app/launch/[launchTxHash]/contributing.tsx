@@ -375,7 +375,7 @@ const ActiveContributing = ({
     )
       return
 
-    const res = await signAndSubmitTx(buildCreateCommitmentTxResult.tx)
+    const res = await signAndSubmitTx(buildCreateCommitmentTxResult.tx, true)
     if (res) {
       invalidateWalletQueries(queryClient)
 

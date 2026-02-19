@@ -227,7 +227,7 @@ const RemoveCommitmentDialogContent = ({
   const handleRemove = async () => {
     if (buildRemoveCommitmentTxResult == null) return
 
-    const res = await signAndSubmitTx(buildRemoveCommitmentTxResult.tx)
+    const res = await signAndSubmitTx(buildRemoveCommitmentTxResult.tx, true)
     if (res) {
       invalidateWalletQueries(queryClient)
 

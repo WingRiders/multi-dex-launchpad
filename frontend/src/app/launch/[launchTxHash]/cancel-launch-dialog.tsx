@@ -187,7 +187,7 @@ const CancelLaunchDialogContent = ({
   const handleCancel = async () => {
     if (buildCancelLaunchTxResult == null) return
 
-    const res = await signAndSubmitTx(buildCancelLaunchTxResult.tx)
+    const res = await signAndSubmitTx(buildCancelLaunchTxResult.tx, true)
     if (res) {
       invalidateWalletQueries(queryClient)
     }
