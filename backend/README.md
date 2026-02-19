@@ -3,9 +3,8 @@
 This package contains the source code for the backend. The service can run either as an agent or a server, that's controlled my MODE env variable.
 
 The agent is responsible for collecting on-chain data for the Launchpad, storing it in the database, and executing the Launchpad.
-The server exposes API endpoints for the frontend.
 
----
+The server exposes API endpoints for the frontend. The API is built with **tRPC**; for full documentation, see **[api.md](./API.md)**.
 
 ## Note for development in IntelliJ
 

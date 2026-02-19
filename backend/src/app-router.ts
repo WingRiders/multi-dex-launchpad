@@ -8,7 +8,6 @@ import {
   getAllModesHealthcheck,
   getServerHealthcheck,
 } from './agent/endpoints/healthcheck'
-import {submitTx} from './agent/ogmios/tx-submission-client'
 import {findNodeToSpend} from './db/helpers'
 import {
   getFailProofInput,
@@ -37,9 +36,6 @@ export const mergeRouters = t.mergeRouters
 
 export const createServerRouter = () =>
   t.router({
-    submitTx: publicProcedure
-      .input(z.string())
-      .mutation(({input}) => submitTx(input)),
     healthcheck: publicProcedure.query(getServerHealthcheck),
     // using mutation instead of query because the input can be too large for a GET request
     tokensMetadata: publicProcedure
