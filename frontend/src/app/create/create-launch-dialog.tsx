@@ -97,7 +97,7 @@ const CreateLaunchDialogContent = ({
 
   const {time} = useTime(minutesToMilliseconds(1))
 
-  const {projectInformation, tokenInformation} = draft
+  const {projectInformation, tokenInformation, specification} = draft
 
   const network = env('NEXT_PUBLIC_NETWORK')
 
@@ -197,14 +197,27 @@ const CreateLaunchDialogContent = ({
     if (res) {
       invalidateWalletQueries(queryClient)
 
+      queryClient.setQueryData(trpc.launch.queryKey({txHash: res.txHash}), {
+        config: configAndProjectInfo.config,
+        projectInfo: configAndProjectInfo.projectInfo,
+        totalCommitted: 0n,
+        isCancelled: false,
+      })
+
       queryClient.setQueryData(
-        trpc.launch.queryKey({txHash: submitTxMutationResult.data}),
-        {
-          config: configAndProjectInfo.config,
-          projectInfo: configAndProjectInfo.projectInfo,
-          totalCommitted: 0n,
-          isCancelled: false,
-        },
+        trpc.launchesOwnedBy.queryKey({ownerBech32Address: wallet.address}),
+        (current) => [
+          ...(current ?? []),
+          {
+            txHash: res.txHash,
+            title: projectInformation.title,
+            projectToken: tokenInformation.projectTokenToSale.unit,
+            totalTokens:
+              tokenInformation.projectTokenToSale.quantity +
+              specification.projectTokensToPool,
+            isCancelled: false,
+          },
+        ],
       )
 
       queryClient.setQueryData(
