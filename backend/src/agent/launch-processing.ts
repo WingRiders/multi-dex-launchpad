@@ -266,7 +266,7 @@ const processLaunch = async (
     )
     // For successful launches, we create rewards fold
     if (didLaunchSucceed(launch, finishedCommitFold)) {
-      logger.info({launchTxHash}, 'Creating rewards fold')
+      logger.info({launchTxHash}, 'Launch succeeded, creating rewards fold')
       const txHash = await createRewardsFold(
         launch,
         contracts,

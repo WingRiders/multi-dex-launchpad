@@ -76,7 +76,10 @@ export const getNextCommitFoldWithNodes = async <TNode>({
   if (lastMatched) {
     const {index, dbCommitFold} = lastMatched
     if (index >= nodesWithCommitFoldDatums.length - 1) {
-      // Commit folding finished, last commit fold is unspent
+      logger.info(
+        {launchTxHash},
+        'Commit folding finished, last commit fold is unspent',
+      )
       return null
     }
     const nextCommitFoldWithNodes = nodesWithCommitFoldDatums.slice(

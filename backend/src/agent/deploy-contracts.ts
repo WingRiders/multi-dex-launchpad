@@ -13,6 +13,7 @@ import {
 } from '../../prisma/generated/client'
 import {config} from '../config'
 import {logger} from '../logger'
+import {getMeshBuilderBodyForLogging} from './helpers'
 import {submitTx} from './ogmios/tx-submission-client'
 import {offlineEvaluator, ogmiosProvider, setFetcherUtxos} from './providers'
 import {
@@ -129,7 +130,7 @@ export const deployContractsIfNeeded = async (
       logger.error(
         {
           ...logContext,
-          txBuilderBody: b.meshTxBuilderBody,
+          txBuilderBody: getMeshBuilderBodyForLogging(b),
         },
         `Error when building transaction to deploy contracts: ${unsignedTx.error.message}`,
       )

@@ -30,6 +30,7 @@ import {
 } from '../../db/helpers'
 import {txOutputToRefScriptUtxo} from '../../endpoints/ref-scripts'
 import {logger} from '../../logger'
+import {getMeshBuilderBodyForLogging} from '../helpers'
 import {submitTx} from '../ogmios/tx-submission-client'
 import {offlineEvaluator, ogmiosProvider, setFetcherUtxos} from '../providers'
 import {
@@ -227,7 +228,7 @@ export const buildAndSubmitCommitFoldTx = async ({
     logger.error(
       {
         error: unsignedTx.error,
-        txBuilderBody: b.meshTxBuilderBody,
+        txBuilderBody: getMeshBuilderBodyForLogging(b),
       },
       `Error when building transaction: ${unsignedTx.error.message}`,
     )

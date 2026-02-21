@@ -38,6 +38,7 @@ import {
 import {txOutputToRefScriptUtxo} from '../endpoints/ref-scripts'
 import {logger} from '../logger'
 import {CONSTANT_CONTRACTS} from './constants'
+import {getMeshBuilderBodyForLogging} from './helpers'
 import {submitTx} from './ogmios/tx-submission-client'
 import {offlineEvaluator, ogmiosProvider, setFetcherUtxos} from './providers'
 import {
@@ -258,7 +259,7 @@ export const createRewardsFold = async (
     logger.error(
       {
         error: unsignedTx.error,
-        txBuilderBody: b.meshTxBuilderBody,
+        txBuilderBody: getMeshBuilderBodyForLogging(b),
       },
       `Error when building transaction: ${unsignedTx.error.message}`,
     )
@@ -318,7 +319,7 @@ export const createPoolProof = async (
     logger.error(
       {
         error: unsignedTx.error,
-        txBuilderBody: b.meshTxBuilderBody,
+        txBuilderBody: getMeshBuilderBodyForLogging(b),
       },
       `Error when building transaction: ${unsignedTx.error.message}`,
     )
@@ -499,7 +500,7 @@ export const insertSeparators = async (
     logger.error(
       {
         error: unsignedTx.error,
-        txBuilderBody: b.meshTxBuilderBody,
+        txBuilderBody: getMeshBuilderBodyForLogging(b),
       },
       `Error when building transaction: ${unsignedTx.error.message}`,
     )

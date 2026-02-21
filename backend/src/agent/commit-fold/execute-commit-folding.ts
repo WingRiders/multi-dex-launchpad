@@ -5,7 +5,6 @@ import type {
   RefScriptCarrier,
   TxOutput,
 } from '../../../prisma/generated/client'
-import {logger} from '../../logger'
 import {getWalletChangeAddress} from '../wallet'
 import {buildAndSubmitCommitFoldTx} from './build-and-submit-commit-fold-tx'
 import {calculateCommitFoldDatums} from './calculate-commit-folds'
@@ -44,10 +43,7 @@ export const executeCommitFolding = async ({
     cutoff,
   })
   if (completeDataForTx == null) {
-    logger.info(
-      {launchTxHash: launch.txHash},
-      'Commit folding finished, continue with initial rewards fold',
-    )
+    // Commit folding finished, as logged in getNextCommitFoldWithNodes
     return false
   }
   await buildAndSubmitCommitFoldTx({
