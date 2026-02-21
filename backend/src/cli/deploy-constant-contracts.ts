@@ -80,6 +80,10 @@ export const buildDeployConstantContractsCommand = () => {
           name: 'rewardsHolderValidator',
           contract: constantContracts.rewardsHolderValidator,
         },
+        {
+          name: 'refScriptCarrierValidator',
+          contract: constantContracts.refScriptCarrierValidator,
+        },
       ]
 
       for (const {contract} of contractsToDeploy)
