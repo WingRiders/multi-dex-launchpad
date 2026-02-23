@@ -22,6 +22,7 @@ import {executeCommitFolding} from './commit-fold/execute-commit-folding'
 import {SEPARATORS_TO_INSERT} from './constants'
 import {deployContractsIfNeeded} from './deploy-contracts'
 import {createFailProof} from './fail-proof'
+import {isSeparator} from './node'
 import {
   createPoolProof,
   createRewardsFold,
@@ -319,6 +320,41 @@ const processLaunch = async (
       nodePolicyRefScriptCarrier.txOut,
       firstTokenHolder.txOut,
     )
+    return
+  }
+
+  // Finished commit fold was spent, so either rewards fold or fail proof was executed.
+  const failProof = await prisma.failProof.findFirst({where: {launchTxHash}})
+  if (failProof != null) {
+    const unspentNodes = await getUnspentNodes(launchTxHash)
+    const unspentSeparators = unspentNodes.filter(isSeparator)
+    if (unspentSeparators.length > 0) {
+      logger.info(
+        {launchTxHash},
+        `Fail proof is confirmed, reclaiming ${unspentSeparators.length} separators`,
+      )
+      // TODO Reclaim separators
+      return
+    }
+    if (unspentNodes.length > 0) {
+      logger.info(
+        {launchTxHash},
+        `Fail proof is confirmed, separators are reclaimed. Waiting for ${unspentNodes.length} user nodes to be reclaimed, then we undeploy generated contracts`,
+      )
+      return
+    }
+    const unspentRefScriptCarriers = launch.refScriptCarriers.filter(
+      ({txOut}) => txOut.spentSlot == null,
+    )
+    if (unspentRefScriptCarriers.length > 0) {
+      logger.info(
+        {launchTxHash},
+        `Fail proof is confirmed, all nodes are reclaimed. Undeploying ${unspentRefScriptCarriers.length} generated contracts`,
+      )
+      // TODO Undeploy contracts
+      return
+    }
+    logger.info({launchTxHash}, 'Fail flow finished')
     return
   }
 

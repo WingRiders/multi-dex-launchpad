@@ -61,6 +61,16 @@ export const createFailProof = async (
     'Owner address of the finished commit fold should equal the wallet change address',
   )
 
+  ensure(
+    finishedCommitFold.ownerAddress === getWalletChangeAddress(),
+    {
+      launchTxHash,
+      finishedCommitFold,
+      walletChangeAddress: getWalletChangeAddress(),
+    },
+    'Owner address of the finished commit fold should equal the wallet change address',
+  )
+
   const firstTokensHolderValidatorRefScriptCarrier =
     launch.refScriptCarriers.find(
       (c) =>
