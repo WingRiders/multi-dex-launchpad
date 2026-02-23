@@ -10,12 +10,12 @@ import {
 } from './agent/endpoints/healthcheck'
 import {findNodeToSpend} from './db/helpers'
 import {
-  getFailProofInput,
+  getFailProofUtxo,
   getFirstProjectTokensHolderUTxO,
   getLaunch,
   getLaunches,
   getLaunchesOwnedBy,
-  getPoolProofInput,
+  getPoolProofUtxo,
   getUserRewardsHolders,
 } from './endpoints/launch'
 import {getPreviousNodeUTxO, getUserNodes} from './endpoints/node'
@@ -123,12 +123,12 @@ export const createServerRouter = () =>
       .query(({input: {launchTxHash}}) =>
         getFirstProjectTokensHolderUTxO(launchTxHash),
       ),
-    poolProofInput: publicProcedure
+    poolProofUtxo: publicProcedure
       .input(z.object({launchTxHash: z.string()}))
-      .query(({input: {launchTxHash}}) => getPoolProofInput(launchTxHash)),
-    failProofInput: publicProcedure
+      .query(({input: {launchTxHash}}) => getPoolProofUtxo(launchTxHash)),
+    failProofUtxo: publicProcedure
       .input(z.object({launchTxHash: z.string()}))
-      .query(({input: {launchTxHash}}) => getFailProofInput(launchTxHash)),
+      .query(({input: {launchTxHash}}) => getFailProofUtxo(launchTxHash)),
   })
 
 export const createAgentRouter = () =>

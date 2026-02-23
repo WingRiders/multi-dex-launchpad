@@ -1,4 +1,4 @@
-import type {TxInput, UTxO} from '@meshsdk/common'
+import type {UTxO} from '@meshsdk/common'
 import type {
   LaunchConfig,
   LaunchTimeStatus,
@@ -389,30 +389,34 @@ export const getUserRewardsHolders = async (
 }
 
 // rewards can be unlocked using any of the available pool proofs (WR or Sundae)
-export const getPoolProofInput = async (
+export const getPoolProofUtxo = async (
   launchTxHash: string,
-): Promise<TxInput | null> =>
-  prisma.poolProof.findFirst({
+): Promise<UTxO | null> => {
+  const output = await prisma.poolProof.findFirst({
     where: {
       launchTxHash,
       txOut: {spentSlot: null},
     },
     select: {
-      txHash: true,
-      outputIndex: true,
+      txOut: true,
     },
   })
 
-export const getFailProofInput = async (
+  return output != null ? prismaTxOutputToMeshOutput(output.txOut) : null
+}
+
+export const getFailProofUtxo = async (
   launchTxHash: string,
-): Promise<TxInput | null> =>
-  prisma.failProof.findFirst({
+): Promise<UTxO | null> => {
+  const output = await prisma.failProof.findFirst({
     where: {
       launchTxHash,
       txOut: {spentSlot: null},
     },
     select: {
-      txHash: true,
-      outputIndex: true,
+      txOut: true,
     },
   })
+
+  return output != null ? prismaTxOutputToMeshOutput(output.txOut) : null
+}

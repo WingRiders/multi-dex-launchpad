@@ -93,6 +93,7 @@ export const LaunchDetails = ({launchTxHash}: LaunchDetailsProps) => {
             launchTxHash={launchTxHash}
             config={config}
             connectedWallet={connectedWallet}
+            totalCommitted={totalCommitted}
           />
         )}
       </OnlyWithWallet>

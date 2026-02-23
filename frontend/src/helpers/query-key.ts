@@ -1,4 +1,5 @@
 import type {TxInput, UTxO} from '@meshsdk/core'
+import type {AddReclaimCommitmentsArgs} from '@wingriders/multi-dex-launchpad-common'
 import type {
   CompleteDataForDraftStage,
   LaunchDraftStage,
@@ -50,6 +51,12 @@ const f = {
     ] as const,
   buildCancelLaunchTx: (launchTxHash: string) =>
     [...f.walletMutation(), 'build-cancel-launch-tx', launchTxHash] as const,
+  buildReclaimNodesTx: (buildArgs: AddReclaimCommitmentsArgs | undefined) =>
+    [
+      ...f.walletMutation(),
+      'build-reclaim-nodes-tx',
+      replaceBigIntsWithStrings(buildArgs),
+    ] as const,
 }
 
 export {f as queryKeyFactory}

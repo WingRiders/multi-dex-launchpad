@@ -15,20 +15,28 @@ import {formatDateTime} from '@/helpers/format'
 import {useUpdatedTime} from '@/helpers/time'
 import type {ConnectedWallet} from '@/store/connected-wallet'
 import {useTRPC} from '@/trpc/client'
+import {ReclaimNodes} from './reclaim-nodes'
 import {RemoveCommitmentDialog} from './remove-commitment-dialog'
 import type {Node} from './types'
 
 type UserNodesProps = {
   launchTxHash: string
-  config: Pick<LaunchConfig, 'raisingToken' | 'endTime'>
+  config: Pick<
+    LaunchConfig,
+    'raisingToken' | 'endTime' | 'projectMinCommitment'
+  >
   connectedWallet: ConnectedWallet
+  totalCommitted: bigint
 }
 
 export const UserNodes = ({
   launchTxHash,
   config,
   connectedWallet,
+  totalCommitted,
 }: UserNodesProps) => {
+  const time = useUpdatedTime(useMemo(() => [config.endTime], [config.endTime]))
+
   const trpc = useTRPC()
 
   const {data, isLoading, error} = useQuery(
@@ -39,6 +47,9 @@ export const UserNodes = ({
   )
 
   const [withdrawingNode, setWithdrawingNode] = useState<Node | null>(null)
+
+  const isLaunchFailed =
+    time >= config.endTime && totalCommitted < config.projectMinCommitment
 
   return (
     <>
@@ -58,6 +69,7 @@ export const UserNodes = ({
                   node={node}
                   config={config}
                   onWithdraw={() => setWithdrawingNode(node)}
+                  isLaunchFailed={isLaunchFailed}
                 />
               ))}
             </div>
@@ -70,6 +82,15 @@ export const UserNodes = ({
             description={error.message}
           />
         ) : null}
+
+        {isLaunchFailed && data && data.length > 0 && (
+          <ReclaimNodes
+            connectedWallet={connectedWallet}
+            launchTxHash={launchTxHash}
+            config={config}
+            nodes={data}
+          />
+        )}
       </div>
 
       <RemoveCommitmentDialog
@@ -87,9 +108,15 @@ type NodeItemProps = {
   config: Pick<LaunchConfig, 'raisingToken' | 'endTime'>
   node: Node
   onWithdraw: () => void
+  isLaunchFailed: boolean
 }
 
-const NodeItem = ({node, config, onWithdraw}: NodeItemProps) => {
+const NodeItem = ({
+  node,
+  config,
+  onWithdraw,
+  isLaunchFailed,
+}: NodeItemProps) => {
   // validityStart of the remove tx must be after (createdTime.getTime() + launchpadConstants.nodesInactivityPeriod)
   // but validityStart is backdated by DEFAULT_TX_VALIDITY_START_BACKDATE_MS
   const canCreateRemoveTxAfter =
@@ -189,6 +216,10 @@ const NodeItem = ({node, config, onWithdraw}: NodeItemProps) => {
             </TooltipContent>
           )}
         </Tooltip>
+      )}
+
+      {isLaunchFailed && node.isSpent && (
+        <p className="text-muted-foreground text-sm">Reclaimed</p>
       )}
     </div>
   )
