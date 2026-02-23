@@ -1,0 +1,812 @@
+   multi-dex-launchpad-private/backend   fail-proof  bun run dev
+$ bun --watch src/index.ts
+[09:15:10.189] INFO (multi-dex-launchpad-all/25578): Server is running on port 3350
+[09:15:10.190] INFO (multi-dex-launchpad-all/25578): Ogmios - opening new connection
+[09:15:10.213] INFO (multi-dex-launchpad-all/25578): Migrating DB if necessary
+[09:15:10.213] INFO (multi-dex-launchpad-all/25578): Skipping DB migration because NODE_ENV=development
+[09:15:10.213] INFO (multi-dex-launchpad-all/25578): Fetching new metadata
+[09:15:10.386] INFO (multi-dex-launchpad-all/25578): Rollback
+    point: {
+      "id": "03759fa9ce02f359b91d81483c08e46153aa0c07141a746363985376a4fa3132",
+      "slot": 115812290
+    }
+[09:15:10.559] INFO (multi-dex-launchpad-all/25578): Ogmios - resuming chainSyncClient
+    intersect: {
+      "id": "03759fa9ce02f359b91d81483c08e46153aa0c07141a746363985376a4fa3132",
+      "slot": 115812290
+    }
+[09:15:10.589] INFO (multi-dex-launchpad-all/25578): Rollback
+    point: {
+      "slot": 115812290,
+      "id": "03759fa9ce02f359b91d81483c08e46153aa0c07141a746363985376a4fa3132"
+    }
+[09:15:10.764] WARN (multi-dex-launchpad-all/25578): Invalid launch tx metadata
+    launchTxMetadata: {
+      "success": false,
+      "error": {
+        "name": "ZodError",
+        "message": "[\n  {\n    \"code\": \"custom\",\n    \"path\": [\n      \"config\",\n      \"daoAdminPubKeyHash\"\n    ],\n    \"message\": \"Must be equal to d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78\"\n  }\n]"
+      }
+    }
+    parsedMetadatum: {
+      "config": {
+        "collateral": 1000000000,
+        "commitFoldFeeAda": 2000000,
+        "daoAdminPubKeyHash": "9916b846579fc7109f6ab82fd94c7d9b47af8694ea8697a167b1bb08",
+        "daoFeeDenominator": 1000,
+        "daoFeeNumerator": 5,
+        "daoFeeReceiverBech32Address": [
+          "addr_test1qzuz2e6p4z54thrj0u5nnpg5523jkmnvqjtu78p6873daddnq89ztz",
+          "v3zmk7lyr9krkt4dpdaw37x5v3daf5muspw0rqwhnlz5"
+        ],
+        "defaultStartTime": 1771496938421,
+        "defaultTierMaxCommitment": 1000000000,
+        "defaultTierMinCommitment": 1000000,
+        "endTime": 1771496948421,
+        "nodeAda": 2000000,
+        "oilAda": 6000000,
+        "ownerBech32Address": [
+          "addr_test1qzv3dwzx270uwyyld2uzlk2v0kd50tuxjn4gd9apv7cmkz977lc5eh",
+          "j74wck56vw3w83tc6xkfs2z7m07fh9wtqx5kms7463em"
+        ],
+        "presaleTierCs": "659ab0b5658687c2e74cd10dba8244015b713bf503b90557769d77a7",
+        "presaleTierMaxCommitment": 1000000000,
+        "presaleTierMinCommitment": 1000000,
+        "presaleTierStartTime": 1771496938421,
+        "projectMaxCommitment": 1000000000,
+        "projectMinCommitment": 1000000,
+        "projectToken": "659ab0b5658687c2e74cd10dba8244015b713bf503b90557769d77a757696e67526964657273",
+        "raisedTokensPoolPartPercentage": 50,
+        "raisingToken": "lovelace",
+        "splitBps": 5000,
+        "startTime": 1771496938421,
+        "starter": {
+          "outputIndex": 1,
+          "txHash": "05ece04905883a70eb7fd101d7652bfd3a9314d45886b69f046d66411ad2a4ae"
+        },
+        "sundaeFeeTolerance": 30000000,
+        "sundaePoolScriptHash": "e0302560ced2fdcbfcb2602697df970cd0d6a38f94b32703f51c312b",
+        "sundaeSettingsCurrencySymbol": "6d9d7acac59a4469ec52bb207106167c5cbfa689008ffa6ee92acc50",
+        "tokensToDistribute": 5000,
+        "totalTokens": 10000,
+        "vestingPeriodDuration": 1,
+        "vestingPeriodDurationToFirstUnlock": 1,
+        "vestingPeriodInstallments": 1,
+        "vestingPeriodStart": 1771496948421,
+        "vestingValidatorHash": "6ede7e12c88dcfd2c8956074743465a16f9ff1bfcd572b31fa07a101",
+        "wrFactoryValidatorHash": "a1640449d34fdfefc56868f0262eda2bebf91b33d1cda381dbfe3e2d",
+        "wrPoolCurrencySymbol": "8e97ba723d217adabf5f4d02b037b083ac9d3d8deb7576a061ffcd73",
+        "wrPoolValidatorHash": "4cffc25c184b6b452b9de831da55a2b9677dc7a9b2c06b362e5ba3d8"
+      },
+      "projectInfo": {
+        "description": [
+          "A highly scientific experiment to determine how fast an avocado ",
+          "can reach the moon. Fail proof."
+        ],
+        "logoUrl": [
+          "ipfs://bafybeia6nvocy6d3xsjbl53ojsoyczhrgtvkyagoimnvuxzs4cr4zazb",
+          "2q"
+        ],
+        "title": "Operation Moon Avocado 26",
+        "tokenomicsUrl": "https://moonavocado.example/tokenomics",
+        "url": "https://moonavocado.example"
+      }
+    }
+    error: {
+      "errors": [],
+      "properties": {
+        "config": {
+          "errors": [],
+          "properties": {
+            "daoAdminPubKeyHash": {
+              "errors": [
+                "Must be equal to d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78"
+              ]
+            }
+          }
+        }
+      }
+    }
+[09:15:11.263] INFO (multi-dex-launchpad-all/25578): Requesting metadata for 5518 subjects, with max 200 subjects in 1 request (28 requests total)
+[09:15:11.263] INFO (multi-dex-launchpad-all/25578): Chunk[200] 1: requesting metadata for 200 subjects
+[09:15:11.535] INFO (multi-dex-launchpad-all/25578): Chunk[200] 1: successfully fetched metadata for 200 subjects, metadataResponses has 200 rows
+[09:15:11.685] WARN (multi-dex-launchpad-all/25578): Invalid launch tx metadata
+    launchTxMetadata: {
+      "success": false,
+      "error": {
+        "name": "ZodError",
+        "message": "[\n  {\n    \"code\": \"custom\",\n    \"path\": [\n      \"config\",\n      \"daoAdminPubKeyHash\"\n    ],\n    \"message\": \"Must be equal to d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78\"\n  }\n]"
+      }
+    }
+    parsedMetadatum: {
+      "config": {
+        "collateral": 1000000000,
+        "commitFoldFeeAda": 2000000,
+        "daoAdminPubKeyHash": "9916b846579fc7109f6ab82fd94c7d9b47af8694ea8697a167b1bb08",
+        "daoFeeDenominator": 1000,
+        "daoFeeNumerator": 5,
+        "daoFeeReceiverBech32Address": [
+          "addr_test1qzuz2e6p4z54thrj0u5nnpg5523jkmnvqjtu78p6873daddnq89ztz",
+          "v3zmk7lyr9krkt4dpdaw37x5v3daf5muspw0rqwhnlz5"
+        ],
+        "defaultStartTime": 1771585186879,
+        "defaultTierMaxCommitment": 1000000000,
+        "defaultTierMinCommitment": 1000000,
+        "endTime": 1771585196879,
+        "nodeAda": 2000000,
+        "oilAda": 6000000,
+        "ownerBech32Address": [
+          "addr_test1qzv3dwzx270uwyyld2uzlk2v0kd50tuxjn4gd9apv7cmkz977lc5eh",
+          "j74wck56vw3w83tc6xkfs2z7m07fh9wtqx5kms7463em"
+        ],
+        "presaleTierCs": "659ab0b5658687c2e74cd10dba8244015b713bf503b90557769d77a7",
+        "presaleTierMaxCommitment": 1000000000,
+        "presaleTierMinCommitment": 1000000,
+        "presaleTierStartTime": 1771585186879,
+        "projectMaxCommitment": 1000000000,
+        "projectMinCommitment": 1000000,
+        "projectToken": "659ab0b5658687c2e74cd10dba8244015b713bf503b90557769d77a757696e67526964657273",
+        "raisedTokensPoolPartPercentage": 50,
+        "raisingToken": "lovelace",
+        "splitBps": 5000,
+        "startTime": 1771585186879,
+        "starter": {
+          "outputIndex": 3,
+          "txHash": "59a497b7e2762dfce1141311e51b906d759776a221bf156f8a556ee8bef407b3"
+        },
+        "sundaeFeeTolerance": 30000000,
+        "sundaePoolScriptHash": "e0302560ced2fdcbfcb2602697df970cd0d6a38f94b32703f51c312b",
+        "sundaeSettingsCurrencySymbol": "6d9d7acac59a4469ec52bb207106167c5cbfa689008ffa6ee92acc50",
+        "tokensToDistribute": 5000,
+        "totalTokens": 10000,
+        "vestingPeriodDuration": 1,
+        "vestingPeriodDurationToFirstUnlock": 1,
+        "vestingPeriodInstallments": 1,
+        "vestingPeriodStart": 1771585196879,
+        "vestingValidatorHash": "6ede7e12c88dcfd2c8956074743465a16f9ff1bfcd572b31fa07a101",
+        "wrFactoryValidatorHash": "a1640449d34fdfefc56868f0262eda2bebf91b33d1cda381dbfe3e2d",
+        "wrPoolCurrencySymbol": "8e97ba723d217adabf5f4d02b037b083ac9d3d8deb7576a061ffcd73",
+        "wrPoolValidatorHash": "4cffc25c184b6b452b9de831da55a2b9677dc7a9b2c06b362e5ba3d8"
+      },
+      "projectInfo": {
+        "description": [
+          "A highly scientific experiment to determine how fast an avocado ",
+          "can reach the moon. Fail proof with cache."
+        ],
+        "logoUrl": [
+          "ipfs://bafybeia6nvocy6d3xsjbl53ojsoyczhrgtvkyagoimnvuxzs4cr4zazb",
+          "2q"
+        ],
+        "title": "Operation Moon Avocado 27",
+        "tokenomicsUrl": "https://moonavocado.example/tokenomics",
+        "url": "https://moonavocado.example"
+      }
+    }
+    error: {
+      "errors": [],
+      "properties": {
+        "config": {
+          "errors": [],
+          "properties": {
+            "daoAdminPubKeyHash": {
+              "errors": [
+                "Must be equal to d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78"
+              ]
+            }
+          }
+        }
+      }
+    }
+[09:15:12.553] INFO (multi-dex-launchpad-all/25578): Chunk[200] 2: requesting metadata for 200 subjects
+[09:15:12.616] INFO (multi-dex-launchpad-all/25578): Chunk[200] 2: successfully fetched metadata for 200 subjects, metadataResponses has 400 rows
+[09:15:13.387] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 9994
+    latestSlot: 116105542
+    progress: 0.9996171806105014
+[09:15:13.803] INFO (multi-dex-launchpad-all/25578): Chunk[200] 3: requesting metadata for 200 subjects
+[09:15:14.022] INFO (multi-dex-launchpad-all/25578): Chunk[200] 3: successfully fetched metadata for 200 subjects, metadataResponses has 600 rows
+[09:15:14.032] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 1694
+    latestSlot: 116151093
+    progress: 0.9999979768793273
+[09:15:14.169] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 1
+    latestSlot: 116151094
+    progress: 0.9999982016705132
+[09:15:14.293] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 1
+    latestSlot: 116151095
+    progress: 0.9999984264616991
+[09:15:14.430] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 1
+    latestSlot: 116151113
+    progress: 0.9999986512528849
+[09:15:14.570] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 1
+    latestSlot: 116151122
+    progress: 0.9999988760440708
+[09:15:14.704] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 1
+    latestSlot: 116151135
+    progress: 0.9999991008352566
+[09:15:14.841] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 1
+    latestSlot: 116151149
+    progress: 0.9999993256264424
+[09:15:14.984] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 1
+    latestSlot: 116151174
+    progress: 0.9999995504176283
+[09:15:15.122] INFO (multi-dex-launchpad-all/25578): Chunk[200] 4: requesting metadata for 200 subjects
+[09:15:15.139] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 1
+    latestSlot: 116151306
+    progress: 0.9999997752088141
+[09:15:15.273] INFO (multi-dex-launchpad-all/25578): Chunk[200] 4: successfully fetched metadata for 200 subjects, metadataResponses has 800 rows
+[09:15:15.282] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 1
+    latestSlot: 116151313
+    progress: 1
+[09:15:16.273] INFO (multi-dex-launchpad-all/25578): Chunk[200] 5: requesting metadata for 200 subjects
+[09:15:16.339] INFO (multi-dex-launchpad-all/25578): Chunk[200] 5: successfully fetched metadata for 200 subjects, metadataResponses has 1000 rows
+[09:15:16.435] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+[09:15:16.460] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+[09:15:16.460] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+[09:15:16.468] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:15:16.468] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:15:16.473] INFO (multi-dex-launchpad-all/25578): Found 1 unspent commit folds in DB
+[09:15:16.473] INFO (multi-dex-launchpad-all/25578): Last matched commit fold on index = 58, nodeCount = 59
+[09:15:16.473] INFO (multi-dex-launchpad-all/25578): Commit folding finished, last commit fold is unspent
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+[09:15:16.478] INFO (multi-dex-launchpad-all/25578): Launch did not succeed, creating fail proof
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+    projectMinCommitment: 1000000
+    committed: 0
+[09:15:16.570] INFO (multi-dex-launchpad-all/25578): Submitting fail proof transaction...
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+    signedTx: "84ab00d90102868258206b47596d660519c35e5a5b5c5ec248b22036ce6ec059e52e77e6cbea1316bab601825820eb1ceb7b1ae4e2c15b3452d8d00537d494430f28ca8477421264c8e41f62dfed01825820ecc937a1e257a2939a7d638cd069347c62aa7f54ab5a9b8ac786b0e436bca38e00825820f28e9a1b13e2a71ff0778cb4c7ff373fcc34721ca55fadf817a77b364b1c61d802825820fe737c99b105a6c2f665ca08a6608865d8d07eb67481a14476f58008e6a82ead01825820ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038010185a300581d7051936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901821a0013bac8a1581c58a14680b717f6cd2f3510ceb20d37273122812d5853645454c05dbca1581c51936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901028201d818581e581c37d69b062ad79cd4fcc87c4fca86fed5150efc75d76ec113d47046a082583900b47c7c0ca235a188003fde3e6a583141a89125f346572bb87e81a8702966ddf1dacf046d52483389174713c212a3b549370f996066569251821a0011c1b4a1581c659ab0b5658687c2e74cd10dba8244015b713bf503b90557769d77a7a14a57696e675269646572730c82583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a0708898082583900b8256741a8a955dc727f29398514a2a32b6e6c0497cf1c3a3fa2deb5b301ca25899116edef9065b0ecbab42deba3e351916f534df20173c61a3492408082583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a36c21c6e021a000e6688031a06ec61ac075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec539c09a4581c4689ba4f07f7284149839db1e672723118df4dce23eb7f11eb189847a1581cadd9016ab022dfb47268365fab01c5935b1d15e99dc14c610375a8c020581c58a14680b717f6cd2f3510ceb20d37273122812d5853645454c05dbca1581c51936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901581c7cdb1760e7622029ce7c4a269c9bb0f8ff2b2d70c4692e7bbed65185a1581c37d69b062ad79cd4fcc87c4fca86fed5150efc75d76ec113d47046a020581cae0c3fa16caeb23f193f7701aa0006bb3646e3eb8264bbe85b27b6eda1581c0ceeb9e04620483dd9a6bd9b6848a1c0ccb8c124fd5b0899464684af200b58200163e9dfff85cd26b6b64e0b096d8701c5814a04eb4097ca4fdc83f7255a2b540dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d90102878258207bb967c7fe4e7b952bd1cdaee2a4d0175cc49470339803d4b5e284e06b9c626a008258207dd77e86889352f0397d77c4a75ef1147c6ba08e3df075a44bd0a78667aa49e900825820b9b5547318e1cedc6dc4f2f5c401e8a574b7ae6a9df26447e9084cfc637a3ecd01825820bf8933b0ccae09408a8e60cca13f5b15b780daf713f294308719c8552a234b250382582087fa2771db42a451921c97d6d1cd241ab3892a2f7ad016ef46b9958c51066a2100825820bf8933b0ccae09408a8e60cca13f5b15b780daf713f294308719c8552a234b2501825820bf8933b0ccae09408a8e60cca13f5b15b780daf713f294308719c8552a234b2502a200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc05840fe2c66340a6979de4e4167bdefa3883ac337ec6fddc03fc2b17f50a57a6d23554d6d9cf702ce4fc26e4e4334ea891316642619e0fbbf6604303051a9e19e040705a782000282d87a80821a0005ef9b1a074bacea82000482d87e80821a000d642f1a11c416f182000582d87a80821a0003e6e81a05704a36820100828082199fd11a00ac014b8201018280821a000a01661a0c8be1298201028280821a0001f8ab1a02ae0ea98201038280821a000148321a01fc23abf5d90103a0"
+[09:15:16.592] INFO (multi-dex-launchpad-all/25578): Submitted fail proof transaction
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+    txHash: "17b9d95bb430d6f117df6e63657f8ec2ce18fa516506517524fe4eb4437efa6c"
+[09:15:16.592] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "9d0d7d47121de2c6f8a10272cf0f000fc12cf6749d5ac8b4fdeed604f943a920"
+[09:15:16.597] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "9d0d7d47121de2c6f8a10272cf0f000fc12cf6749d5ac8b4fdeed604f943a920"
+[09:15:16.597] INFO (multi-dex-launchpad-all/25578): Launch in progress, skipping
+    launchTxHash: "9d0d7d47121de2c6f8a10272cf0f000fc12cf6749d5ac8b4fdeed604f943a920"
+    slotsToEnd: 398687
+[09:15:16.597] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "2c6e93a029d6b22fb33ff8869d02d4ed12f8acbef6567b057cc18667796ebbb4"
+[09:15:16.601] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "2c6e93a029d6b22fb33ff8869d02d4ed12f8acbef6567b057cc18667796ebbb4"
+[09:15:16.601] INFO (multi-dex-launchpad-all/25578): Launch in progress, skipping
+    launchTxHash: "2c6e93a029d6b22fb33ff8869d02d4ed12f8acbef6567b057cc18667796ebbb4"
+    slotsToEnd: 398687
+[09:15:16.601] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "e8ca185c0364e0b70598bb7326d87f5e926d1b13d2f5bf16f3cc990c2d1379bd"
+[09:15:16.607] INFO (multi-dex-launchpad-all/25578): No separators to insert (already inserted)
+    launchTxHash: "e8ca185c0364e0b70598bb7326d87f5e926d1b13d2f5bf16f3cc990c2d1379bd"
+    secondsToStart: 398683.399
+[09:15:16.607] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "4d3faaa1074e66b140960d70fa8e3c49b9816600324f8ab8ff4aa84e1eff2bfe"
+[09:15:16.614] INFO (multi-dex-launchpad-all/25578): No separators to insert (already inserted)
+    launchTxHash: "4d3faaa1074e66b140960d70fa8e3c49b9816600324f8ab8ff4aa84e1eff2bfe"
+    secondsToStart: 312283.393
+[09:15:16.614] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "95204bb67438b96c1bfc72a5f7613361d7ecb6e7d4dab9a09e020a59e3527299"
+[09:15:16.619] INFO (multi-dex-launchpad-all/25578): No separators to insert (already inserted)
+    launchTxHash: "95204bb67438b96c1bfc72a5f7613361d7ecb6e7d4dab9a09e020a59e3527299"
+    secondsToStart: 398683.386
+[09:15:16.619] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+[09:15:16.623] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+[09:15:16.623] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+[09:15:16.626] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:15:16.626] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:15:16.629] INFO (multi-dex-launchpad-all/25578): Found 0 unspent commit folds in DB
+[09:15:16.632] INFO (multi-dex-launchpad-all/25578): Commit folding not started, taking only head node
+[09:15:16.645] INFO (multi-dex-launchpad-all/25578): Submitting commit fold transaction...
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+    signedTx: "84ab00d9010281825820642bb183cec89842efdad2708fb60f342d01944ea7949be256a28887fb2418c3010182a300581d707ad8aaa6ec37b937fd54753e2ffcad4e84d05032d8339db0898730c301821a005b8d80a1581c39cc88c29541c8eb4d755cf865b30caacd6e9815731195df493bbee1a1581c7ad8aaa6ec37b937fd54753e2ffcad4e84d05032d8339db0898730c301028201d8185886d8799f581c398e0f58682f5d85531bc36ce19968ac80f8892d354736184f14a2e6d8799fd8799f410000ffff00d87a80d87a800001d8799fd8799f581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78ffd8799fd8799fd8799f581cc17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d5ffffffffff82583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a028f54a7021a00041969031a06ec6221075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec541109a1581c39cc88c29541c8eb4d755cf865b30caacd6e9815731195df493bbee1a1581c7ad8aaa6ec37b937fd54753e2ffcad4e84d05032d8339db0898730c3010b582061b810a0010b2223a9ea7a8f16cd91ba33a3f96d3b1958db604d9a5051bdda270dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d9010282825820cf5c99216ee001119970797ac370497bc2582899aa4a89082fd045a813c125a902825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57401a200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc05840b74e6ee2f681a551e47b049f357a88cc4c36c0456b073848f0d5e8252198944f112708d19bdc342439a1fac6b6046cead61d0d70aaf4fe70461ad6169f7ff20e05a18201008280821a00052c661a066ef491f5d90103a0"
+[09:15:16.648] INFO (multi-dex-launchpad-all/25578): Submitted commit fold transaction
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+    txHash: "3d874d799e4b04d61642d0053a459ffeee5817b32a22af13d77a607b32e204ec"
+[09:15:16.648] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+[09:15:16.653] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+[09:15:16.653] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+[09:15:16.656] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:15:16.656] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:15:16.658] INFO (multi-dex-launchpad-all/25578): Found 0 unspent commit folds in DB
+[09:15:16.659] INFO (multi-dex-launchpad-all/25578): Commit folding not started, taking only head node
+[09:15:16.671] INFO (multi-dex-launchpad-all/25578): Submitting commit fold transaction...
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+    signedTx: "84ab00d9010281825820c78089e2999aa4bfbde68cb7981af7fa332b9da2b877d548c50562969474b7e0020182a300581d701ef332005ee1f63715fba68ae4396849cda1e6d3fcae71a75450971101821a005b8d80a1581cbfba8c9bc1ccf6dbf06ed51774b80e2e7679cecb1b214db16e3eab51a1581c1ef332005ee1f63715fba68ae4396849cda1e6d3fcae71a75450971101028201d8185886d8799f581ccccd584e7e3ecd706a89f8ab7088dff1fd88425b7e1e4e0df769157ed8799fd8799f410000ffff00d87a80d87a800001d8799fd8799f581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78ffd8799fd8799fd8799f581cc17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d5ffffffffff82583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a0dd2dff8021a00041969031a06ec6221075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec541109a1581cbfba8c9bc1ccf6dbf06ed51774b80e2e7679cecb1b214db16e3eab51a1581c1ef332005ee1f63715fba68ae4396849cda1e6d3fcae71a754509711010b582061b810a0010b2223a9ea7a8f16cd91ba33a3f96d3b1958db604d9a5051bdda270dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d901028282582044abae315ee1f1a75b46e563afcc4c29febbfbfabd5adbbc8e8a3fc9862fe0cc02825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f01a200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc05840e71ca21a24885dc2a57922cb9c208439c8d5a0a9f8373a14ada68e3e85d49d8a4ae5b421f7cddcfa6a346888c5c08b1637b5a4c6b8e0f6e04c204b621438c80505a18201008280821a00052c661a066ef491f5d90103a0"
+[09:15:16.675] INFO (multi-dex-launchpad-all/25578): Submitted commit fold transaction
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+    txHash: "058fc4057c2394e372c93e5d17b1b8a98fa56f14dcd6e596ce87a24adeda6608"
+[09:15:16.675] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+[09:15:16.680] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+[09:15:16.680] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+[09:15:16.683] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:15:16.683] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:15:16.685] INFO (multi-dex-launchpad-all/25578): Found 0 unspent commit folds in DB
+[09:15:16.687] INFO (multi-dex-launchpad-all/25578): Commit folding not started, taking only head node
+[09:15:16.699] INFO (multi-dex-launchpad-all/25578): Submitting commit fold transaction...
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+    signedTx: "84ab00d9010281825820ad7b90f29e78e6ee56804fd05ed2cb7f950654ca58517f37930b60f13940acb0010182a300581d7095c6d86890bc2bbea0f37ac510971c5f301017e6566f19e9096be83101821a005b8d80a1581ceb5b927864d57dc580a29c1fea0629c03a31e654a03c081beb5930c5a1581c95c6d86890bc2bbea0f37ac510971c5f301017e6566f19e9096be83101028201d8185886d8799f581cb41474a10e1d16dad0f9a9bba95820655a53a764fcc011f7fe608d2ad8799fd8799f410000ffff00d87a80d87a800001d8799fd8799f581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78ffd8799fd8799fd8799f581cc17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d5ffffffffff82583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a136984cd021a00041969031a06ec6221075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec541109a1581ceb5b927864d57dc580a29c1fea0629c03a31e654a03c081beb5930c5a1581c95c6d86890bc2bbea0f37ac510971c5f301017e6566f19e9096be831010b582061b810a0010b2223a9ea7a8f16cd91ba33a3f96d3b1958db604d9a5051bdda270dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d9010282825820aad52b71027f87dbb9fec63b5df3e26540e470030dbd4a20112a235270bf2bb30282582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e01a200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc05840226932f2a2b7e011fd25a81c4af3290bc6936639fd388dbbfe563f6a2bbe7cc911291bccdafdead66a768cb9e063f87d4415c90a1bc2870866eed406a1aa150905a18201008280821a00052c661a066ef491f5d90103a0"
+[09:15:16.703] INFO (multi-dex-launchpad-all/25578): Submitted commit fold transaction
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+    txHash: "1423d680b32a5202dbd38a3cc4ebbbff259cb4be470a2ac3d979c9c88343c733"
+[09:15:16.703] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+[09:15:16.708] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+[09:15:16.708] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+[09:15:16.711] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:15:16.711] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:15:16.713] INFO (multi-dex-launchpad-all/25578): Found 0 unspent commit folds in DB
+[09:15:16.714] INFO (multi-dex-launchpad-all/25578): Commit folding not started, taking only head node
+[09:15:16.725] INFO (multi-dex-launchpad-all/25578): Submitting commit fold transaction...
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+    signedTx: "84ab00d901028182582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e000182a300581d703ba34983f2a7fbc577e145f71cbdf7ff106c384e34e4a13ed7b0c32101821a005b8d80a1581cb96c448709b412a7699daf2d95a8b97293988771d46900b04da30822a1581c3ba34983f2a7fbc577e145f71cbdf7ff106c384e34e4a13ed7b0c32101028201d8185886d8799f581cdcb40897c6e9cc2d8971ad62742bb536b4d9af707a1b77015e9a7d65d8799fd8799f410000ffff00d87a80d87a800001d8799fd8799f581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78ffd8799fd8799fd8799f581cc17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d5ffffffffff82583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a0f905785021a00041969031a06ec6221075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec541109a1581cb96c448709b412a7699daf2d95a8b97293988771d46900b04da30822a1581c3ba34983f2a7fbc577e145f71cbdf7ff106c384e34e4a13ed7b0c321010b582061b810a0010b2223a9ea7a8f16cd91ba33a3f96d3b1958db604d9a5051bdda270dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d90102828258202160b656a4931d462f1b701bef41a1740bac7e51d87be6085effaf9e4cb763450282582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d844201a200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc0584031afdd9c3e5dc62d847f3823e9f477311066825cada9c6a24316eb70bdefafb3c6761b34bc15585cb01480dfd15a0fadf5cb0eeafde785d48bee1e1efbab8d0605a18201008280821a00052c661a066ef491f5d90103a0"
+[09:15:16.729] INFO (multi-dex-launchpad-all/25578): Submitted commit fold transaction
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+    txHash: "ac8b5da45e6c4d395034edb6a8556d21c67679509bbc3e70fba77d327255f7d2"
+[09:15:16.729] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:15:16.733] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:15:16.733] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:15:16.736] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 1 nodes (0 eligible, without cutoff node)
+[09:15:16.736] INFO (multi-dex-launchpad-all/25578): Calculated 1 commit fold datums
+[09:15:16.737] INFO (multi-dex-launchpad-all/25578): Found 1 unspent commit folds in DB
+[09:15:16.737] INFO (multi-dex-launchpad-all/25578): Last matched commit fold on index = 0, nodeCount = 1
+[09:15:16.737] INFO (multi-dex-launchpad-all/25578): Commit folding finished, last commit fold is unspent
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:15:16.741] INFO (multi-dex-launchpad-all/25578): Launch did not succeed, creating fail proof
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+    projectMinCommitment: 1000000
+    committed: 0
+[09:15:16.782] INFO (multi-dex-launchpad-all/25578): Submitting fail proof transaction...
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+    signedTx: "84ab00d90102878258204a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f008258204a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f01825820547272cd29eb1d3183d689b5b9dc9a40dfbfeb0197252c7d8b9b499c7d22213e0482582063e58dbbec81ef80cb89d695c3ce5bb895d1bebb7cf2f239ceadb066eb4347d3008258207bf8ead6d3c110905895c2d5106e65df772014798c76825a82e6475a6b0b4f0d01825820984e35dd9dd3537535de43c9d132f4ab641a2a299d6ad3af04c668c0e01b500001825820e7ff96988615853ce364c562ebdd38cd3b7288f0a4402717b1e09da5c8c6a3fb020185a300581d7051936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901821a0013bac8a1581c58a14680b717f6cd2f3510ceb20d37273122812d5853645454c05dbca1581c51936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901028201d818581e581ca4fe3d8ea8d5fe8194f8292fd9b50f9665922e8c31ce27324144b80b82583900b47c7c0ca235a188003fde3e6a583141a89125f346572bb87e81a8702966ddf1dacf046d52483389174713c212a3b549370f996066569251821a0012050ca1581c659ab0b5658687c2e74cd10dba8244015b713bf503b90557769d77a7a14a57696e675269646572731a00b71b0082583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a001e848082583900b8256741a8a955dc727f29398514a2a32b6e6c0497cf1c3a3fa2deb5b301ca25899116edef9065b0ecbab42deba3e351916f534df20173c61a3b7c458082583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a35831349021a000d9c80031a06ec61ac075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec539c09a4581c58a14680b717f6cd2f3510ceb20d37273122812d5853645454c05dbca1581c51936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901581cd15ce671f5319e2f79aeda23b051522e3ac9e219a928cabd14cd4cbea1581ca4fe3d8ea8d5fe8194f8292fd9b50f9665922e8c31ce27324144b80b20581ce43649219e43a7e064f31b51678269a081a6f6a5108a14e4de68940ea1581c909ded5c17eb5d11519a02b6fe3c80035af8b1205d4e30f90fbeb78320581ced5856f8c6f595877dbd38c23923c7bd3f9e7e6403ed643daf863a0da1581c8fc5bb8b66f61a74097cd77f684979c515ea64e9850b0354aa04dfd9200b5820d71950e1c31aee8faed82c90ddd5808f2d8d250c02ede5e7a013d72355f750aa0dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d9010287825820594ad614ab6521fe2592c1a35f2115fa0c939a7c59592f8687ed7de988d91aea0082582070a4b0d6bd58d711f39105b244d8c4766b4859ab677e50fe2104cf9cfc7b3d1d01825820e6cbc40f665fb024e2c3e72a2677c9b84e127120979c433110cf72085692e3060082582087fa2771db42a451921c97d6d1cd241ab3892a2f7ad016ef46b9958c51066a21008258208b5f9f1d8987b0f2af7137c1f82db65a36a531a75a0b42cfc3b4af8e63cf96b2018258208b5f9f1d8987b0f2af7137c1f82db65a36a531a75a0b42cfc3b4af8e63cf96b2028258208b5f9f1d8987b0f2af7137c1f82db65a36a531a75a0b42cfc3b4af8e63cf96b203a200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc058406abd17335610723e0acaf9673e6d002b4ebae554d63087277fcf82a61cb4accc7878946a3a272323bf6c51e4229f21b2348867ff7985bc1850a6310cab2b900a05a782000082d87e80821a000d43851a1153f2c682000182d87a80821a000270811a034e245182000382d87a80821a00052dbb1a06533cc58201008280821a000328611a04021f4b8201018280821a000128ea1a019a00dd8201028280821a0001297e1a01b7c6a582010382808219d0971a00e330c0f5d90103a0"
+[09:15:16.793] INFO (multi-dex-launchpad-all/25578): Submitted fail proof transaction
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+    txHash: "3f35323040adefbf596a0a69c97c419ee4d823ade0ad442e753ac983e87da1e9"
+[09:15:17.341] INFO (multi-dex-launchpad-all/25578): Chunk[200] 6: requesting metadata for 200 subjects
+[09:15:17.405] INFO (multi-dex-launchpad-all/25578): Chunk[200] 6: successfully fetched metadata for 200 subjects, metadataResponses has 1200 rows
+[09:15:18.405] INFO (multi-dex-launchpad-all/25578): Chunk[200] 7: requesting metadata for 200 subjects
+[09:15:18.482] INFO (multi-dex-launchpad-all/25578): Chunk[200] 7: successfully fetched metadata for 200 subjects, metadataResponses has 1400 rows
+[09:15:19.483] INFO (multi-dex-launchpad-all/25578): Chunk[200] 8: requesting metadata for 200 subjects
+[09:15:19.555] INFO (multi-dex-launchpad-all/25578): Chunk[200] 8: successfully fetched metadata for 200 subjects, metadataResponses has 1600 rows
+[09:15:20.558] INFO (multi-dex-launchpad-all/25578): Chunk[200] 9: requesting metadata for 200 subjects
+[09:15:20.606] INFO (multi-dex-launchpad-all/25578): Chunk[200] 9: successfully fetched metadata for 200 subjects, metadataResponses has 1800 rows
+[09:15:21.611] INFO (multi-dex-launchpad-all/25578): Chunk[200] 10: requesting metadata for 200 subjects
+[09:15:21.663] INFO (multi-dex-launchpad-all/25578): Chunk[200] 10: successfully fetched metadata for 200 subjects, metadataResponses has 2000 rows
+[09:15:22.669] INFO (multi-dex-launchpad-all/25578): Chunk[200] 11: requesting metadata for 200 subjects
+[09:15:22.737] INFO (multi-dex-launchpad-all/25578): Chunk[200] 11: successfully fetched metadata for 200 subjects, metadataResponses has 2200 rows
+[09:15:23.744] INFO (multi-dex-launchpad-all/25578): Chunk[200] 12: requesting metadata for 200 subjects
+[09:15:23.801] INFO (multi-dex-launchpad-all/25578): Chunk[200] 12: successfully fetched metadata for 200 subjects, metadataResponses has 2400 rows
+[09:15:24.810] INFO (multi-dex-launchpad-all/25578): Chunk[200] 13: requesting metadata for 200 subjects
+[09:15:24.853] INFO (multi-dex-launchpad-all/25578): Chunk[200] 13: successfully fetched metadata for 200 subjects, metadataResponses has 2600 rows
+[09:15:25.861] INFO (multi-dex-launchpad-all/25578): Chunk[200] 14: requesting metadata for 200 subjects
+[09:15:25.910] INFO (multi-dex-launchpad-all/25578): Chunk[200] 14: successfully fetched metadata for 200 subjects, metadataResponses has 2800 rows
+[09:15:26.911] INFO (multi-dex-launchpad-all/25578): Chunk[200] 15: requesting metadata for 200 subjects
+[09:15:26.968] INFO (multi-dex-launchpad-all/25578): Chunk[200] 15: successfully fetched metadata for 200 subjects, metadataResponses has 3000 rows
+[09:15:27.977] INFO (multi-dex-launchpad-all/25578): Chunk[200] 16: requesting metadata for 200 subjects
+[09:15:28.051] INFO (multi-dex-launchpad-all/25578): Chunk[200] 16: successfully fetched metadata for 200 subjects, metadataResponses has 3200 rows
+[09:15:29.055] INFO (multi-dex-launchpad-all/25578): Chunk[200] 17: requesting metadata for 200 subjects
+[09:15:29.129] INFO (multi-dex-launchpad-all/25578): Chunk[200] 17: successfully fetched metadata for 200 subjects, metadataResponses has 3400 rows
+[09:15:30.132] INFO (multi-dex-launchpad-all/25578): Chunk[200] 18: requesting metadata for 200 subjects
+[09:15:30.191] INFO (multi-dex-launchpad-all/25578): Chunk[200] 18: successfully fetched metadata for 200 subjects, metadataResponses has 3600 rows
+[09:15:31.199] INFO (multi-dex-launchpad-all/25578): Chunk[200] 19: requesting metadata for 200 subjects
+[09:15:31.261] INFO (multi-dex-launchpad-all/25578): Chunk[200] 19: successfully fetched metadata for 200 subjects, metadataResponses has 3800 rows
+[09:15:32.262] INFO (multi-dex-launchpad-all/25578): Chunk[200] 20: requesting metadata for 200 subjects
+[09:15:32.325] INFO (multi-dex-launchpad-all/25578): Chunk[200] 20: successfully fetched metadata for 200 subjects, metadataResponses has 4000 rows
+[09:15:33.325] INFO (multi-dex-launchpad-all/25578): Chunk[200] 21: requesting metadata for 200 subjects
+[09:15:33.394] INFO (multi-dex-launchpad-all/25578): Chunk[200] 21: successfully fetched metadata for 200 subjects, metadataResponses has 4200 rows
+[09:15:34.394] INFO (multi-dex-launchpad-all/25578): Chunk[200] 22: requesting metadata for 200 subjects
+[09:15:34.461] INFO (multi-dex-launchpad-all/25578): Chunk[200] 22: successfully fetched metadata for 200 subjects, metadataResponses has 4400 rows
+[09:15:35.462] INFO (multi-dex-launchpad-all/25578): Chunk[200] 23: requesting metadata for 200 subjects
+[09:15:35.516] INFO (multi-dex-launchpad-all/25578): Chunk[200] 23: successfully fetched metadata for 200 subjects, metadataResponses has 4600 rows
+[09:15:36.516] INFO (multi-dex-launchpad-all/25578): Chunk[200] 24: requesting metadata for 200 subjects
+[09:15:36.566] INFO (multi-dex-launchpad-all/25578): Chunk[200] 24: successfully fetched metadata for 200 subjects, metadataResponses has 4800 rows
+[09:15:37.544] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 1
+    latestSlot: 116151337
+    progress: 1
+[09:15:37.566] INFO (multi-dex-launchpad-all/25578): Chunk[200] 25: requesting metadata for 200 subjects
+[09:15:37.682] INFO (multi-dex-launchpad-all/25578): Chunk[200] 25: successfully fetched metadata for 200 subjects, metadataResponses has 5000 rows
+[09:15:38.056] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+[09:15:38.062] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+[09:15:38.062] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+[09:15:38.074] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "9d0d7d47121de2c6f8a10272cf0f000fc12cf6749d5ac8b4fdeed604f943a920"
+[09:15:38.078] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "9d0d7d47121de2c6f8a10272cf0f000fc12cf6749d5ac8b4fdeed604f943a920"
+[09:15:38.078] INFO (multi-dex-launchpad-all/25578): Launch in progress, skipping
+    launchTxHash: "9d0d7d47121de2c6f8a10272cf0f000fc12cf6749d5ac8b4fdeed604f943a920"
+    slotsToEnd: 398663
+[09:15:38.078] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "2c6e93a029d6b22fb33ff8869d02d4ed12f8acbef6567b057cc18667796ebbb4"
+[09:15:38.083] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "2c6e93a029d6b22fb33ff8869d02d4ed12f8acbef6567b057cc18667796ebbb4"
+[09:15:38.083] INFO (multi-dex-launchpad-all/25578): Launch in progress, skipping
+    launchTxHash: "2c6e93a029d6b22fb33ff8869d02d4ed12f8acbef6567b057cc18667796ebbb4"
+    slotsToEnd: 398663
+[09:15:38.083] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "e8ca185c0364e0b70598bb7326d87f5e926d1b13d2f5bf16f3cc990c2d1379bd"
+[09:15:38.088] INFO (multi-dex-launchpad-all/25578): No separators to insert (already inserted)
+    launchTxHash: "e8ca185c0364e0b70598bb7326d87f5e926d1b13d2f5bf16f3cc990c2d1379bd"
+    secondsToStart: 398661.917
+[09:15:38.088] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "4d3faaa1074e66b140960d70fa8e3c49b9816600324f8ab8ff4aa84e1eff2bfe"
+[09:15:38.093] INFO (multi-dex-launchpad-all/25578): No separators to insert (already inserted)
+    launchTxHash: "4d3faaa1074e66b140960d70fa8e3c49b9816600324f8ab8ff4aa84e1eff2bfe"
+    secondsToStart: 312261.912
+[09:15:38.093] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "95204bb67438b96c1bfc72a5f7613361d7ecb6e7d4dab9a09e020a59e3527299"
+[09:15:38.099] INFO (multi-dex-launchpad-all/25578): No separators to insert (already inserted)
+    launchTxHash: "95204bb67438b96c1bfc72a5f7613361d7ecb6e7d4dab9a09e020a59e3527299"
+    secondsToStart: 398661.907
+[09:15:38.099] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+[09:15:38.102] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+[09:15:38.102] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+[09:15:38.105] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:15:38.105] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:15:38.107] INFO (multi-dex-launchpad-all/25578): Found 1 unspent commit folds in DB
+[09:15:38.107] INFO (multi-dex-launchpad-all/25578): Last matched commit fold on index = 0, nodeCount = 1
+[09:15:38.107] INFO (multi-dex-launchpad-all/25578): Prepared 50 nodes to reference in the next commit fold
+[09:15:38.384] INFO (multi-dex-launchpad-all/25578): Submitting commit fold transaction...
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+    signedTx: "84aa00d9010282825820058fc4057c2394e372c93e5d17b1b8a98fa56f14dcd6e596ce87a24adeda6608018258203d874d799e4b04d61642d0053a459ffeee5817b32a22af13d77a607b32e204ec000182a300581d707ad8aaa6ec37b937fd54753e2ffcad4e84d05032d8339db0898730c301821a005b8d80a1581c39cc88c29541c8eb4d755cf865b30caacd6e9815731195df493bbee1a1581c7ad8aaa6ec37b937fd54753e2ffcad4e84d05032d8339db0898730c301028201d8185887d8799f581c398e0f58682f5d85531bc36ce19968ac80f8892d354736184f14a2e6d8799fd8799f41c800ffff00d87a80d87a80001833d8799fd8799f581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78ffd8799fd8799fd8799f581cc17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d5ffffffffff82583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a0dc0c738021a001218c0031a06ec6239075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec54290b5820dc4a8abc2b02549b9f95f55f444d0151e153151c9c2ea6d47476b4994691011c0dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d901029833825820b1395e7e9a3832cf8259a046e125f5c8c3f9a85cdf43e0caa22f3e375cdd8ac400825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57402825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57403825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57404825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57405825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57406825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57407825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57408825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57409825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5740a825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5740b825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5740c825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5740d825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5740e825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5740f825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57410825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57411825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57412825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57413825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57414825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57415825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57416825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb57417825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741818825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741819825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574181a825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574181b825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574181c825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574181d825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574181e825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574181f825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741820825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741821825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741822825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741823825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741824825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741825825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741826825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741827825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741828825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741829825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574182a825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574182b825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574182c825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574182d825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574182e825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574182f825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741830825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741831825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741832825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741833a200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc05840437572d886e670460227721978127dffd50c7a6f4e4f17a5a114072602b7cedd51ebc19d463a71aeaecb31ca4bf54e42d73020dfe5db14db711308989b06860105a182000182d8799f9f0102030405060708090a0b0c0d0e0f101112131415161718181819181a181b181c181d181e181f1820182118221823182418251826182718281829182a182b182c182d182e182f183018311832ffff821a009c01ad1ab295533bf5d90103a0"
+[09:15:38.400] INFO (multi-dex-launchpad-all/25578): Submitted commit fold transaction
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+    txHash: "be0381a0ef8120eefb1f532b5cfec2e4f834f300b2b51acd181a12420dc90714"
+[09:15:38.400] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+[09:15:38.405] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+[09:15:38.405] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+[09:15:38.408] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:15:38.408] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:15:38.410] INFO (multi-dex-launchpad-all/25578): Found 1 unspent commit folds in DB
+[09:15:38.410] INFO (multi-dex-launchpad-all/25578): Last matched commit fold on index = 0, nodeCount = 1
+[09:15:38.410] INFO (multi-dex-launchpad-all/25578): Prepared 50 nodes to reference in the next commit fold
+[09:15:38.673] INFO (multi-dex-launchpad-all/25578): Submitting commit fold transaction...
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+    signedTx: "84aa00d9010282825820058fc4057c2394e372c93e5d17b1b8a98fa56f14dcd6e596ce87a24adeda660800825820a9ff56df5f9ae54a2d45e84e417a52ea8eb42d3cc5bf0ed99c468cf79bedf27d020182a300581d701ef332005ee1f63715fba68ae4396849cda1e6d3fcae71a75450971101821a005b8d80a1581cbfba8c9bc1ccf6dbf06ed51774b80e2e7679cecb1b214db16e3eab51a1581c1ef332005ee1f63715fba68ae4396849cda1e6d3fcae71a75450971101028201d8185887d8799f581ccccd584e7e3ecd706a89f8ab7088dff1fd88425b7e1e4e0df769157ed8799fd8799f41c800ffff00d87a80d87a80001833d8799fd8799f581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78ffd8799fd8799fd8799f581cc17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d5ffffffffff82583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a030ad12f021a0011e46d031a06ec6239075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec54290b582050016b1243060e14a0f9aa7c0d5e7f75a0ce3fa99a69c23838fcabea7ab0399b0dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d901029833825820d0d278206e1cd2bc192a525371b307e0602d36580ecd2f56683284d6fadfa45d00825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f02825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f03825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f04825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f05825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f06825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f07825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f08825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f09825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f0a825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f0b825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f0c825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f0d825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f0e825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f0f825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f10825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f11825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f12825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f13825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f14825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f15825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f16825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f17825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1818825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1819825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f181a825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f181b825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f181c825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f181d825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f181e825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f181f825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1820825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1821825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1822825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1823825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1824825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1825825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1826825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1827825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1828825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1829825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f182a825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f182b825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f182c825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f182d825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f182e825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f182f825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1830825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1831825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1832825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1833a200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc05840c0fd5bd953092486661fcde65651740ef65ae3848b12b8d619dbb177819611de80db910d80488fa865e16ebaf8a77d845c97321df8b7f69854e95619ed24a60405a182000082d8799f9f000102030405060708090a0b0c0d0e0f101112131415161718181819181a181b181c181d181e181f1820182118221823182418251826182718281829182a182b182c182d182e182f18301831ffff821a0099587b1aafdd5ec0f5d90103a0"
+[09:15:38.683] INFO (multi-dex-launchpad-all/25578): Chunk[200] 26: requesting metadata for 200 subjects
+[09:15:38.696] INFO (multi-dex-launchpad-all/25578): Submitted commit fold transaction
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+    txHash: "9eefb86c1fd3aa45da59cf463a2ed9abae0f093b0fcbfa54e46ed45740623782"
+[09:15:38.697] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+[09:15:38.701] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+[09:15:38.701] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+[09:15:38.706] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:15:38.706] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:15:38.708] INFO (multi-dex-launchpad-all/25578): Found 1 unspent commit folds in DB
+[09:15:38.708] INFO (multi-dex-launchpad-all/25578): Last matched commit fold on index = 0, nodeCount = 1
+[09:15:38.708] INFO (multi-dex-launchpad-all/25578): Prepared 50 nodes to reference in the next commit fold
+[09:15:38.969] INFO (multi-dex-launchpad-all/25578): Submitting commit fold transaction...
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+    signedTx: "84aa00d90102828258201423d680b32a5202dbd38a3cc4ebbbff259cb4be470a2ac3d979c9c88343c733008258203e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a020182a300581d7095c6d86890bc2bbea0f37ac510971c5f301017e6566f19e9096be83101821a005b8d80a1581ceb5b927864d57dc580a29c1fea0629c03a31e654a03c081beb5930c5a1581c95c6d86890bc2bbea0f37ac510971c5f301017e6566f19e9096be83101028201d8185887d8799f581cb41474a10e1d16dad0f9a9bba95820655a53a764fcc011f7fe608d2ad8799fd8799f41c800ffff00d87a80d87a80001833d8799fd8799f581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78ffd8799fd8799fd8799f581cc17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d5ffffffffff82583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a1dbb8093021a0011e46d031a06ec6239075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec54290b582050016b1243060e14a0f9aa7c0d5e7f75a0ce3fa99a69c23838fcabea7ab0399b0dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d901029833825820bc576098e524b508a9e05f5be38103f691496ab2d9672356af45c14afb90a5d10082582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e0282582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e0382582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e0482582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e0582582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e0682582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e0782582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e0882582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e0982582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e0a82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e0b82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e0c82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e0d82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e0e82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e0f82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e1082582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e1182582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e1282582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e1382582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e1482582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e1582582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e1682582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e1782582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e181882582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e181982582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e181a82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e181b82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e181c82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e181d82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e181e82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e181f82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182082582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182182582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182282582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182382582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182482582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182582582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182682582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182782582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182882582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182982582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182a82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182b82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182c82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182d82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182e82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e182f82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e183082582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e183182582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e183282582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e1833a200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc05840e328487888e3ad6ec909b57e5cb7e8270521134c5b51737812a7e26aff6179ab6252d9a603c026e482fba7dc8f9d7570e477abf0a5adf08cd44d6b672d0af60f05a182000082d8799f9f000102030405060708090a0b0c0d0e0f101112131415161718181819181a181b181c181d181e181f1820182118221823182418251826182718281829182a182b182c182d182e182f18301831ffff821a0099587b1aafdd5ec0f5d90103a0"
+[09:15:38.997] INFO (multi-dex-launchpad-all/25578): Submitted commit fold transaction
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+    txHash: "f7179f9018235bf67f9f80a0ec39150378c9d724440b685d94be5b605035e5d5"
+[09:15:38.997] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+[09:15:39.001] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+[09:15:39.001] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+[09:15:39.004] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:15:39.004] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:15:39.007] INFO (multi-dex-launchpad-all/25578): Found 1 unspent commit folds in DB
+[09:15:39.007] INFO (multi-dex-launchpad-all/25578): Last matched commit fold on index = 0, nodeCount = 1
+[09:15:39.007] INFO (multi-dex-launchpad-all/25578): Prepared 50 nodes to reference in the next commit fold
+[09:15:39.271] INFO (multi-dex-launchpad-all/25578): Submitting commit fold transaction...
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+    signedTx: "84aa00d901028282582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d844200825820ac8b5da45e6c4d395034edb6a8556d21c67679509bbc3e70fba77d327255f7d2000182a300581d703ba34983f2a7fbc577e145f71cbdf7ff106c384e34e4a13ed7b0c32101821a005b8d80a1581cb96c448709b412a7699daf2d95a8b97293988771d46900b04da30822a1581c3ba34983f2a7fbc577e145f71cbdf7ff106c384e34e4a13ed7b0c32101028201d8185887d8799f581cdcb40897c6e9cc2d8971ad62742bb536b4d9af707a1b77015e9a7d65d8799fd8799f41c800ffff00d87a80d87a80001833d8799fd8799f581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78ffd8799fd8799fd8799f581cc17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d5ffffffffff82583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a16b05c46021a0011e72a031a06ec6239075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec54290b58206e4872f7a725698d339f17cbd1cb49b053c3ff34be743821bf5921d16e86a9c40dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d9010298338258207bf8ead6d3c110905895c2d5106e65df772014798c76825a82e6475a6b0b4f0d0082582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84420282582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84420382582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84420482582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84420582582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84420682582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84420782582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84420882582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84420982582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84420a82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84420b82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84420c82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84420d82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84420e82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84420f82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84421082582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84421182582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84421282582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84421382582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84421482582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84421582582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84421682582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84421782582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442181882582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442181982582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442181a82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442181b82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442181c82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442181d82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442181e82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442181f82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182082582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182182582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182282582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182382582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182482582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182582582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182682582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182782582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182882582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182982582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182a82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182b82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182c82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182d82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182e82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442182f82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442183082582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442183182582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442183282582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d84421833a200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc05840fb25759e7b7f73bbfdcb7e5258ad6aec985b5130f484b703a9af5ecfd1f22b761dee8481edb7e6b28c514da5fca4369c382ded8653752f2e13575102612fe30e05a182000182d8799f9f000102030405060708090a0b0c0d0e0f101112131415161718181819181a181b181c181d181e181f1820182118221823182418251826182718281829182a182b182c182d182e182f18301831ffff821a0099761d1ab01506a1f5d90103a0"
+[09:15:39.280] INFO (multi-dex-launchpad-all/25578): Chunk[200] 26: successfully fetched metadata for 200 subjects, metadataResponses has 5200 rows
+[09:15:39.300] INFO (multi-dex-launchpad-all/25578): Submitted commit fold transaction
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+    txHash: "cfa5049486df364fc095e9e1e789ad83223ed8d1b98661c73e29dfc4c8cd849b"
+[09:15:39.300] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:15:39.306] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:15:39.306] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:15:39.312] INFO (multi-dex-launchpad-all/25578): No WingRiders pool created yet
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:15:39.314] INFO (multi-dex-launchpad-all/25578): No Sundae pool created yet
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:15:40.284] INFO (multi-dex-launchpad-all/25578): Chunk[200] 27: requesting metadata for 200 subjects
+[09:15:40.961] INFO (multi-dex-launchpad-all/25578): Chunk[200] 27: successfully fetched metadata for 200 subjects, metadataResponses has 5400 rows
+[09:15:41.964] INFO (multi-dex-launchpad-all/25578): Chunk[200] 28: requesting metadata for 118 subjects
+[09:15:42.309] INFO (multi-dex-launchpad-all/25578): Chunk[200] 28: successfully fetched metadata for 118 subjects, metadataResponses has 5518 rows
+[09:15:43.310] INFO (multi-dex-launchpad-all/25578): Successfully fetched token metadata
+    subjectCount: 5518
+    metadataCount: 5518
+[09:15:52.481] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 1
+    latestSlot: 116151352
+    progress: 1
+[09:15:53.619] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+[09:15:53.639] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+[09:15:53.639] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+[09:15:53.668] ERROR (multi-dex-launchpad-all/25578): Failed to create WingRiders pool proof
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+[09:15:53.669] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "9d0d7d47121de2c6f8a10272cf0f000fc12cf6749d5ac8b4fdeed604f943a920"
+[09:15:53.678] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "9d0d7d47121de2c6f8a10272cf0f000fc12cf6749d5ac8b4fdeed604f943a920"
+[09:15:53.678] INFO (multi-dex-launchpad-all/25578): Launch in progress, skipping
+    launchTxHash: "9d0d7d47121de2c6f8a10272cf0f000fc12cf6749d5ac8b4fdeed604f943a920"
+    slotsToEnd: 398648
+[09:15:53.678] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "2c6e93a029d6b22fb33ff8869d02d4ed12f8acbef6567b057cc18667796ebbb4"
+[09:15:53.686] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "2c6e93a029d6b22fb33ff8869d02d4ed12f8acbef6567b057cc18667796ebbb4"
+[09:15:53.686] INFO (multi-dex-launchpad-all/25578): Launch in progress, skipping
+    launchTxHash: "2c6e93a029d6b22fb33ff8869d02d4ed12f8acbef6567b057cc18667796ebbb4"
+    slotsToEnd: 398648
+[09:15:53.686] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "e8ca185c0364e0b70598bb7326d87f5e926d1b13d2f5bf16f3cc990c2d1379bd"
+[09:15:53.698] INFO (multi-dex-launchpad-all/25578): No separators to insert (already inserted)
+    launchTxHash: "e8ca185c0364e0b70598bb7326d87f5e926d1b13d2f5bf16f3cc990c2d1379bd"
+    secondsToStart: 398646.314
+[09:15:53.698] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "4d3faaa1074e66b140960d70fa8e3c49b9816600324f8ab8ff4aa84e1eff2bfe"
+[09:15:53.706] INFO (multi-dex-launchpad-all/25578): No separators to insert (already inserted)
+    launchTxHash: "4d3faaa1074e66b140960d70fa8e3c49b9816600324f8ab8ff4aa84e1eff2bfe"
+    secondsToStart: 312246.302
+[09:15:53.706] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "95204bb67438b96c1bfc72a5f7613361d7ecb6e7d4dab9a09e020a59e3527299"
+[09:15:53.717] INFO (multi-dex-launchpad-all/25578): No separators to insert (already inserted)
+    launchTxHash: "95204bb67438b96c1bfc72a5f7613361d7ecb6e7d4dab9a09e020a59e3527299"
+    secondsToStart: 398646.294
+[09:15:53.718] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+[09:15:53.723] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+[09:15:53.723] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+[09:15:53.728] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:15:53.728] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:15:53.735] INFO (multi-dex-launchpad-all/25578): Found 1 unspent commit folds in DB
+[09:15:53.735] INFO (multi-dex-launchpad-all/25578): Last matched commit fold on index = 50, nodeCount = 51
+[09:15:53.735] INFO (multi-dex-launchpad-all/25578): Prepared 8 nodes to reference in the next commit fold
+[09:15:53.759] INFO (multi-dex-launchpad-all/25578): Submitting commit fold transaction...
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+    signedTx: "84aa00d90102828258203f35323040adefbf596a0a69c97c419ee4d823ade0ad442e753ac983e87da1e904825820be0381a0ef8120eefb1f532b5cfec2e4f834f300b2b51acd181a12420dc90714000182a300581d707ad8aaa6ec37b937fd54753e2ffcad4e84d05032d8339db0898730c301821a005b8d80a1581c39cc88c29541c8eb4d755cf865b30caacd6e9815731195df493bbee1a1581c7ad8aaa6ec37b937fd54753e2ffcad4e84d05032d8339db0898730c301028201d818587fd8799f581c398e0f58682f5d85531bc36ce19968ac80f8892d354736184f14a2e6d87a8000d87a80d87a8000183bd8799fd8799f581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78ffd8799fd8799fd8799f581cc17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d5ffffffffff82583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a357c9275021a000680d4031a06ec6248075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec54380b58209bdfb5dbcdf81bc1e354ab401bd6e75878ef2da00fcfd175a5c3805ee65292c80dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d9010289825820b1395e7e9a3832cf8259a046e125f5c8c3f9a85cdf43e0caa22f3e375cdd8ac400825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741834825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741835825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741836825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741837825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741838825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb5741839825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574183a825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574183ba200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc05840f55badd750632128c5a75d2142c8b799ce3164b432d00adb9aa1dde40b0185fbfb270cef9a79b94c046e87cbdc9b3279ca24bfb3d34e11c4b134e4eafd084f0605a182000182d8799f9f0102030405060708ffff821a001638d71a1b416c44f5d90103a0"
+[09:15:53.779] INFO (multi-dex-launchpad-all/25578): Submitted commit fold transaction
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+    txHash: "387761d8584812e4dfbc4129a2e77f7d0d86621e94bd0d7238c0c570c7e1957d"
+[09:15:53.779] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+[09:15:53.788] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+[09:15:53.788] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+[09:15:53.793] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:15:53.793] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:15:53.796] INFO (multi-dex-launchpad-all/25578): Found 1 unspent commit folds in DB
+[09:15:53.796] INFO (multi-dex-launchpad-all/25578): Last matched commit fold on index = 50, nodeCount = 51
+[09:15:53.796] INFO (multi-dex-launchpad-all/25578): Prepared 8 nodes to reference in the next commit fold
+[09:15:53.818] INFO (multi-dex-launchpad-all/25578): Submitting commit fold transaction...
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+    signedTx: "84aa00d90102828258203f35323040adefbf596a0a69c97c419ee4d823ade0ad442e753ac983e87da1e9028258209eefb86c1fd3aa45da59cf463a2ed9abae0f093b0fcbfa54e46ed45740623782000182a300581d701ef332005ee1f63715fba68ae4396849cda1e6d3fcae71a75450971101821a005b8d80a1581cbfba8c9bc1ccf6dbf06ed51774b80e2e7679cecb1b214db16e3eab51a1581c1ef332005ee1f63715fba68ae4396849cda1e6d3fcae71a75450971101028201d818587fd8799f581ccccd584e7e3ecd706a89f8ab7088dff1fd88425b7e1e4e0df769157ed87a8000d87a80d87a8000183bd8799fd8799f581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78ffd8799fd8799fd8799f581cc17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d5ffffffffff82583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a00180b94021a000678ec031a06ec6248075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec54380b58206cbaa798314ddd45ebf04b52cbb2fac31f01ccedebd8bcf58e1ca6b1ad5362760dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d9010289825820d0d278206e1cd2bc192a525371b307e0602d36580ecd2f56683284d6fadfa45d00825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1834825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1835825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1836825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1837825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1838825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f1839825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f183a825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f183ba200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc05840c73fb5857e9436f1d05405ad91e9af0deed3d336ca7ccb8cc867c9e12dce716ab21452e9e7a9c4f548fb8e144192dccae80e664259b13a116869f1bab37aac0805a182000182d8799f9f0001020304050607ffff821a0015d0971a1adaf99cf5d90103a0"
+[09:15:53.828] INFO (multi-dex-launchpad-all/25578): Submitted commit fold transaction
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+    txHash: "8ddfbe209208f0d097c1ef6bf5fb502672b4363de0b241e9401c544705e18395"
+[09:15:53.828] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+[09:15:53.845] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+[09:15:53.845] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+[09:15:53.852] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:15:53.852] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:15:53.857] INFO (multi-dex-launchpad-all/25578): Found 1 unspent commit folds in DB
+[09:15:53.857] INFO (multi-dex-launchpad-all/25578): Last matched commit fold on index = 50, nodeCount = 51
+[09:15:53.857] INFO (multi-dex-launchpad-all/25578): Prepared 8 nodes to reference in the next commit fold
+[09:15:53.878] INFO (multi-dex-launchpad-all/25578): Submitting commit fold transaction...
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+    signedTx: "84aa00d901028282582063e58dbbec81ef80cb89d695c3ce5bb895d1bebb7cf2f239ceadb066eb4347d301825820f7179f9018235bf67f9f80a0ec39150378c9d724440b685d94be5b605035e5d5000182a300581d7095c6d86890bc2bbea0f37ac510971c5f301017e6566f19e9096be83101821a005b8d80a1581ceb5b927864d57dc580a29c1fea0629c03a31e654a03c081beb5930c5a1581c95c6d86890bc2bbea0f37ac510971c5f301017e6566f19e9096be83101028201d818587fd8799f581cb41474a10e1d16dad0f9a9bba95820655a53a764fcc011f7fe608d2ad87a8000d87a80d87a8000183bd8799fd8799f581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78ffd8799fd8799fd8799f581cc17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d5ffffffffff82583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a1d6749f7021a000678ec031a06ec6248075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec54380b58206cbaa798314ddd45ebf04b52cbb2fac31f01ccedebd8bcf58e1ca6b1ad5362760dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d9010289825820bc576098e524b508a9e05f5be38103f691496ab2d9672356af45c14afb90a5d10082582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e183482582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e183582582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e183682582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e183782582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e183882582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e183982582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e183a82582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e183ba200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc05840526cd7ee0429d98a350128528a12962130ce53f67348e3ab3c1cf7b6db885fb9eba61b6ad1c029a95186bb841f7824b5850234fe6117b4e99ce1a1fe9aaa760505a182000182d8799f9f0001020304050607ffff821a0015d0971a1adaf99cf5d90103a0"
+[09:15:53.885] INFO (multi-dex-launchpad-all/25578): Submitted commit fold transaction
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+    txHash: "b25d06c1af4fe92bea3a535164348aaefb3744a214b759ef384568c80792012d"
+[09:15:53.885] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+[09:15:53.891] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+[09:15:53.891] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+[09:15:53.895] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:15:53.895] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:15:53.901] INFO (multi-dex-launchpad-all/25578): Found 1 unspent commit folds in DB
+[09:15:53.901] INFO (multi-dex-launchpad-all/25578): Last matched commit fold on index = 50, nodeCount = 51
+[09:15:53.901] INFO (multi-dex-launchpad-all/25578): Prepared 8 nodes to reference in the next commit fold
+[09:15:53.921] INFO (multi-dex-launchpad-all/25578): Submitting commit fold transaction...
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+    signedTx: "84aa00d901028282582017b9d95bb430d6f117df6e63657f8ec2ce18fa516506517524fe4eb4437efa6c04825820cfa5049486df364fc095e9e1e789ad83223ed8d1b98661c73e29dfc4c8cd849b000182a300581d703ba34983f2a7fbc577e145f71cbdf7ff106c384e34e4a13ed7b0c32101821a005b8d80a1581cb96c448709b412a7699daf2d95a8b97293988771d46900b04da30822a1581c3ba34983f2a7fbc577e145f71cbdf7ff106c384e34e4a13ed7b0c32101028201d818587fd8799f581cdcb40897c6e9cc2d8971ad62742bb536b4d9af707a1b77015e9a7d65d87a8000d87a80d87a8000183bd8799fd8799f581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78ffd8799fd8799fd8799f581cc17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d5ffffffffff82583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a36bba382021a000678ec031a06ec6248075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec54380b58206cbaa798314ddd45ebf04b52cbb2fac31f01ccedebd8bcf58e1ca6b1ad5362760dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d90102898258207bf8ead6d3c110905895c2d5106e65df772014798c76825a82e6475a6b0b4f0d0082582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442183482582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442183582582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442183682582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442183782582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442183882582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442183982582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442183a82582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442183ba200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc05840a6ecd137f53d73f06334a0da85336039281be9c6844942ba91a485caf10b9f4f8713b73007352ef7841ae0c5329aca3b9c1495eee1d523c34a49803c1343c00305a182000182d8799f9f0001020304050607ffff821a0015d0971a1adaf99cf5d90103a0"
+[09:15:53.932] INFO (multi-dex-launchpad-all/25578): Submitted commit fold transaction
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+    txHash: "f9b0fade802904ad4ecf39f4420a33291f775c655850affb71128ccfe0734f92"
+[09:15:53.932] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:15:53.937] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:15:53.937] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:15:53.952] INFO (multi-dex-launchpad-all/25578): No WingRiders pool created yet
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:15:53.955] INFO (multi-dex-launchpad-all/25578): No Sundae pool created yet
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:16:41.149] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 1
+    latestSlot: 116151400
+    progress: 1
+[09:16:41.725] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+[09:16:41.738] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+[09:16:41.738] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+    launchTxHash: "ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038"
+[09:16:41.795] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "9d0d7d47121de2c6f8a10272cf0f000fc12cf6749d5ac8b4fdeed604f943a920"
+[09:16:41.804] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "9d0d7d47121de2c6f8a10272cf0f000fc12cf6749d5ac8b4fdeed604f943a920"
+[09:16:41.804] INFO (multi-dex-launchpad-all/25578): Launch in progress, skipping
+    launchTxHash: "9d0d7d47121de2c6f8a10272cf0f000fc12cf6749d5ac8b4fdeed604f943a920"
+    slotsToEnd: 398600
+[09:16:41.804] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "2c6e93a029d6b22fb33ff8869d02d4ed12f8acbef6567b057cc18667796ebbb4"
+[09:16:41.808] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "2c6e93a029d6b22fb33ff8869d02d4ed12f8acbef6567b057cc18667796ebbb4"
+[09:16:41.808] INFO (multi-dex-launchpad-all/25578): Launch in progress, skipping
+    launchTxHash: "2c6e93a029d6b22fb33ff8869d02d4ed12f8acbef6567b057cc18667796ebbb4"
+    slotsToEnd: 398600
+[09:16:41.808] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "e8ca185c0364e0b70598bb7326d87f5e926d1b13d2f5bf16f3cc990c2d1379bd"
+[09:16:41.814] INFO (multi-dex-launchpad-all/25578): No separators to insert (already inserted)
+    launchTxHash: "e8ca185c0364e0b70598bb7326d87f5e926d1b13d2f5bf16f3cc990c2d1379bd"
+    secondsToStart: 398598.192
+[09:16:41.814] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "4d3faaa1074e66b140960d70fa8e3c49b9816600324f8ab8ff4aa84e1eff2bfe"
+[09:16:41.821] INFO (multi-dex-launchpad-all/25578): No separators to insert (already inserted)
+    launchTxHash: "4d3faaa1074e66b140960d70fa8e3c49b9816600324f8ab8ff4aa84e1eff2bfe"
+    secondsToStart: 312198.186
+[09:16:41.821] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "95204bb67438b96c1bfc72a5f7613361d7ecb6e7d4dab9a09e020a59e3527299"
+[09:16:41.827] INFO (multi-dex-launchpad-all/25578): No separators to insert (already inserted)
+    launchTxHash: "95204bb67438b96c1bfc72a5f7613361d7ecb6e7d4dab9a09e020a59e3527299"
+    secondsToStart: 398598.179
+[09:16:41.827] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+[09:16:41.831] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+[09:16:41.831] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+[09:16:41.835] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:16:41.835] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:16:41.839] INFO (multi-dex-launchpad-all/25578): Found 1 unspent commit folds in DB
+[09:16:41.839] INFO (multi-dex-launchpad-all/25578): Last matched commit fold on index = 58, nodeCount = 59
+[09:16:41.839] INFO (multi-dex-launchpad-all/25578): Commit folding finished, last commit fold is unspent
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+[09:16:41.843] INFO (multi-dex-launchpad-all/25578): Launch did not succeed, creating fail proof
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+    projectMinCommitment: 1000000
+    committed: 0
+[09:16:41.892] INFO (multi-dex-launchpad-all/25578): Submitting fail proof transaction...
+    launchTxHash: "abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf8"
+    signedTx: "84ab00d90102868258201423d680b32a5202dbd38a3cc4ebbbff259cb4be470a2ac3d979c9c88343c73301825820387761d8584812e4dfbc4129a2e77f7d0d86621e94bd0d7238c0c570c7e1957d0082582068f1ce2e221ab1622db69e67c977a1a55e57b5848f704de267a510ebfe14d47201825820abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf801825820ac8b5da45e6c4d395034edb6a8556d21c67679509bbc3e70fba77d327255f7d201825820be116f1c34b5b1315b39e78ad0195e2f69aca61c81cb865e663aedc40d2eb574010185a300581d7051936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901821a0013bac8a1581c58a14680b717f6cd2f3510ceb20d37273122812d5853645454c05dbca1581c51936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901028201d818581e581c398e0f58682f5d85531bc36ce19968ac80f8892d354736184f14a2e682583900b47c7c0ca235a188003fde3e6a583141a89125f346572bb87e81a8702966ddf1dacf046d52483389174713c212a3b549370f996066569251821a0011c1b4a1581c659ab0b5658687c2e74cd10dba8244015b713bf503b90557769d77a7a14a57696e675269646572731682583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a0708898082583900b8256741a8a955dc727f29398514a2a32b6e6c0497cf1c3a3fa2deb5b301ca25899116edef9065b0ecbab42deba3e351916f534df20173c61a3492408082583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a3bb6a2ac021a000ea158031a06ec6201075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec53f109a4581c28f07864091d8abae0e20b8eba771aaf551c41a0841d094c33477170a1581cc47b0aef7eb70b0cfbb1d91ac2c0d09e86e09d7c26be491ff536619e20581c39cc88c29541c8eb4d755cf865b30caacd6e9815731195df493bbee1a1581c7ad8aaa6ec37b937fd54753e2ffcad4e84d05032d8339db0898730c320581c58a14680b717f6cd2f3510ceb20d37273122812d5853645454c05dbca1581c51936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901581cd09e30d8b7af792b9cd18e5ab9d7012f4ec0d3570acd80cb8a53489ba1581c398e0f58682f5d85531bc36ce19968ac80f8892d354736184f14a2e6200b582046c46e8a372715a812911cd05cf026bd01fa4f92d72292e5f1df2fd88bdd11090dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d9010287825820b1395e7e9a3832cf8259a046e125f5c8c3f9a85cdf43e0caa22f3e375cdd8ac4008258207638bc89e5e765d21ca1a79e10c3b0ada7c9bc5df7f1fc634ff3b224eb1d6e2001825820eb1ceb7b1ae4e2c15b3452d8d00537d494430f28ca8477421264c8e41f62dfed00825820cf5c99216ee001119970797ac370497bc2582899aa4a89082fd045a813c125a903825820cf5c99216ee001119970797ac370497bc2582899aa4a89082fd045a813c125a90282582087fa2771db42a451921c97d6d1cd241ab3892a2f7ad016ef46b9958c51066a2100825820cf5c99216ee001119970797ac370497bc2582899aa4a89082fd045a813c125a901a200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc058404ba31024af7f19c88d42ee246334a21402aaf2ee05e4105e3ac4f3d53b735325abf978dcc36f43b0d52e3a0059b05175e88a3988f29ce09b7598978a90e0a60805a782000182d87a80821a000653361a07d623a082000382d87a80821a00042bb51a05c25d8b82000582d87e80821a000d72771a11d9904f820100828082199fd11a00ac014b8201018280821a00010aca1a0173699f8201028280821a000c0c1d1a0f4a48c38201038280821a0002462b1a0329545bf5d90103a0"
+[09:16:41.908] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+[09:16:41.913] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+[09:16:41.913] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+[09:16:41.917] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:16:41.917] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:16:41.919] INFO (multi-dex-launchpad-all/25578): Found 1 unspent commit folds in DB
+[09:16:41.919] INFO (multi-dex-launchpad-all/25578): Last matched commit fold on index = 58, nodeCount = 59
+[09:16:41.919] INFO (multi-dex-launchpad-all/25578): Commit folding finished, last commit fold is unspent
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+[09:16:41.922] INFO (multi-dex-launchpad-all/25578): Launch did not succeed, creating fail proof
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+    projectMinCommitment: 1000000
+    committed: 0
+[09:16:41.959] INFO (multi-dex-launchpad-all/25578): Submitting fail proof transaction...
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+    signedTx: "84ab00d90102868258201ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488018258208ddfbe209208f0d097c1ef6bf5fb502672b4363de0b241e9401c544705e18395008258209eefb86c1fd3aa45da59cf463a2ed9abae0f093b0fcbfa54e46ed4574062378201825820abaeedba3ee0f90fb3b57a02c42ee72e32df606799a374313464a2574de88cf802825820b4b23f538511b043e9644ee1cc05efc74cf761c29d7d7b89c0d12ffcd0264e0d05825820bf701ee157c34d7ca412c169dd1f24b327ecea61e962bd6eceed12ef36b2c19f010185a300581d7051936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901821a0013bac8a1581c58a14680b717f6cd2f3510ceb20d37273122812d5853645454c05dbca1581c51936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901028201d818581e581ccccd584e7e3ecd706a89f8ab7088dff1fd88425b7e1e4e0df769157e82583900b47c7c0ca235a188003fde3e6a583141a89125f346572bb87e81a8702966ddf1dacf046d52483389174713c212a3b549370f996066569251821a0012050ca1581c659ab0b5658687c2e74cd10dba8244015b713bf503b90557769d77a7a14a57696e675269646572731a00b71b0082583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a0708898082583900b8256741a8a955dc727f29398514a2a32b6e6c0497cf1c3a3fa2deb5b301ca25899116edef9065b0ecbab42deba3e351916f534df20173c61a3492408082583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a397a687c021a000e99e7031a06ec6201075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec53f109a4581c0840fcd673fe83f7defffc96e52c72e41cf845ab56580e7d5ead0fbaa1581ccccd584e7e3ecd706a89f8ab7088dff1fd88425b7e1e4e0df769157e20581c58a14680b717f6cd2f3510ceb20d37273122812d5853645454c05dbca1581c51936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901581c965b195a4b8776c753fb4a61b3c80f6bd1c7817d3650e2c7e8942cd8a1581c028ee9ed352ea472a6b9f462c6c800d821a2746d819d61d58c60b80b20581cbfba8c9bc1ccf6dbf06ed51774b80e2e7679cecb1b214db16e3eab51a1581c1ef332005ee1f63715fba68ae4396849cda1e6d3fcae71a754509711200b582036f74c167b6943edf945618d1df6a22815e04b174eba71d40886f99168315a0d0dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d9010287825820f28e9a1b13e2a71ff0778cb4c7ff373fcc34721ca55fadf817a77b364b1c61d801825820d0d278206e1cd2bc192a525371b307e0602d36580ecd2f56683284d6fadfa45d00825820f564f8b7be8da3c8b3d26de985f9b0d220bbf9d7d6d999574313c01d4e406d570082582044abae315ee1f1a75b46e563afcc4c29febbfbfabd5adbbc8e8a3fc9862fe0cc0182582087fa2771db42a451921c97d6d1cd241ab3892a2f7ad016ef46b9958c51066a210082582044abae315ee1f1a75b46e563afcc4c29febbfbfabd5adbbc8e8a3fc9862fe0cc0382582044abae315ee1f1a75b46e563afcc4c29febbfbfabd5adbbc8e8a3fc9862fe0cc02a200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc05840ffee3c42af7c6d13e2490ee30352abe92f172fa6af1d49e4bd2d35b97857dea125ea446c2184ac8b0edb0bd63dcfa81523c9103dff56574e42447fd3fc86d70705a782000082d87a80821a0003e2291a053d946b82000182d87a80821a000653361a07d623a082000582d87e80821a000d81d11a11fbbed28201008280821a0001ea0f1a025c3d498201018280821a000bed691a0f05ebbd82010282808219c0551a00d0cb998201038280821a000148321a01fc23abf5d90103a0"
+[09:16:41.970] INFO (multi-dex-launchpad-all/25578): Submitted fail proof transaction
+    launchTxHash: "1ae78c00d2d96e77b58cbedcd4278f0581391b6a6d7964b66f939d42a5858488"
+    txHash: "d3213b79de73f0e481081b6416db31111d45eefab51ff60561d4d1c37df89aeb"
+[09:16:41.970] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+[09:16:41.975] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+[09:16:41.975] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+[09:16:41.977] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:16:41.978] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:16:41.981] INFO (multi-dex-launchpad-all/25578): Found 1 unspent commit folds in DB
+[09:16:41.981] INFO (multi-dex-launchpad-all/25578): Last matched commit fold on index = 58, nodeCount = 59
+[09:16:41.981] INFO (multi-dex-launchpad-all/25578): Commit folding finished, last commit fold is unspent
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+[09:16:41.984] INFO (multi-dex-launchpad-all/25578): Launch did not succeed, creating fail proof
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+    projectMinCommitment: 1000000
+    committed: 0
+[09:16:42.019] INFO (multi-dex-launchpad-all/25578): Submitting fail proof transaction...
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+    signedTx: "84ab00d90102858258203e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a0182582096d4d48fee5ca624bd709717e1b2ee82b85259a6af9eb2366d92786f3adf528e01825820b25d06c1af4fe92bea3a535164348aaefb3744a214b759ef384568c80792012d00825820e8ca185c0364e0b70598bb7326d87f5e926d1b13d2f5bf16f3cc990c2d1379bd02825820ff7628fcf2f9e4f312cd8917372c91e481d8a7118141863c65b2c510fbbc7038020185a300581d7051936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901821a0013bac8a1581c58a14680b717f6cd2f3510ceb20d37273122812d5853645454c05dbca1581c51936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901028201d818581e581cb41474a10e1d16dad0f9a9bba95820655a53a764fcc011f7fe608d2a82583900b47c7c0ca235a188003fde3e6a583141a89125f346572bb87e81a8702966ddf1dacf046d52483389174713c212a3b549370f996066569251821a0012050ca1581c659ab0b5658687c2e74cd10dba8244015b713bf503b90557769d77a7a14a57696e675269646572731a00b71b0082583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a0708898082583900b8256741a8a955dc727f29398514a2a32b6e6c0497cf1c3a3fa2deb5b301ca25899116edef9065b0ecbab42deba3e351916f534df20173c61a3492408082583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a3be16135021a000dbaf7031a06ec6201075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec53f109a4581c3a1f929670e86731d59473e795ca73b0b37933608541e1a46350079fa1581cb41474a10e1d16dad0f9a9bba95820655a53a764fcc011f7fe608d2a20581c58a14680b717f6cd2f3510ceb20d37273122812d5853645454c05dbca1581c51936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901581c79a661fdb930d8048427b592b2d624e536d5de05c0e4a21d51284fdba1581c6c4032885d3fb14846846e5f94ccbbe8606bbdea7ef70ffe8d7256f720581ceb5b927864d57dc580a29c1fea0629c03a31e654a03c081beb5930c5a1581c95c6d86890bc2bbea0f37ac510971c5f301017e6566f19e9096be831200b582020ddc7197ee1e39a3c48b4d6b5ed9cb981b64ac61a8f0bd510256a8277af6f020dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d9010287825820e7ff96988615853ce364c562ebdd38cd3b7288f0a4402717b1e09da5c8c6a3fb018258200d3ea47da0f18cd50f4192a908a185cdcf052000ccfada213cdc03958324705500825820bc576098e524b508a9e05f5be38103f691496ab2d9672356af45c14afb90a5d100825820aad52b71027f87dbb9fec63b5df3e26540e470030dbd4a20112a235270bf2bb30182582087fa2771db42a451921c97d6d1cd241ab3892a2f7ad016ef46b9958c51066a2100825820aad52b71027f87dbb9fec63b5df3e26540e470030dbd4a20112a235270bf2bb303825820aad52b71027f87dbb9fec63b5df3e26540e470030dbd4a20112a235270bf2bb302a200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc05840430589584341d55a656159593870dc80de0665e39e68654c61489ef3692b3a9644eaa63b5ddb4b4c801dd9c431a87635c911746446eb597a35302399c359360905a782000082d87a80821a0002d2f01a03d7df8782000182d87e80821a000cb0ef1a10b5121282000282d87a80821a000528881a066c9dbf8201008280821a000139021a018c8c838201018280821a000533181a06c086e582010282808219c0551a00d0cb998201038280821a000148321a01fc23abf5d90103a0"
+[09:16:42.027] INFO (multi-dex-launchpad-all/25578): Submitted fail proof transaction
+    launchTxHash: "3e6c68f7d3b0752d7bafd4ab2530b9b338267b5212ce363cfc4f48cde0ce509a"
+    txHash: "0ef128b7408a5230e8ae9f08778489ff1301b6e7efa3f25f907c23ec4c9c42cf"
+[09:16:42.027] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+[09:16:42.031] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+[09:16:42.031] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+[09:16:42.034] INFO (multi-dex-launchpad-all/25578): calculateCommitFolds for 59 nodes (0 eligible, without cutoff node)
+[09:16:42.034] INFO (multi-dex-launchpad-all/25578): Calculated 59 commit fold datums
+[09:16:42.036] INFO (multi-dex-launchpad-all/25578): Found 1 unspent commit folds in DB
+[09:16:42.036] INFO (multi-dex-launchpad-all/25578): Last matched commit fold on index = 58, nodeCount = 59
+[09:16:42.036] INFO (multi-dex-launchpad-all/25578): Commit folding finished, last commit fold is unspent
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+[09:16:42.042] INFO (multi-dex-launchpad-all/25578): Launch did not succeed, creating fail proof
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+    projectMinCommitment: 100000000
+    committed: 0
+[09:16:42.078] INFO (multi-dex-launchpad-all/25578): Submitting fail proof transaction...
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+    signedTx: "84ab00d901028982582001c9569a5fd328a821cbe47762b05d6c8d6249addcf8dea92c06da6e3e8d8442018258203d874d799e4b04d61642d0053a459ffeee5817b32a22af13d77a607b32e204ec01825820602aebf5e1c2852054fdae5e46b5ab0f8a45b98d7fca3859692444a5fe82a86d0082582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd018258208ddfbe209208f0d097c1ef6bf5fb502672b4363de0b241e9401c544705e18395018258209ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc01825820aad52b71027f87dbb9fec63b5df3e26540e470030dbd4a20112a235270bf2bb304825820f7179f9018235bf67f9f80a0ec39150378c9d724440b685d94be5b605035e5d501825820f9b0fade802904ad4ecf39f4420a33291f775c655850affb71128ccfe0734f92000185a300581d7051936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901821a0013bac8a1581c58a14680b717f6cd2f3510ceb20d37273122812d5853645454c05dbca1581c51936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901028201d818581e581cdcb40897c6e9cc2d8971ad62742bb536b4d9af707a1b77015e9a7d6582583900b47c7c0ca235a188003fde3e6a583141a89125f346572bb87e81a8702966ddf1dacf046d52483389174713c212a3b549370f996066569251821a0012050ca1581c659ab0b5658687c2e74cd10dba8244015b713bf503b90557769d77a7a14a57696e675269646572731a4190ab0082583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a0708898082583900b8256741a8a955dc727f29398514a2a32b6e6c0497cf1c3a3fa2deb5b301ca25899116edef9065b0ecbab42deba3e351916f534df20173c61a3492408082583900d850eab39828374479f286a6a9fc166b98865fa4c90e336559707e78c17c4f775daf49ea18241916de9610ffb3160e9ff250ecf6113e81d51a3a58b5a9021a000dd855031a06ec6202075820bdaa99eb158414dea0a91d6c727e2268574b23efe6e08ab3b841abe8059a030c081a06ec53f209a4581c0ae7b414772fe84faff6294bbf64f0b4e3a5a4ff95697955c9294384a1581cdcb40897c6e9cc2d8971ad62742bb536b4d9af707a1b77015e9a7d6520581c58a14680b717f6cd2f3510ceb20d37273122812d5853645454c05dbca1581c51936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d6901581cb96c448709b412a7699daf2d95a8b97293988771d46900b04da30822a1581c3ba34983f2a7fbc577e145f71cbdf7ff106c384e34e4a13ed7b0c32120581cffe95e70b681e092612342fd18d6e2862f6becd2f47aac1fbc0d3114a1581cd3084e595bc3b526f89005fba36cf51b459813afad020084c2197978200b5820e23e2e351d105bc9340188a0d738a3d636169197447d59a8c4efd726c8cedbc80dd901028182582064f7d42f1b8b6fc9ba262b572a54dc8161f7ebb47e3bb6f0cd69ca3a7f19d8fd010ed9010281581cd850eab39828374479f286a6a9fc166b98865fa4c90e336559707e7812d90102878258202ac1521662ac3d9ebed0ed022ab890925acc711558c24435c22cc6bd00a0c50700825820a9ff56df5f9ae54a2d45e84e417a52ea8eb42d3cc5bf0ed99c468cf79bedf27d018258207bf8ead6d3c110905895c2d5106e65df772014798c76825a82e6475a6b0b4f0d008258202160b656a4931d462f1b701bef41a1740bac7e51d87be6085effaf9e4cb763450182582087fa2771db42a451921c97d6d1cd241ab3892a2f7ad016ef46b9958c51066a21008258202160b656a4931d462f1b701bef41a1740bac7e51d87be6085effaf9e4cb76345028258202160b656a4931d462f1b701bef41a1740bac7e51d87be6085effaf9e4cb7634503a200d901028182582012d3ac08795d30d23a17255d3f9e4306b8ec5e2e967e055f2dcece8a9c934cc0584074ea19a5500b0a0fe76397f8596055bac093dcd57a0e71c1b6114ac6a38b5f9287cfad1a32aa571c8a0675b5d3344b00bc0a7ef7bc6ae60b69393a9160d2590405a782000082d87e80821a000dfcb51a121d9f2182000582d87a80821a0002e7091a042cc3d582000882d87a80821a00062ab31a07da99e68201008280821a00010a361a0155a3d78201018280821a000347151a04467c518201028280821a0001297e1a01b7c6a582010382808219d0971a00e330c0f5d90103a0"
+[09:16:42.089] INFO (multi-dex-launchpad-all/25578): Submitted fail proof transaction
+    launchTxHash: "9ec077351287a0b600700e50e176d7ecf751022eec00ea599986a9b40ba674cc"
+    txHash: "07231e013f22b2539f8b4ef27a9234938af3e8dc0339b97a55e8fe5fe363edbe"
+[09:16:42.089] INFO (multi-dex-launchpad-all/25578): Processing launch
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:16:42.093] INFO (multi-dex-launchpad-all/25578): No separators to insert (launch start time has passed)
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:16:42.093] INFO (multi-dex-launchpad-all/25578): Launch ended. Loading nodes...
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:16:42.102] INFO (multi-dex-launchpad-all/25578): No WingRiders pool created yet
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:16:42.103] INFO (multi-dex-launchpad-all/25578): No Sundae pool created yet
+    launchTxHash: "4a7f538b20f6b83220f95a8f727eb8c72e790b469d5ed532f37ba0edd5b8d90f"
+[09:17:00.493] INFO (multi-dex-launchpad-all/25578): Wrote buffers to DB
+    blocks: 1
+    latestSlot: 116151420
+    progress: 1
