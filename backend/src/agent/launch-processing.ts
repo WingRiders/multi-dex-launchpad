@@ -20,7 +20,7 @@ import type {InterestingLaunch} from '../interesting-launches'
 import {logger} from '../logger'
 import {executeCommitFolding} from './commit-fold/execute-commit-folding'
 import {SEPARATORS_TO_INSERT} from './constants'
-import {deployContractsIfNeeded} from './deploy-contracts'
+import {deployContractsIfNeeded, undeployContracts} from './deploy-contracts'
 import {createFailProof} from './fail-proof'
 import {isSeparator} from './node'
 import {insertSeparators, reclaimSeparators} from './separators'
@@ -358,7 +358,10 @@ const processLaunch = async (
         {launchTxHash},
         `Fail proof is confirmed, all nodes are reclaimed. Undeploying ${unspentRefScriptCarriers.length} generated contracts`,
       )
-      // TODO Undeploy contracts
+      await undeployContracts(
+        launchTxHash,
+        unspentRefScriptCarriers.map(({txOut}) => txOut),
+      )
       return
     }
     logger.info({launchTxHash}, 'Fail flow finished')

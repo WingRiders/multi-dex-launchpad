@@ -2,6 +2,9 @@ import {
   addRefScriptCarrier,
   buildTx,
   type Contract,
+  calculateTxValidityInterval,
+  constantRefScriptsByNetwork,
+  ensure,
   type GeneratedContracts,
   makeBuilder,
   type RefScriptCarrierDatum,
@@ -10,8 +13,10 @@ import {
   type Launch,
   type RefScriptCarrier,
   RefScriptCarrierType,
+  type TxOutput,
 } from '../../prisma/generated/client'
 import {config} from '../config'
+import {txOutputToRefScriptUtxo} from '../endpoints/ref-scripts'
 import {logger} from '../logger'
 import {getMeshBuilderBodyForLogging} from './helpers'
 import {submitTx} from './ogmios/tx-submission-client'
@@ -115,7 +120,7 @@ export const deployContractsIfNeeded = async (
 
     const walletUtxos = getSpendableWalletUtxos()
     b.selectUtxosFrom(walletUtxos)
-    setFetcherUtxos([...walletUtxos])
+    setFetcherUtxos(walletUtxos)
 
     const datum: RefScriptCarrierDatum = {
       ownerPubKeyHash: getWalletPubKeyHash(),
@@ -236,4 +241,104 @@ const getUndeployedLaunchContracts = (
   }
 
   return undeployedContracts
+}
+
+export const undeployContracts = async (
+  launchTxHash: string,
+  unspentRefScriptCarriersTxOutputs: TxOutput[],
+) => {
+  const unspentRefScriptCarrierUtxos = unspentRefScriptCarriersTxOutputs.map(
+    txOutputToRefScriptUtxo,
+  )
+  logger.info(
+    {launchTxHash},
+    `Undeploying ${unspentRefScriptCarrierUtxos.length} RefScriptCarriers`,
+  )
+
+  const wallet = getWallet()
+  const walletUtxos = getSpendableWalletUtxos()
+  const b = makeBuilder(
+    getWalletChangeAddress(),
+    config.NETWORK,
+    ogmiosProvider,
+    offlineEvaluator,
+  )
+  b.selectUtxosFrom(walletUtxos)
+
+  const refScriptValidatorRef =
+    constantRefScriptsByNetwork[config.NETWORK].refScriptCarrierValidator
+
+  // Spend ref script carrier UTxOs
+  for (const refScriptCarrierUtxo of unspentRefScriptCarrierUtxos) {
+    b.spendingPlutusScriptV2()
+      .txIn(
+        refScriptCarrierUtxo.input.txHash,
+        refScriptCarrierUtxo.input.outputIndex,
+        refScriptCarrierUtxo.output.amount,
+        refScriptCarrierUtxo.output.address,
+        refScriptCarrierUtxo.scriptSize,
+      )
+      .spendingTxInReference(
+        refScriptValidatorRef.input.txHash,
+        refScriptValidatorRef.input.outputIndex,
+        refScriptValidatorRef.scriptSize.toString(),
+        refScriptValidatorRef.output.scriptHash,
+      )
+      .txInInlineDatumPresent()
+      .txInRedeemerValue([])
+  }
+
+  // Validity interval
+  const {validityStartSlot, validityEndSlot} = calculateTxValidityInterval(
+    config.NETWORK,
+  )
+  b.invalidBefore(validityStartSlot).invalidHereafter(validityEndSlot)
+
+  setFetcherUtxos([
+    ...walletUtxos,
+    ...unspentRefScriptCarrierUtxos,
+    refScriptValidatorRef,
+  ])
+
+  // Collateral
+  const collateral = (await wallet.getCollateral())[0]
+  ensure(collateral != null, 'No collateral available')
+
+  b.txInCollateral(
+    collateral.input.txHash,
+    collateral.input.outputIndex,
+    collateral.output.amount,
+    collateral.output.address,
+  )
+
+  b.requiredSignerHash(getWalletPubKeyHash())
+
+  const unsignedTx = await buildTx(b)
+  if (unsignedTx.isErr()) {
+    logger.error(
+      {
+        launchTxHash,
+        unspentRefScriptCarriers: unspentRefScriptCarrierUtxos.map(
+          (utxo) => utxo.input,
+        ),
+        txBuilderBody: getMeshBuilderBodyForLogging(b),
+      },
+      `Error when building transaction to undeploy contracts: ${unsignedTx.error.message}`,
+    )
+    return true
+  }
+
+  trackSpentInputs(b)
+
+  const signedTx = await wallet.signTx(unsignedTx.value)
+  logger.info(
+    {launchTxHash, signedTx},
+    'Submitting undeploy contracts transaction...',
+  )
+  const txHash = await submitTx(signedTx)
+  logger.info(
+    {launchTxHash, txHash},
+    'Submitted undeploy contracts transaction',
+  )
+  return txHash
 }
