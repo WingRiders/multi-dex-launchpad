@@ -21,11 +21,13 @@ import {logger} from '../logger'
 import {executeCommitFolding} from './commit-fold/execute-commit-folding'
 import {SEPARATORS_TO_INSERT} from './constants'
 import {deployContractsIfNeeded} from './deploy-contracts'
+import {createFailProof} from './fail-proof'
 import {
   createPoolProof,
   createRewardsFold,
   insertSeparators,
 } from './transactions'
+import {getWalletChangeAddress} from './wallet'
 
 // For passed launches run the next necessary step
 // Runs one step only
@@ -76,7 +78,7 @@ const processLaunch = async (
   //
   // If there are pools and no pool proofs, we create them
   //
-  // TODO: fail proof if needed
+  // fail proof if needed
   const time = Date.now()
 
   // TODO: that probably can be cached in the interestingLaunches
@@ -241,6 +243,8 @@ const processLaunch = async (
     where: {
       // related to this launch
       launchTxHash,
+      // signed by the agent
+      ownerAddress: getWalletChangeAddress(),
       // finished: no next node to fold
       nextKeyIndex: null,
       // unspent
@@ -282,7 +286,39 @@ const processLaunch = async (
       else logger.error({launchTxHash}, 'Failed to create rewards fold')
       return
     }
-    // TODO: create fail proof
+
+    logger.info(
+      {
+        launchTxHash,
+        projectMinCommitment: launch.projectMinCommitment,
+        committed: finishedCommitFold.committed,
+      },
+      'Launch did not succeed, creating fail proof',
+    )
+    const failProof = await prisma.failProof.findFirst({where: {launchTxHash}})
+    ensure(
+      failProof == null,
+      {launchTxHash, failProof, finishedCommitFold, headNode},
+      'Fail proof must not exist if there is unspent head node and finishedCommitFold',
+    )
+    const firstTokenHolder = await prisma.firstProjectTokensHolder.findFirst({
+      select: {txOut: true},
+      where: {launchTxHash},
+    })
+    ensure(
+      firstTokenHolder != null,
+      {launchTxHash},
+      'First token holder must exist if there is unspent head node and finishedCommitFold',
+    )
+    await createFailProof(
+      launch,
+      contracts,
+      finishedCommitFold,
+      headNode.txOut,
+      nodeValidatorRefScriptCarrier.txOut,
+      nodePolicyRefScriptCarrier.txOut,
+      firstTokenHolder.txOut,
+    )
     return
   }
 
