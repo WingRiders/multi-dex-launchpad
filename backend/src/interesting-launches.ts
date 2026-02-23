@@ -137,30 +137,27 @@ export const resetInterestingLaunches = async () => {
     'Sync event buffer must be empty to reset the interesting launches cache',
   )
   const launches = await prisma.launch.findMany({
-    // Non-interesting launches have all their important utxos spent
-    // Interesting launches are NOT those
+    // Interesting launches have at least one unspent important UTxO
     where: {
-      NOT: {
-        AND: [
-          // NOTE: here we could be missing some ref script carriers altogether
-          //       but if all the other utxos are spent that's not a problem
-          {refScriptCarriers: {some: {txOut: {spentSlot: {not: null}}}}},
-          {nodes: {some: {txOut: {spentSlot: {not: null}}}}},
-          {rewardsHolders: {some: {txOut: {spentSlot: {not: null}}}}},
-          {commitFolds: {some: {txOut: {spentSlot: {not: null}}}}},
-          {rewardsFolds: {some: {txOut: {spentSlot: {not: null}}}}},
-          {
-            firstProjectTokensHolders: {
-              some: {txOut: {spentSlot: {not: null}}},
-            },
+      OR: [
+        // NOTE: here we could be missing some ref script carriers altogether
+        //       but if all the other utxos are spent that's not a problem
+        {refScriptCarriers: {some: {txOut: {spentSlot: null}}}},
+        {nodes: {some: {txOut: {spentSlot: null}}}},
+        {rewardsHolders: {some: {txOut: {spentSlot: null}}}},
+        {commitFolds: {some: {txOut: {spentSlot: null}}}},
+        {rewardsFolds: {some: {txOut: {spentSlot: null}}}},
+        {
+          firstProjectTokensHolders: {
+            some: {txOut: {spentSlot: null}},
           },
-          {
-            finalProjectTokensHolders: {
-              some: {txOut: {spentSlot: {not: null}}},
-            },
+        },
+        {
+          finalProjectTokensHolders: {
+            some: {txOut: {spentSlot: null}},
           },
-        ],
-      },
+        },
+      ],
     },
   })
 
