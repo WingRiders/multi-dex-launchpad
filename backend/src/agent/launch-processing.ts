@@ -23,11 +23,8 @@ import {SEPARATORS_TO_INSERT} from './constants'
 import {deployContractsIfNeeded} from './deploy-contracts'
 import {createFailProof} from './fail-proof'
 import {isSeparator} from './node'
-import {
-  createPoolProof,
-  createRewardsFold,
-  insertSeparators,
-} from './transactions'
+import {insertSeparators, reclaimSeparators} from './separators'
+import {createPoolProof, createRewardsFold} from './transactions'
 import {getWalletChangeAddress} from './wallet'
 
 // For passed launches run the next necessary step
@@ -324,7 +321,10 @@ const processLaunch = async (
   }
 
   // Finished commit fold was spent, so either rewards fold or fail proof was executed.
-  const failProof = await prisma.failProof.findFirst({where: {launchTxHash}})
+  const failProof = await prisma.failProof.findFirst({
+    where: {launchTxHash},
+    include: {txOut: true},
+  })
   if (failProof != null) {
     const unspentNodes = await getUnspentNodes(launchTxHash)
     const unspentSeparators = unspentNodes.filter(isSeparator)
@@ -333,7 +333,14 @@ const processLaunch = async (
         {launchTxHash},
         `Fail proof is confirmed, reclaiming ${unspentSeparators.length} separators`,
       )
-      // TODO Reclaim separators
+      await reclaimSeparators(
+        launchTxHash,
+        unspentSeparators,
+        contracts,
+        failProof.txOut,
+        nodePolicyRefScriptCarrier.txOut,
+        nodeValidatorRefScriptCarrier.txOut,
+      )
       return
     }
     if (unspentNodes.length > 0) {

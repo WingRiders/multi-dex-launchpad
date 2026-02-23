@@ -15,4 +15,7 @@ export const CONSTANT_CONTRACTS = await generateConstantContracts({
 // maximum number of separators that can be inserted in one transaction
 export const SEPARATORS_TO_INSERT = 58
 
+// Max reclaimable per tx is 23; we cap at 20 to leave headroom since 3 txs are required anyway
+export const SEPARATORS_TO_RECLAIM = 20
+
 export const COMMIT_FOLDING_BATCH_SIZE = 50 // TODO Adjust based on performance testing
