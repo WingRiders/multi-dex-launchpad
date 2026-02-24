@@ -358,10 +358,7 @@ const processLaunch = async (
         {launchTxHash},
         `Fail proof is confirmed, all nodes are reclaimed. Undeploying ${unspentRefScriptCarriers.length} generated contracts`,
       )
-      await undeployContracts(
-        launchTxHash,
-        unspentRefScriptCarriers.map(({txOut}) => txOut),
-      )
+      await undeployContracts(launchTxHash, unspentRefScriptCarriers)
       return
     }
     logger.info({launchTxHash}, 'Fail flow finished')

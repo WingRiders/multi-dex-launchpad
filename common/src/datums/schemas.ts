@@ -15,6 +15,7 @@ import type {
   NodeDatum,
   NodeKey,
   PoolProofDatum,
+  RefScriptCarrierDatum,
   RewardsFoldDatum,
   RewardsHolderDatum,
   SundaePoolDatum,
@@ -427,5 +428,20 @@ export const sundaePoolDatumCborSchema = z
       feeManager: res.fields[5],
       marketOpen: Number(res.fields[6].int),
       protocolFees: Number(res.fields[7].int),
+    }),
+  )
+
+export const refScriptCarrierDatumCborSchema = z
+  .object({
+    constructor: 0n,
+    fields: z.tuple([
+      z.object({bytes: pubKeyHashSchema}), // ownerPubKeyHash
+      z.object({int: z.bigint()}), // deadline
+    ]),
+  })
+  .transform(
+    (res): RefScriptCarrierDatum => ({
+      ownerPubKeyHash: res.fields[0].bytes,
+      deadline: Number(res.fields[1].int),
     }),
   )

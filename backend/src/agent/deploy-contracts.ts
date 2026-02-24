@@ -15,6 +15,7 @@ import {
   RefScriptCarrierType,
   type TxOutput,
 } from '../../prisma/generated/client'
+import {slotToTime} from '../common'
 import {config} from '../config'
 import {txOutputToRefScriptUtxo} from '../endpoints/ref-scripts'
 import {logger} from '../logger'
@@ -245,11 +246,19 @@ const getUndeployedLaunchContracts = (
 
 export const undeployContracts = async (
   launchTxHash: string,
-  unspentRefScriptCarriersTxOutputs: TxOutput[],
+  unspentRefScriptCarriers: (RefScriptCarrier & {txOut: TxOutput})[],
 ) => {
-  const unspentRefScriptCarrierUtxos = unspentRefScriptCarriersTxOutputs.map(
-    txOutputToRefScriptUtxo,
+  ensure(
+    unspentRefScriptCarriers.every(
+      (unspentRefScriptCarrier) =>
+        unspentRefScriptCarrier.ownerPubKeyHash === getWalletPubKeyHash(),
+    ),
+    'RefScriptCarriers should be owned by the agent wallet',
   )
+
+  const unspentRefScriptCarrierUtxos = unspentRefScriptCarriers
+    .map(({txOut}) => txOut)
+    .map(txOutputToRefScriptUtxo)
   logger.info(
     {launchTxHash},
     `Undeploying ${unspentRefScriptCarrierUtxos.length} RefScriptCarriers`,
@@ -291,6 +300,19 @@ export const undeployContracts = async (
   // Validity interval
   const {validityStartSlot, validityEndSlot} = calculateTxValidityInterval(
     config.NETWORK,
+  )
+  const validityStartTime = slotToTime(validityStartSlot)
+  ensure(
+    unspentRefScriptCarriers.every(
+      (unspentRefScriptCarrier) =>
+        unspentRefScriptCarrier.deadline < validityStartTime,
+    ),
+    {
+      launchTxHash,
+      deadlines: unspentRefScriptCarriers.map(({deadline}) => deadline),
+      validityStartTime,
+    },
+    'RefScriptCarriers should have deadlines in the past',
   )
   b.invalidBefore(validityStartSlot).invalidHereafter(validityEndSlot)
 

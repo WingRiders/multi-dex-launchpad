@@ -26,7 +26,9 @@ import {
   nodeDatumCborSchema,
   parseUnit,
   poolProofDatumCborSchema,
+  type RefScriptCarrierDatum,
   type RewardsHolderDatum,
+  refScriptCarrierDatumCborSchema,
   rewardsHolderDatumCborSchema,
   sundaePoolDatumCborSchema,
   tryDeserializeAddress,
@@ -37,7 +39,6 @@ import z from 'zod'
 import {
   type Block,
   PoolProofType,
-  RefScriptCarrierType,
   type TxOutput,
 } from '../../../prisma/generated/client'
 import type {
@@ -59,6 +60,8 @@ import {CONSTANT_CONTRACTS} from '../constants'
 import {processLaunches} from '../launch-processing'
 import {
   type LaunchUtxoType,
+  type RefScriptCarrierLaunchUtxoType,
+  refScriptCarrierDbTypeFromUtxoType,
   refScriptCarrierUtxoTypeFromValidatorHashType,
 } from '../launch-utxo-type'
 import {passesValidityToken} from '../validity'
@@ -94,7 +97,10 @@ type SyncEvent =
       | {
           outputType: Exclude<
             LaunchUtxoType,
-            'node' | 'commitFold' | 'rewardsHolder'
+            | 'node'
+            | 'commitFold'
+            | 'rewardsHolder'
+            | RefScriptCarrierLaunchUtxoType
           >
         }
       | {
@@ -108,6 +114,10 @@ type SyncEvent =
       | {
           outputType: 'rewardsHolder'
           rewardsHolderDatum: RewardsHolderDatum
+        }
+      | {
+          outputType: RefScriptCarrierLaunchUtxoType
+          refScriptCarrierDatum: RefScriptCarrierDatum
         }
     ))
   | {
@@ -441,11 +451,22 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
         const outputType = refScriptCarrierUtxoTypeFromValidatorHashType(
           lookup.type,
         )
+        const datum = txOutput.datum
+        if (!datum) continue
+        const refScriptCarrierDatum = decodeDatum(
+          refScriptCarrierDatumCborSchema,
+          datum,
+        )
+        if (!refScriptCarrierDatum) continue
+        if (refScriptCarrierDatum.ownerPubKeyHash !== getWalletPubKeyHash())
+          continue
+
         pushSyncEvent({
           type: 'launchTxOutput',
           launchTxHash: lookup.launch.txHash,
           txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType,
+          refScriptCarrierDatum,
         })
         break
       }
@@ -863,107 +884,24 @@ const saveLaunchTxOutputsFields = async (
   launchTxOutputBuffer: (SyncEvent & {type: 'launchTxOutput'})[],
 ) => {
   for (const syncEvent of launchTxOutputBuffer) {
-    const {launchTxHash, outputType, txOutput} = syncEvent
+    const {launchTxHash, txOutput} = syncEvent
+
+    if ('refScriptCarrierDatum' in syncEvent) {
+      await prisma.refScriptCarrier.create({
+        data: {
+          type: refScriptCarrierDbTypeFromUtxoType[syncEvent.outputType],
+          launchTxHash,
+          txHash: txOutput.txHash,
+          outputIndex: txOutput.outputIndex,
+          ownerPubKeyHash: syncEvent.refScriptCarrierDatum.ownerPubKeyHash,
+          deadline: syncEvent.refScriptCarrierDatum.deadline,
+        },
+      })
+      continue
+    }
+
+    const {outputType} = syncEvent
     switch (outputType) {
-      case 'nodeValidatorRefScriptCarrier': {
-        await prisma.refScriptCarrier.create({
-          data: {
-            type: RefScriptCarrierType.NODE_VALIDATOR,
-            launchTxHash: launchTxHash,
-            txHash: txOutput.txHash,
-            outputIndex: txOutput.outputIndex,
-          },
-        })
-        break
-      }
-      case 'nodePolicyRefScriptCarrier': {
-        await prisma.refScriptCarrier.create({
-          data: {
-            type: RefScriptCarrierType.NODE_POLICY,
-            launchTxHash: launchTxHash,
-            txHash: txOutput.txHash,
-            outputIndex: txOutput.outputIndex,
-          },
-        })
-        break
-      }
-      case 'firstProjectTokensHolderValidatorRefScriptCarrier': {
-        await prisma.refScriptCarrier.create({
-          data: {
-            type: RefScriptCarrierType.FIRST_PROJECT_TOKENS_HOLDER_VALIDATOR,
-            launchTxHash: launchTxHash,
-            txHash: txOutput.txHash,
-            outputIndex: txOutput.outputIndex,
-          },
-        })
-        break
-      }
-      case 'projectTokensHolderPolicyRefScriptCarrier': {
-        await prisma.refScriptCarrier.create({
-          data: {
-            type: RefScriptCarrierType.PROJECT_TOKENS_HOLDER_POLICY,
-            launchTxHash: launchTxHash,
-            txHash: txOutput.txHash,
-            outputIndex: txOutput.outputIndex,
-          },
-        })
-        break
-      }
-      case 'finalProjectTokensHolderValidatorRefScriptCarrier': {
-        await prisma.refScriptCarrier.create({
-          data: {
-            type: RefScriptCarrierType.FINAL_PROJECT_TOKENS_HOLDER_VALIDATOR,
-            launchTxHash: launchTxHash,
-            txHash: txOutput.txHash,
-            outputIndex: txOutput.outputIndex,
-          },
-        })
-        break
-      }
-      case 'commitFoldValidatorRefScriptCarrier': {
-        await prisma.refScriptCarrier.create({
-          data: {
-            type: RefScriptCarrierType.COMMIT_FOLD_VALIDATOR,
-            launchTxHash: launchTxHash,
-            txHash: txOutput.txHash,
-            outputIndex: txOutput.outputIndex,
-          },
-        })
-        break
-      }
-      case 'commitFoldPolicyRefScriptCarrier': {
-        await prisma.refScriptCarrier.create({
-          data: {
-            type: RefScriptCarrierType.COMMIT_FOLD_POLICY,
-            launchTxHash: launchTxHash,
-            txHash: txOutput.txHash,
-            outputIndex: txOutput.outputIndex,
-          },
-        })
-        break
-      }
-      case 'rewardsFoldValidatorRefScriptCarrier': {
-        await prisma.refScriptCarrier.create({
-          data: {
-            type: RefScriptCarrierType.REWARDS_FOLD_VALIDATOR,
-            launchTxHash: launchTxHash,
-            txHash: txOutput.txHash,
-            outputIndex: txOutput.outputIndex,
-          },
-        })
-        break
-      }
-      case 'rewardsFoldPolicyRefScriptCarrier': {
-        await prisma.refScriptCarrier.create({
-          data: {
-            type: RefScriptCarrierType.REWARDS_FOLD_POLICY,
-            launchTxHash: launchTxHash,
-            txHash: txOutput.txHash,
-            outputIndex: txOutput.outputIndex,
-          },
-        })
-        break
-      }
       case 'node': {
         const datum = syncEvent.nodeDatum
         await prisma.node.create({

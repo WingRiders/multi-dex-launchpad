@@ -209,7 +209,9 @@ model RefScriptCarrier {
   launchTxHash String
   launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
 
-  type RefScriptCarrierType
+  type            RefScriptCarrierType
+  ownerPubKeyHash String
+  deadline        BigInt // POSIXTime
 
   @@unique([txHash, outputIndex, launchTxHash])
 }
