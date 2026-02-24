@@ -433,7 +433,7 @@ export const sundaePoolDatumCborSchema = z
 
 export const refScriptCarrierDatumCborSchema = z
   .object({
-    constructor: 0n,
+    constructor: z.literal(0n),
     fields: z.tuple([
       z.object({bytes: pubKeyHashSchema}), // ownerPubKeyHash
       z.object({int: z.bigint()}), // deadline
