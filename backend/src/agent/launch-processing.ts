@@ -1,6 +1,5 @@
 import {
   constantRefScriptsByNetwork,
-  DEFAULT_TX_VALIDITY_START_BACKDATE_SLOTS,
   ensure,
   type GeneratedContracts,
 } from '@wingriders/multi-dex-launchpad-common'
@@ -191,22 +190,6 @@ const processLaunch = async (
     logger.info(
       {launchTxHash, slotsToEnd: endSlot - latestSlot},
       'Launch in progress, skipping',
-    )
-    return
-  }
-
-  const foldingStartAfterSlot =
-    endSlot + DEFAULT_TX_VALIDITY_START_BACKDATE_SLOTS
-
-  if (latestSlot <= foldingStartAfterSlot) {
-    logger.info(
-      {
-        launchTxHash,
-        endSlot,
-        latestSlot,
-        foldingStartAfterSlot,
-      },
-      `Launch ended but waiting for next block to be more than ${DEFAULT_TX_VALIDITY_START_BACKDATE_SLOTS} slots after launch ends`,
     )
     return
   }
