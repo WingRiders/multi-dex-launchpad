@@ -92,7 +92,11 @@ export const buildInitLaunchCommand = () => {
       'src/cli/data/launch.json5',
     )
 
-    .option('--start-delay <duration>', 'Delay before launch starts', '15m')
+    .option(
+      '--start-delay <duration>',
+      'Delay before launch starts. TTL depends on it, so if set too low, tx may expire without notice.',
+      '15m',
+    )
     .option('--duration <duration>', 'Launch duration', '1d')
 
     .option(
