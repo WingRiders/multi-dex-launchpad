@@ -15,11 +15,12 @@ import {prisma} from '../db/prisma-client'
 import type {InterestingLaunch} from '../interesting-launches'
 import {logger} from '../logger'
 import {executeCommitFolding} from './commit-fold/execute-commit-folding'
-import {SEPARATORS_TO_INSERT} from './constants'
+import {MAX_NODES_FOR_REWARDS_FOLD, SEPARATORS_TO_INSERT} from './constants'
 import {deployContractsIfNeeded, undeployContracts} from './deploy-contracts'
 import {createFailProof} from './fail-proof'
 import {isSeparator} from './node'
 import {createPoolProofsIfNeeded} from './pool-proof'
+import {buildSubmitRewardsFolding} from './rewards-fold'
 import {insertSeparators, reclaimSeparators} from './separators'
 import {createRewardsFold} from './transactions'
 import {getWalletChangeAddress} from './wallet'
@@ -67,7 +68,7 @@ const processLaunch = async (
   //
   // If the launch has ended and there's a finished commit fold, we create a rewards fold
   //
-  // TODO: If the launch has ended and there's a rewards fold and unfolded nodes, we fold nodes
+  // If the launch has ended and there's a rewards fold and unfolded nodes, we fold nodes
   //
   // TODO: If the launch has ended and there are final project tokens holders, we create pools
   //
@@ -128,6 +129,14 @@ const processLaunch = async (
     {launchTxHash},
     'Commit fold policy ref script carrier must exist',
   )
+  const rewardsFoldValidatorRefScriptCarrier = launch.refScriptCarriers.find(
+    (c) => c.type === RefScriptCarrierType.REWARDS_FOLD_VALIDATOR,
+  )
+  ensure(
+    rewardsFoldValidatorRefScriptCarrier != null,
+    {launchTxHash},
+    'Rewards fold ref script carrier must exist',
+  )
   const rewardsFoldPolicyRefScriptCarrier = launch.refScriptCarriers.find(
     (c) => c.type === RefScriptCarrierType.REWARDS_FOLD_POLICY,
   )
@@ -135,6 +144,35 @@ const processLaunch = async (
     rewardsFoldPolicyRefScriptCarrier != null,
     {launchTxHash},
     'Rewards fold policy ref script carrier must exist',
+  )
+  const firstProjectTokensHolderValidatorRefScriptCarrier =
+    launch.refScriptCarriers.find(
+      (c) =>
+        c.type === RefScriptCarrierType.FIRST_PROJECT_TOKENS_HOLDER_VALIDATOR,
+    )
+  ensure(
+    firstProjectTokensHolderValidatorRefScriptCarrier != null,
+    {launchTxHash},
+    'First project tokens holder ref script carrier must exist',
+  )
+  const projectTokensHolderPolicyRefScriptCarrier =
+    launch.refScriptCarriers.find(
+      (c) => c.type === RefScriptCarrierType.PROJECT_TOKENS_HOLDER_POLICY,
+    )
+  ensure(
+    projectTokensHolderPolicyRefScriptCarrier != null,
+    {launchTxHash},
+    'Project tokens holder policy ref script carrier must exist',
+  )
+  const finalProjectTokensHolderValidatorRefScriptCarrier =
+    launch.refScriptCarriers.find(
+      (c) =>
+        c.type === RefScriptCarrierType.FINAL_PROJECT_TOKENS_HOLDER_VALIDATOR,
+    )
+  ensure(
+    finalProjectTokensHolderValidatorRefScriptCarrier != null,
+    {launchTxHash},
+    'Final project tokens holder ref script carrier must exist',
   )
 
   if (time < launch.startTime) {
@@ -242,11 +280,6 @@ const processLaunch = async (
         txOut: {spentSlot: null},
       },
     })
-    ensure(
-      headNode != null,
-      {launchTxHash, finishedCommitFold},
-      'Head node must exist if there is finishedCommitFold',
-    )
     // For successful launches, we create rewards fold
     if (didLaunchSucceed(launch, finishedCommitFold)) {
       logger.info({launchTxHash}, 'Launch succeeded, creating rewards fold')
@@ -344,6 +377,61 @@ const processLaunch = async (
     }
     logger.info({launchTxHash}, 'Fail flow finished')
     return
+  }
+
+  // We check if there is an unspent rewards fold
+  // If it exists, we do rewards folding
+  {
+    const rewardsFold = await prisma.rewardsFold.findFirst({
+      where: {launchTxHash, txOut: {spentSlot: null}},
+      include: {txOut: true},
+    })
+    if (rewardsFold) {
+      logger.info({launchTxHash}, 'Rewards fold exists')
+      const nodes = await prisma.node.findMany({
+        where: {
+          launchTxHash,
+          txOut: {spentSlot: null},
+        },
+        include: {txOut: true},
+        // The nodes must form a valid linked list
+        // they are ordered by their keys
+        orderBy: [{keyHash: 'asc'}, {keyIndex: 'asc'}],
+        // We take as many nodes as we can process in a transaction
+        take: MAX_NODES_FOR_REWARDS_FOLD,
+      })
+      ensure(
+        !nodes.some((n) => n.keyHash == null),
+        {launchTxHash, nodes},
+        'The head node must be spent by this point',
+      )
+      ensure(nodes.length > 0, {launchTxHash}, 'Nodes must exist')
+      const firstProjectTokensHolder =
+        await prisma.firstProjectTokensHolder.findFirstOrThrow({
+          where: {
+            launchTxHash,
+            txOut: {spentSlot: null},
+          },
+          include: {txOut: true},
+        })
+      const txHash = await buildSubmitRewardsFolding(
+        launch,
+        contracts,
+        rewardsFoldValidatorRefScriptCarrier.txOut,
+        rewardsFoldPolicyRefScriptCarrier.txOut,
+        nodeValidatorRefScriptCarrier.txOut,
+        nodePolicyRefScriptCarrier.txOut,
+        firstProjectTokensHolderValidatorRefScriptCarrier.txOut,
+        projectTokensHolderPolicyRefScriptCarrier.txOut,
+        finalProjectTokensHolderValidatorRefScriptCarrier.txOut,
+        rewardsFold,
+        nodes,
+        firstProjectTokensHolder,
+      )
+      if (txHash) logger.info({launchTxHash, txHash}, 'Submitted rewards fold')
+      else logger.error({launchTxHash}, 'Failed to submit rewards fold')
+      return
+    } else logger.info({launchTxHash}, 'No rewards fold exists')
   }
 
   await createPoolProofsIfNeeded(launch)

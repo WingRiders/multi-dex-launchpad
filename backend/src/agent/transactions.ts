@@ -193,7 +193,7 @@ export const createRewardsFold = async (
       undefined,
       networkToNetworkId[config.NETWORK],
     ),
-    // oil ada + validity token
+    // oil + validity token
     [
       {
         unit: LOVELACE_UNIT,

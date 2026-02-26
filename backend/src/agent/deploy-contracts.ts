@@ -31,7 +31,7 @@ import {
   trackSpentInputs,
 } from './wallet'
 
-const phases = [1, 2, 3, 4, 5] as const
+const phases = [1, 2, 3, 4, 5, 6] as const
 type Phase = (typeof phases)[number]
 
 // -----------------------------------------------------------------------------
@@ -232,11 +232,13 @@ const getUndeployedLaunchContracts = (
   if (phase === 4) {
     if (!isDeployed(RefScriptCarrierType.REWARDS_FOLD_VALIDATOR))
       undeployedContracts.push(contracts.rewardsFoldValidator)
+  }
+  if (phase === 5) {
     if (!isDeployed(RefScriptCarrierType.FIRST_PROJECT_TOKENS_HOLDER_VALIDATOR))
       undeployedContracts.push(contracts.tokensHolderFirstValidator)
   }
 
-  if (phase === 5) {
+  if (phase === 6) {
     if (!isDeployed(RefScriptCarrierType.NODE_VALIDATOR))
       undeployedContracts.push(contracts.nodeValidator)
   }

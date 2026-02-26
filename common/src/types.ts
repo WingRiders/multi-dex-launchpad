@@ -1,4 +1,4 @@
-import {integer, type TxInput, type TxOutput} from '@meshsdk/common'
+import type {TxInput, TxOutput} from '@meshsdk/common'
 import type {SetRequired} from 'type-fest'
 
 export type TokenMetadata = {
@@ -21,8 +21,7 @@ export type Tier = (typeof tiers)[number]
 export const dexes = ['WingRidersV2', 'SundaeSwapV3'] as const
 export type Dex = (typeof dexes)[number]
 
-export const dexToMeshData = (dex: Dex) =>
-  integer(dex === 'WingRidersV2' ? 0 : 1)
+export const dexToMeshData = (dex: Dex) => (dex === 'WingRidersV2' ? 0 : 1)
 
 export type SetNullable<T, K extends keyof T> = {
   [P in keyof T]: P extends K ? T[P] | null : T[P]

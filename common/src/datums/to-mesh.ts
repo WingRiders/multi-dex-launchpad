@@ -58,7 +58,7 @@ export const rewardsFoldDatumToMeshData = (datum: RewardsFoldDatum) =>
 
 export const rewardsHolderDatumToMeshData = (datum: RewardsHolderDatum) =>
   mConStr0([
-    mConStr0([datum.owner.hash, datum.owner.index]),
+    nodeKeyToMeshData(datum.owner),
     datum.projectSymbol,
     datum.projectToken,
     datum.raisingSymbol,
