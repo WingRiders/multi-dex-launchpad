@@ -1,11 +1,9 @@
 import {scriptHashToBech32} from '@meshsdk/core-cst'
 import {
-  addCreatePoolProof,
   buildTx,
   calculateTxValidityIntervalAfterLaunchEnd,
   commitFoldRedeemerToMeshData,
   createUnit,
-  type Dex,
   decodeDatum,
   ensure,
   type GeneratedContracts,
@@ -15,7 +13,6 @@ import {
   networkToNetworkId,
   nodeDatumCborSchema,
   nodeRedeemerToMeshData,
-  type RefScriptUtxo,
   rewardsFoldDatumToMeshData,
 } from '@wingriders/multi-dex-launchpad-common'
 import type {Launch, TxOutput} from '../../prisma/generated/client'
@@ -26,7 +23,6 @@ import {
 } from '../db/helpers'
 import {txOutputToRefScriptUtxo} from '../endpoints/ref-scripts'
 import {logger} from '../logger'
-import {CONSTANT_CONTRACTS} from './constants'
 import {getMeshBuilderBodyForLogging} from './helpers'
 import {submitTx} from './ogmios/tx-submission-client'
 import {offlineEvaluator, ogmiosProvider, setFetcherUtxos} from './providers'
@@ -242,66 +238,6 @@ export const createRewardsFold = async (
       rewardsFoldPolicyRef.output.scriptHash,
     )
     .mintRedeemerValue([])
-
-  const unsignedTx = await buildTx(b)
-  if (unsignedTx.isErr()) {
-    logger.error(
-      {
-        error: unsignedTx.error,
-        txBuilderBody: getMeshBuilderBodyForLogging(b),
-      },
-      `Error when building transaction: ${unsignedTx.error.message}`,
-    )
-    return null
-  }
-
-  trackSpentInputs(b)
-
-  const signedTx = await wallet.signTx(unsignedTx.value)
-  const txHash = await submitTx(signedTx)
-  return txHash
-}
-
-export const createPoolProof = async (
-  launch: Launch,
-  poolTxOut: TxOutput,
-  dex: Dex,
-  poolProofPolicyRef: RefScriptUtxo,
-) => {
-  const launchConfig = prismaLaunchToLaunchConfig(launch)
-
-  const poolUtxo = prismaTxOutputToMeshOutput(poolTxOut)
-
-  const wallet = getWallet()
-
-  const b = makeBuilder(
-    getWalletChangeAddress(),
-    config.NETWORK,
-    ogmiosProvider,
-    offlineEvaluator,
-  )
-
-  const walletUtxos = getSpendableWalletUtxos()
-
-  setFetcherUtxos([...walletUtxos, poolUtxo, poolProofPolicyRef])
-  const collateral = (await wallet.getCollateral())[0]
-  ensure(collateral != null, 'No collateral available')
-  b.txInCollateral(
-    collateral.input.txHash,
-    collateral.input.outputIndex,
-    collateral.output.amount,
-    collateral.output.address,
-  )
-  b.selectUtxosFrom(walletUtxos)
-
-  addCreatePoolProof(
-    b,
-    launchConfig,
-    CONSTANT_CONTRACTS,
-    poolProofPolicyRef,
-    poolUtxo.input,
-    dex,
-  )
 
   const unsignedTx = await buildTx(b)
   if (unsignedTx.isErr()) {
