@@ -768,14 +768,22 @@ export const buildSubmitRewardsFolding = async (
       )
   }
 
+  const logContext = {
+    isLastFold,
+    launchTxHash: launch.txHash,
+    compensations: compensations.length,
+    nodes: nodes.length,
+  }
+
   const unsignedTx = await buildTx(b)
   if (unsignedTx.isErr()) {
     logger.error(
       {
+        ...logContext,
         error: unsignedTx.error,
         txBuilderBody: getMeshBuilderBodyForLogging(b),
       },
-      `Error when building transaction: ${unsignedTx.error.message}`,
+      `Error when building rewards fold transaction: ${unsignedTx.error.message}`,
     )
     return null
   }
@@ -783,6 +791,29 @@ export const buildSubmitRewardsFolding = async (
   trackSpentInputs(b)
 
   const signedTx = await wallet.signTx(unsignedTx.value)
-  const txHash = await submitTx(signedTx)
+
+  logger.info(
+    {...logContext, signedTx},
+    'Submitting rewards fold transaction...',
+  )
+  const txHash = await Result.tryPromise(() => submitTx(signedTx))
+  if (txHash.isErr()) {
+    logger.error(
+      {
+        ...logContext,
+        txBuilderBody: getMeshBuilderBodyForLogging(b),
+        signedTx,
+        error: txHash.error,
+        cause: txHash.error.cause, // txHash.error.cause.data is omitted above
+      },
+      `Error when submitting rewards fold transaction: ${txHash.error.message}`,
+    )
+    return null
+  }
+  logger.info(
+    {...logContext, txHash: txHash.value},
+    'Submitted rewards fold transaction',
+  )
+
   return txHash
 }

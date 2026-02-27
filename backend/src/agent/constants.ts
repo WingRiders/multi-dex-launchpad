@@ -20,8 +20,5 @@ export const SEPARATORS_TO_RECLAIM = 20
 
 export const COMMIT_FOLDING_BATCH_SIZE = 50 // TODO Adjust based on performance testing
 
-// TODO: figure out a correct value
-//       that can be constructed dynamically probably
-//       for simplicity we always fold over a constant number of nodes
-// maximum number of nodes that can be folded over in one transaction
-export const MAX_NODES_FOR_REWARDS_FOLD = 10
+// Max possible is 20, we leave some headroom
+export const MAX_NODES_FOR_REWARDS_FOLD = 18

@@ -414,7 +414,7 @@ const processLaunch = async (
           },
           include: {txOut: true},
         })
-      const txHash = await buildSubmitRewardsFolding(
+      await buildSubmitRewardsFolding(
         launch,
         contracts,
         rewardsFoldValidatorRefScriptCarrier.txOut,
@@ -428,8 +428,6 @@ const processLaunch = async (
         nodes,
         firstProjectTokensHolder,
       )
-      if (txHash) logger.info({launchTxHash, txHash}, 'Submitted rewards fold')
-      else logger.error({launchTxHash}, 'Failed to submit rewards fold')
       return
     } else logger.info({launchTxHash}, 'No rewards fold exists')
   }
