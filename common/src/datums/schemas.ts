@@ -8,6 +8,7 @@ import {
   pubKeyHashSchema,
   scriptHashSchema,
 } from '../helpers/schemas'
+import type {Dex} from '../types'
 import type {
   CommitFoldDatum,
   FailProofDatum,
@@ -445,3 +446,9 @@ export const refScriptCarrierDatumCborSchema = z
       deadline: Number(res.fields[1].int),
     }),
   )
+
+export const finalProjectTokensHolderDatumCborSchema = z
+  .object({
+    int: z.union([z.literal(0n), z.literal(1n)]),
+  })
+  .transform((res): Dex => (res.int === 0n ? 'WingRidersV2' : 'SundaeSwapV3'))

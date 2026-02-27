@@ -14,7 +14,9 @@ import {
   DAO_FEE_RECEIVER_BECH32_ADDRESS,
   decodeDatum,
   ensure,
+  type FinalProjectTokensHolderDatum,
   failProofDatumCborSchema,
+  finalProjectTokensHolderDatumCborSchema,
   generateLaunchContracts,
   getCommitFoldDatumCborSchema,
   getLaunchTxMetadataSchema,
@@ -38,7 +40,7 @@ import type {SetNonNullable, SetRequired} from 'type-fest'
 import z from 'zod'
 import {
   type Block,
-  PoolProofType,
+  Dex as PrismaDex,
   type TxOutput,
 } from '../../../prisma/generated/client'
 import type {
@@ -100,6 +102,7 @@ type SyncEvent =
             | 'node'
             | 'commitFold'
             | 'rewardsHolder'
+            | 'finalProjectTokensHolder'
             | RefScriptCarrierLaunchUtxoType
           >
         }
@@ -114,6 +117,10 @@ type SyncEvent =
       | {
           outputType: 'rewardsHolder'
           rewardsHolderDatum: RewardsHolderDatum
+        }
+      | {
+          outputType: 'finalProjectTokensHolder'
+          finalProjectTokensHolderDatum: FinalProjectTokensHolderDatum
         }
       | {
           outputType: RefScriptCarrierLaunchUtxoType
@@ -337,6 +344,35 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
           txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType: 'node',
           nodeDatum,
+        })
+        continue
+      }
+
+      if (type === 'finalProjectTokensHolder') {
+        // Final project tokens holders must carry an inline datum; validate and decode it now and
+        // attach the decoded datum to the pushed event so the DB writer can reuse
+        // the already-decoded structure instead of decoding again.
+        ensure(
+          txOutput.datum != null,
+          {txOutput},
+          'Final project tokens holder must have inline datum',
+        )
+        const finalProjectTokensHolderDatum = decodeDatum(
+          finalProjectTokensHolderDatumCborSchema,
+          txOutput.datum,
+        )
+        ensure(
+          finalProjectTokensHolderDatum != null,
+          {txOutput},
+          'Final project tokens holder must have valid inline datum',
+        )
+
+        pushSyncEvent({
+          type: 'launchTxOutput',
+          launchTxHash: launch.txHash,
+          txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
+          outputType: 'finalProjectTokensHolder',
+          finalProjectTokensHolderDatum,
         })
         continue
       }
@@ -943,11 +979,13 @@ const saveLaunchTxOutputsFields = async (
         break
       }
       case 'finalProjectTokensHolder': {
+        const datum = syncEvent.finalProjectTokensHolderDatum
         await prisma.finalProjectTokensHolder.create({
           data: {
             launchTxHash,
             txHash: txOutput.txHash,
             outputIndex: txOutput.outputIndex,
+            dex: datum === 'WingRidersV2' ? PrismaDex.WR : PrismaDex.SUNDAE,
           },
         })
         break
@@ -998,7 +1036,7 @@ const saveLaunchTxOutputsFields = async (
             launchTxHash,
             txHash: txOutput.txHash,
             outputIndex: txOutput.outputIndex,
-            type: PoolProofType.WR,
+            dex: PrismaDex.WR,
           },
         })
         break
@@ -1009,7 +1047,7 @@ const saveLaunchTxOutputsFields = async (
             launchTxHash,
             txHash: txOutput.txHash,
             outputIndex: txOutput.outputIndex,
-            type: PoolProofType.SUNDAE,
+            dex: PrismaDex.SUNDAE,
           },
         })
         break

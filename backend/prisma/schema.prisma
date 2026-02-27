@@ -117,6 +117,8 @@ model FinalProjectTokensHolder {
   launchTxHash String
   launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
 
+  dex Dex
+
   @@unique([txHash, outputIndex, launchTxHash])
 }
 
@@ -150,7 +152,7 @@ model RewardsFold {
   @@unique([txHash, outputIndex, launchTxHash])
 }
 
-enum PoolProofType {
+enum Dex {
   SUNDAE
   WR
 }
@@ -162,7 +164,7 @@ model PoolProof {
   launchTxHash String
   launch       Launch   @relation(fields: [launchTxHash], references: [txHash], onDelete: Cascade)
 
-  type PoolProofType
+  dex Dex
 
   @@unique([txHash, outputIndex, launchTxHash])
 }

@@ -110,3 +110,5 @@ export type MultisigScript =
   | {type: 'MultisigBefore'; time: number}
   | {type: 'MultisigAfter'; time: number}
   | {type: 'MultisigScript'; scriptHash: string}
+
+export type FinalProjectTokensHolderDatum = Dex

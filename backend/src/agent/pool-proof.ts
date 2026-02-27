@@ -17,7 +17,7 @@ import {
 } from '@wingriders/multi-dex-launchpad-common'
 import {
   type Launch,
-  PoolProofType,
+  Dex as PrismaDex,
   type TxOutput,
 } from '../../prisma/generated/client'
 import {config} from '../config'
@@ -46,10 +46,10 @@ export const createPoolProofsIfNeeded = async (launch: Launch) => {
 
   const poolProofs = await prisma.poolProof.findMany({
     where: {launchTxHash, txOut: {spentSlot: null}},
-    select: {type: true, txOut: true},
+    select: {dex: true, txOut: true},
   })
 
-  if (!poolProofs.some((p) => p.type === PoolProofType.WR)) {
+  if (!poolProofs.some((p) => p.dex === PrismaDex.WR)) {
     const wrPool = await prisma.wrPool.findFirst({
       where: {launchTxHash, txOut: {spentSlot: null}},
       select: {txOut: true},
@@ -71,7 +71,7 @@ export const createPoolProofsIfNeeded = async (launch: Launch) => {
     }
   } else logger.info({launchTxHash}, 'WingRiders pool proof exists')
 
-  if (!poolProofs.some((p) => p.type === PoolProofType.SUNDAE)) {
+  if (!poolProofs.some((p) => p.dex === PrismaDex.SUNDAE)) {
     const sundaePool = await prisma.sundaePool.findFirst({
       where: {launchTxHash, txOut: {spentSlot: null}},
       select: {txOut: true},
