@@ -1042,12 +1042,12 @@ const saveLaunchTxOutputsFields = async (
   }
 }
 
-// Find starting point for Ogmios, either 10th latest block (to prevent issues in case of
+// Find starting point for Ogmios, either 5th latest block (to prevent issues in case of
 // rollbacks or default to origin
 const findIntersect = async () => {
   const dbBlock = await prisma.block.findFirst({
     orderBy: {slot: 'desc'},
-    skip: 10,
+    skip: 5,
   })
   return dbBlock ? {id: dbBlock.hash, slot: dbBlock.slot} : originPoint
 }
@@ -1095,7 +1095,7 @@ export const startChainSyncClient = async () => {
       // Decide if to use buffering based on proximity to ledger tip
       const threshold =
         response.tip !== 'origin' &&
-        response.tip.height - 10 < response.block.height
+        response.tip.height - 5 < response.block.height
           ? 1
           : BUFFER_SIZE
       if (await writeBuffersIfNecessary({latestLedgerHeight, threshold})) {
