@@ -7,6 +7,7 @@ import {Result} from 'better-result'
 import {
   type CommitFold,
   type Launch,
+  Dex as PrismaDex,
   RefScriptCarrierType,
 } from '../../prisma/generated/client'
 import {timeToSlot} from '../common'
@@ -16,6 +17,8 @@ import type {InterestingLaunch} from '../interesting-launches'
 import {logger} from '../logger'
 import {executeCommitFolding} from './commit-fold/execute-commit-folding'
 import {MAX_NODES_FOR_REWARDS_FOLD, SEPARATORS_TO_INSERT} from './constants'
+import {createSundaePoolIfNeeded} from './create-pool/sundae-pool'
+import {createWrPoolIfNeeded} from './create-pool/wr-pool'
 import {deployContractsIfNeeded, undeployContracts} from './deploy-contracts'
 import {createFailProof} from './fail-proof'
 import {isSeparator} from './node'
@@ -430,6 +433,28 @@ const processLaunch = async (
       )
       return
     } else logger.info({launchTxHash}, 'No rewards fold exists')
+  }
+
+  const finalProjectTokensHolders =
+    await prisma.finalProjectTokensHolder.findMany({
+      where: {
+        launchTxHash,
+        txOut: {spentSlot: null},
+      },
+      include: {txOut: true},
+    })
+  if (finalProjectTokensHolders.length > 0) {
+    logger.info(
+      {launchTxHash, pools: finalProjectTokensHolders.map(({dex}) => dex)},
+      `Need to create ${finalProjectTokensHolders.length} pools`,
+    )
+    const finalProjectTokensHolder = finalProjectTokensHolders[0]!
+    if (finalProjectTokensHolder.dex === PrismaDex.WR) {
+      createWrPoolIfNeeded()
+      return
+    }
+    createSundaePoolIfNeeded()
+    return
   }
 
   await createPoolProofsIfNeeded(launch)
