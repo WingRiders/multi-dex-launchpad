@@ -79,7 +79,9 @@ const InfoItem = ({
       <div className="mt-2 flex items-center gap-2">
         {displayValue != null ? (
           <>
-            <p className="font-medium font-mono text-sm">{displayValue}</p>
+            <p className="wrap-break-word min-w-0 font-medium font-mono text-sm">
+              {displayValue}
+            </p>
             {showCopy && (
               <WithClipboard text={value!.toString()}>
                 {({copy, isCopied}) => (

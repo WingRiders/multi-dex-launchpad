@@ -23,7 +23,7 @@ type UserNodesProps = {
   launchTxHash: string
   config: Pick<
     LaunchConfig,
-    'raisingToken' | 'endTime' | 'projectMinCommitment'
+    'raisingToken' | 'startTime' | 'endTime' | 'projectMinCommitment'
   >
   connectedWallet: ConnectedWallet
   totalCommitted: bigint
@@ -35,7 +35,12 @@ export const UserNodes = ({
   connectedWallet,
   totalCommitted,
 }: UserNodesProps) => {
-  const time = useUpdatedTime(useMemo(() => [config.endTime], [config.endTime]))
+  const time = useUpdatedTime(
+    useMemo(
+      () => [config.startTime, config.endTime],
+      [config.startTime, config.endTime],
+    ),
+  )
 
   const trpc = useTRPC()
 
@@ -50,6 +55,10 @@ export const UserNodes = ({
 
   const isLaunchFailed =
     time >= config.endTime && totalCommitted < config.projectMinCommitment
+
+  if (time < config.startTime) {
+    return null
+  }
 
   return (
     <>
