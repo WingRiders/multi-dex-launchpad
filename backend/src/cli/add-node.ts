@@ -3,17 +3,13 @@ import {
   addCreateCommitment,
   calculateTxValidityIntervalForInsertNode,
   type LaunchConfig,
-  makeBuilder,
 } from '@wingriders/multi-dex-launchpad-common'
 import {Result} from 'better-result'
 import {file, JSON5, sleep} from 'bun'
 import {Command} from 'commander'
 import {z} from 'zod'
-import {
-  offlineEvaluator,
-  ogmiosProvider,
-  updateFetcherFromOgmios,
-} from '../agent/providers'
+import {updateFetcherFromOgmios} from '../agent/providers'
+import {makeBuilder} from '../agent/transactions'
 import {
   getWallet,
   getWalletPubKeyHash,
@@ -112,12 +108,7 @@ const processAddNodeTransactions = async (
   const walletUtxos = await wallet.getUtxos()
 
   logger.info('🚀 Building and submitting transaction...')
-  const b = makeBuilder(
-    await wallet.getChangeAddress(),
-    config.NETWORK,
-    ogmiosProvider,
-    offlineEvaluator,
-  )
+  const b = makeBuilder(await wallet.getChangeAddress())
     .txInCollateral(
       collateralUtxo.input.txHash,
       collateralUtxo.input.outputIndex,

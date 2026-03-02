@@ -2,7 +2,6 @@ import type {TxInput} from '@meshsdk/common'
 import type {UTxO} from '@meshsdk/core'
 import {scriptHashToBech32} from '@meshsdk/core-cst'
 import {
-  buildTx,
   type CommitFoldDatum,
   commitFoldDatumToMeshData,
   createUnit,
@@ -10,7 +9,6 @@ import {
   ensure,
   type GeneratedContracts,
   LOVELACE_UNIT,
-  makeBuilder,
   networkToNetworkId,
 } from '@wingriders/multi-dex-launchpad-common'
 import {orderBy} from 'es-toolkit'
@@ -32,7 +30,8 @@ import {txOutputToRefScriptUtxo} from '../../endpoints/ref-scripts'
 import {logger} from '../../logger'
 import {getMeshBuilderBodyForLogging} from '../helpers'
 import {submitTx} from '../ogmios/tx-submission-client'
-import {offlineEvaluator, ogmiosProvider, setFetcherUtxos} from '../providers'
+import {setFetcherUtxos} from '../providers'
+import {buildTx, makeBuilder} from '../transactions'
 import {
   getSpendableWalletUtxos,
   getWallet,
@@ -113,12 +112,7 @@ export const buildAndSubmitCommitFoldTx = async ({
 
   const wallet = getWallet()
 
-  const b = makeBuilder(
-    getWalletChangeAddress(),
-    config.NETWORK,
-    ogmiosProvider,
-    offlineEvaluator,
-  )
+  const b = makeBuilder(getWalletChangeAddress())
 
   // Wallet UTxOs
   const walletUtxos = getSpendableWalletUtxos()

@@ -5,8 +5,6 @@ import {
   type UTxO,
 } from '@meshsdk/core'
 import {
-  buildTx,
-  buildTxNeverUseUnlessManuallyBalancing,
   calculateTxValidityInterval,
   calculateTxValidityIntervalBeforeLaunchStart,
   createUnit,
@@ -15,7 +13,6 @@ import {
   type GeneratedContracts,
   LOVELACE_UNIT,
   launchpadConstants,
-  makeBuilder,
   type NodeDatum,
   nodeDatumCborSchema,
   nodeDatumToMeshData,
@@ -34,7 +31,12 @@ import {logger} from '../logger'
 import {SEPARATORS_TO_RECLAIM} from './constants'
 import {getMeshBuilderBodyForLogging} from './helpers'
 import {submitTx} from './ogmios/tx-submission-client'
-import {offlineEvaluator, ogmiosProvider, setFetcherUtxos} from './providers'
+import {setFetcherUtxos} from './providers'
+import {
+  buildTx,
+  buildTxNeverUseUnlessManuallyBalancing,
+  makeBuilder,
+} from './transactions'
 import {
   getSpendableWalletUtxos,
   getWallet,
@@ -81,12 +83,7 @@ export const insertSeparators = async (
 
   const wallet = getWallet()
 
-  const b = makeBuilder(
-    getWalletChangeAddress(),
-    config.NETWORK,
-    ogmiosProvider,
-    offlineEvaluator,
-  )
+  const b = makeBuilder(getWalletChangeAddress())
 
   const walletUtxos = getSpendableWalletUtxos()
 
@@ -324,12 +321,7 @@ export const reclaimSeparators = async (
       unspentSeparatorsChunkSize: unspentSeparatorsChunk.length,
     }
 
-    const b = makeBuilder(
-      getWalletChangeAddress(),
-      config.NETWORK,
-      ogmiosProvider,
-      offlineEvaluator,
-    )
+    const b = makeBuilder(getWalletChangeAddress())
     const walletUtxos = getSpendableWalletUtxos()
     b.selectUtxosFrom(walletUtxos)
 

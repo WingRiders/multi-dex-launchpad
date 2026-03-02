@@ -1,6 +1,6 @@
+import {MeshTxBuilder} from '@meshsdk/core'
 import {scriptHashToBech32} from '@meshsdk/core-cst'
 import {
-  buildTx,
   calculateTxValidityIntervalAfterLaunchEnd,
   commitFoldRedeemerToMeshData,
   createUnit,
@@ -9,12 +9,12 @@ import {
   type GeneratedContracts,
   getCommitFoldDatumCborSchema,
   LOVELACE_UNIT,
-  makeBuilder,
   networkToNetworkId,
   nodeDatumCborSchema,
   nodeRedeemerToMeshData,
   rewardsFoldDatumToMeshData,
 } from '@wingriders/multi-dex-launchpad-common'
+import {Result} from 'better-result'
 import type {Launch, TxOutput} from '../../prisma/generated/client'
 import {config} from '../config'
 import {
@@ -25,7 +25,12 @@ import {txOutputToRefScriptUtxo} from '../endpoints/ref-scripts'
 import {logger} from '../logger'
 import {getMeshBuilderBodyForLogging} from './helpers'
 import {submitTx} from './ogmios/tx-submission-client'
-import {offlineEvaluator, ogmiosProvider, setFetcherUtxos} from './providers'
+import {
+  getFetcher,
+  offlineEvaluator,
+  ogmiosProvider,
+  setFetcherUtxos,
+} from './providers'
 import {
   getSpendableWalletUtxos,
   getWallet,
@@ -86,12 +91,7 @@ export const createRewardsFold = async (
 
   const wallet = getWallet()
 
-  const b = makeBuilder(
-    getWalletChangeAddress(),
-    config.NETWORK,
-    ogmiosProvider,
-    offlineEvaluator,
-  )
+  const b = makeBuilder(getWalletChangeAddress())
 
   const walletUtxos = getSpendableWalletUtxos()
   setFetcherUtxos([
@@ -257,3 +257,36 @@ export const createRewardsFold = async (
   const txHash = await submitTx(signedTx)
   return txHash
 }
+
+export const makeBuilder = (changeAddress: string): MeshTxBuilder =>
+  new MeshTxBuilder({
+    submitter: ogmiosProvider,
+    evaluator: offlineEvaluator,
+    fetcher: getFetcher(),
+  })
+    .setNetwork(config.NETWORK)
+    .changeAddress(changeAddress)
+
+export const buildTx = (b: MeshTxBuilder) =>
+  Result.tryPromise(() => b.complete())
+
+// Use this only if you can't use the normal buildTx() for some reason.
+// This will not verify the fee, you need to calculate it yourself.
+// This will not balance the transaction either, pass in a balanced builder.
+export const buildTxNeverUseUnlessManuallyBalancing = async (
+  b: MeshTxBuilder,
+  fee: bigint,
+) =>
+  // we need (b as any) to access protected fields
+  await Result.tryPromise(async () => {
+    ;(b as any).queueAllLastItem()
+    b.removeDuplicateInputs()
+    b.removeDuplicateRefInputs()
+    for (const collateral of b.meshTxBuilderBody.collaterals)
+      collateral.txIn.scriptSize = 0
+    await (b as any).completeTxParts()
+    await (b as any).sanitizeOutputs()
+    b.sortTxParts()
+    b.setFee(fee.toString())
+    return await (b as any).completeSerialization()
+  })

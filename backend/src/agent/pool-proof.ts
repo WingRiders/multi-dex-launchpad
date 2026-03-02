@@ -1,7 +1,6 @@
 import type {MeshTxBuilder, TxInput} from '@meshsdk/core'
 import {scriptHashToBech32} from '@meshsdk/core-cst'
 import {
-  buildTx,
   type ConstantContracts,
   constantRefScriptsByNetwork,
   createUnit,
@@ -9,7 +8,6 @@ import {
   dexToMeshData,
   ensure,
   type LaunchConfig,
-  makeBuilder,
   networkToNetworkId,
   parseUnit,
   poolProofDatumToMeshData,
@@ -30,7 +28,8 @@ import {logger} from '../logger'
 import {CONSTANT_CONTRACTS} from './constants'
 import {getMeshBuilderBodyForLogging} from './helpers'
 import {submitTx} from './ogmios/tx-submission-client'
-import {offlineEvaluator, ogmiosProvider, setFetcherUtxos} from './providers'
+import {setFetcherUtxos} from './providers'
+import {buildTx, makeBuilder} from './transactions'
 import {
   getSpendableWalletUtxos,
   getWallet,
@@ -105,12 +104,7 @@ const createPoolProof = async (
 
   const wallet = getWallet()
 
-  const b = makeBuilder(
-    getWalletChangeAddress(),
-    config.NETWORK,
-    ogmiosProvider,
-    offlineEvaluator,
-  )
+  const b = makeBuilder(getWalletChangeAddress())
 
   const walletUtxos = getSpendableWalletUtxos()
 

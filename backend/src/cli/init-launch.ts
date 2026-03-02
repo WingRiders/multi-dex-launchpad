@@ -12,7 +12,6 @@ import {
   LAUNCH_COLLATERAL,
   type LaunchConfig,
   MAX_LENGTHS,
-  makeBuilder,
   NODE_ADA,
   OIL_ADA,
   SPLIT_BPS_BASE,
@@ -31,11 +30,8 @@ import {
 import {file, JSON5} from 'bun'
 import {Command} from 'commander'
 import {z} from 'zod'
-import {
-  offlineEvaluator,
-  ogmiosProvider,
-  updateFetcherFromOgmios,
-} from '../agent/providers'
+import {updateFetcherFromOgmios} from '../agent/providers'
+import {makeBuilder} from '../agent/transactions'
 import {getWallet, getWalletPubKeyHash, initWallet} from '../agent/wallet'
 import {config} from '../config'
 import {logger} from '../logger'
@@ -200,12 +196,7 @@ export const buildInitLaunchCommand = () => {
       }
 
       logger.info('🚀 Building and submitting transaction...')
-      const b = makeBuilder(
-        await wallet.getChangeAddress(),
-        config.NETWORK,
-        ogmiosProvider,
-        offlineEvaluator,
-      )
+      const b = makeBuilder(await wallet.getChangeAddress())
         .txInCollateral(
           collateralUtxo.input.txHash,
           collateralUtxo.input.outputIndex,
