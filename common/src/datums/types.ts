@@ -112,3 +112,15 @@ export type MultisigScript =
   | {type: 'MultisigScript'; scriptHash: string}
 
 export type FinalProjectTokensHolderDatum = Dex
+
+export type VestingDatum = {
+  beneficiary: string // bech32 address
+  vestingSymbol: string
+  vestingToken: string
+  totalVestingQty: bigint
+  vestingPeriodStart: number // POSIX time
+  vestingPeriodEnd: number // POSIX time
+  firstUnlockPossibleAfter: number // POSIX time
+  totalInstallments: number
+  vestingMemo: string
+}

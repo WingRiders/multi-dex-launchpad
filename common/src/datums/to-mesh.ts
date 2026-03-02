@@ -10,6 +10,7 @@ import type {
   RewardsFoldDatum,
   RewardsHolderDatum,
   TokensHolderFirstDatum,
+  VestingDatum,
 } from './types'
 
 export const refScriptCarrierDatumToMeshData = (datum: RefScriptCarrierDatum) =>
@@ -79,3 +80,16 @@ export const poolProofDatumToMeshData = (datum: PoolProofDatum) =>
 
 export const failProofDatumToMeshData = (datum: FailProofDatum) =>
   datum.scriptHash
+
+export const vestingDatumToMeshData = (datum: VestingDatum) =>
+  mConStr0([
+    bech32AddressToMeshData(datum.beneficiary),
+    datum.vestingSymbol,
+    datum.vestingToken,
+    datum.totalVestingQty,
+    datum.vestingPeriodStart,
+    datum.vestingPeriodEnd,
+    datum.firstUnlockPossibleAfter,
+    datum.totalInstallments,
+    datum.vestingMemo,
+  ])
