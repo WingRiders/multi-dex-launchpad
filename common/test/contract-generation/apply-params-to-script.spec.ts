@@ -59,8 +59,9 @@ describe('applyParamsToScript (Mesh / CSL)', () => {
           ['61', 1], // The order is switched from the test case in cab, because entries are being sorted there
         ]),
       ],
-      expectedHash: '967b25a3585379641b5f42157efe78d31c15cf3534f17da5ea8d5d3a',
-      expectedHex: '581b5819010000333222220051200120014c0107a20241624161010001',
+      expectedHash: '7a12273abf387f35ac0429eb0e902b90eb30bfa007a2abd4b3727308',
+      expectedHex:
+        '581c581a010000333222220051200120014c0108bf024162416101ff0001',
     },
     {
       name: 'constr',
@@ -77,7 +78,7 @@ describe('applyParamsToScript (Mesh / CSL)', () => {
 
   for (const {name, params, expectedHash, expectedHex} of cases) {
     it(`should apply params (${name}) and return correct V2 script hash`, async () => {
-      const {hex, hash} = await applyParamsToScript(
+      const {hex, hash} = applyParamsToScript(
         {cborHex: SCRIPT_CBOR_HEX, version: PlutusScriptVersion.PlutusScriptV2},
         params,
       )

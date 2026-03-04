@@ -138,13 +138,13 @@ const CreateLaunchDialogContent = ({
         ? async () => {
             const {config, projectInfo} = configAndProjectInfo
 
-            const constantContracts = await generateConstantContracts({
+            const constantContracts = generateConstantContracts({
               wrPoolValidatorHash: config.wrPoolValidatorHash,
               wrPoolSymbol: config.wrPoolCurrencySymbol,
               sundaePoolScriptHash: config.sundaePoolScriptHash,
             })
 
-            const launchpadContracts = await generateLaunchContracts(
+            const launchpadContracts = generateLaunchContracts(
               config,
               constantContracts,
             )

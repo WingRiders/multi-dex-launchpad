@@ -11,20 +11,20 @@ type GenerateConstantContractsParams = {
   sundaePoolScriptHash: string
 }
 
-export const generateConstantContracts = async (
+export const generateConstantContracts = (
   params: GenerateConstantContractsParams,
-): Promise<ConstantContracts> => {
+): ConstantContracts => {
   const failProofPolicy = getScriptFromExport(artifacts.failProofPolicy)
   const failProofValidator = getScriptFromExport(artifacts.failProofValidator)
-  const poolProofPolicy = await applyParamsToScriptExport(
+  const poolProofPolicy = applyParamsToScriptExport(
     artifacts.parametricPoolProofPolicy,
     [poolProofPolicyConfigToMeshData(params)],
   )
-  const poolProofValidator = await applyParamsToScriptExport(
+  const poolProofValidator = applyParamsToScriptExport(
     artifacts.parametricPoolProofValidator,
     [poolProofConfigToMeshData({poolProofSymbol: poolProofPolicy.hash})],
   )
-  const rewardsHolderValidator = await applyParamsToScriptExport(
+  const rewardsHolderValidator = applyParamsToScriptExport(
     artifacts.parametricRewardsHolderValidator,
     [
       rewardsHolderConfigToMeshData({

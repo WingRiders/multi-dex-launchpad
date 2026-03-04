@@ -27,11 +27,11 @@ export type GeneratedContracts = {
   nodeValidator: Contract
 }
 
-export const generateLaunchContracts = async (
+export const generateLaunchContracts = (
   launchConfig: LaunchConfig,
   constantScriptHashes: ConstantContracts,
-): Promise<GeneratedContracts> => {
-  const rewardsHolderValidator = await applyParamsToScriptExport(
+): GeneratedContracts => {
+  const rewardsHolderValidator = applyParamsToScriptExport(
     artifacts.parametricRewardsHolderValidator,
     [
       rewardsHolderConfigToMeshData({
@@ -41,23 +41,20 @@ export const generateLaunchContracts = async (
     ],
   )
 
-  const rewardsFoldPolicy = await applyParamsToScriptExport(
+  const rewardsFoldPolicy = applyParamsToScriptExport(
     artifacts.parametricRewardsFoldPolicy,
     [rewardsFoldPolicyConfigToMeshData({starter: launchConfig.starter})],
   )
 
-  const nodePolicy = await applyParamsToScriptExport(
-    artifacts.parametricNodePolicy,
-    [
-      nodePolicyConfigToMeshData({
-        starter: launchConfig.starter,
-        ownerPubKeyHash: resolvePaymentKeyHash(launchConfig.ownerBech32Address),
-        nodeAda: launchConfig.nodeAda,
-      }),
-    ],
-  )
+  const nodePolicy = applyParamsToScriptExport(artifacts.parametricNodePolicy, [
+    nodePolicyConfigToMeshData({
+      starter: launchConfig.starter,
+      ownerPubKeyHash: resolvePaymentKeyHash(launchConfig.ownerBech32Address),
+      nodeAda: launchConfig.nodeAda,
+    }),
+  ])
 
-  const commitFoldPolicy = await applyParamsToScriptExport(
+  const commitFoldPolicy = applyParamsToScriptExport(
     artifacts.parametricCommitFoldPolicy,
     [
       commitFoldPolicyConfigToMeshData({
@@ -68,7 +65,7 @@ export const generateLaunchContracts = async (
     ],
   )
 
-  const tokensHolderPolicy = await applyParamsToScriptExport(
+  const tokensHolderPolicy = applyParamsToScriptExport(
     artifacts.parametricProjectTokensHolderPolicy,
     [
       tokensHolderPolicyConfigToMeshData({
@@ -83,7 +80,7 @@ export const generateLaunchContracts = async (
     ],
   )
 
-  const commitFoldValidator = await applyParamsToScriptExport(
+  const commitFoldValidator = applyParamsToScriptExport(
     artifacts.parametricCommitFoldValidator,
     [
       commitFoldConfigToMeshData({
@@ -96,7 +93,7 @@ export const generateLaunchContracts = async (
     ],
   )
 
-  const tokensHolderFinalValidator = await applyParamsToScriptExport(
+  const tokensHolderFinalValidator = applyParamsToScriptExport(
     artifacts.parametricProjectTokensHolderFinalValidator,
     [
       tokensHolderFinalConfigToMeshData({
@@ -122,7 +119,7 @@ export const generateLaunchContracts = async (
     ],
   )
 
-  const tokensHolderFirstValidator = await applyParamsToScriptExport(
+  const tokensHolderFirstValidator = applyParamsToScriptExport(
     artifacts.parametricProjectTokensHolderFirstValidator,
     [
       tokensHolderFirstConfigToMeshData({
@@ -136,7 +133,7 @@ export const generateLaunchContracts = async (
     ],
   )
 
-  const rewardsFoldValidator = await applyParamsToScriptExport(
+  const rewardsFoldValidator = applyParamsToScriptExport(
     artifacts.parametricRewardsFoldValidator,
     [
       rewardsFoldConfigToMeshData({
@@ -166,7 +163,7 @@ export const generateLaunchContracts = async (
     ],
   )
 
-  const nodeValidator = await applyParamsToScriptExport(
+  const nodeValidator = applyParamsToScriptExport(
     artifacts.parametricNodeValidator,
     [
       nodeConfigToMeshData({

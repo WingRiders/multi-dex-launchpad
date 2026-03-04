@@ -6,7 +6,7 @@ import {
 } from '@wingriders/multi-dex-launchpad-common'
 import {config} from '../config'
 
-export const CONSTANT_CONTRACTS = await generateConstantContracts({
+export const CONSTANT_CONTRACTS = generateConstantContracts({
   wrPoolSymbol: WR_POOL_SYMBOL[config.NETWORK],
   wrPoolValidatorHash: WR_POOL_VALIDATOR_HASH[config.NETWORK],
   sundaePoolScriptHash: SUNDAE_POOL_SCRIPT_HASH[config.NETWORK],

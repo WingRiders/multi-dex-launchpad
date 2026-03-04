@@ -38,7 +38,7 @@ export const buildDeployConstantContractsCommand = () => {
       const walletUtxos = await wallet.getUtxos()
 
       logger.info('Generating constant contracts...')
-      const constantContracts = await generateConstantContracts({
+      const constantContracts = generateConstantContracts({
         sundaePoolScriptHash: SUNDAE_POOL_SCRIPT_HASH[config.NETWORK],
         wrPoolSymbol: WR_POOL_SYMBOL[config.NETWORK],
         wrPoolValidatorHash: WR_POOL_VALIDATOR_HASH[config.NETWORK],

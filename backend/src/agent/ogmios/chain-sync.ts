@@ -217,11 +217,7 @@ const processBlock = async (
   // The order is important: we want to parse launch initializations as soon as possible
   // otherwise we might miss transactions;
   // we also want to parse spent tx outputs last as not to miss anything
-  await parseInitLaunch(
-    block.slot,
-    block.transactions || [],
-    launchTxMetadataSchema,
-  )
+  parseInitLaunch(block.slot, block.transactions || [], launchTxMetadataSchema)
   parseLaunchTxOutputs(block.slot, block.transactions || [])
   parseSpentTxOutputs(block.slot, block.transactions || [])
 }
@@ -568,7 +564,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
 //       Most of the other checks are done by the policies
 //
 // Pushes sync events
-const parseInitLaunch = async (
+const parseInitLaunch = (
   slot: number,
   transactions: Transaction[],
   launchTxMetadataSchema: LaunchTxMetadataSchema,
@@ -596,8 +592,7 @@ const parseInitLaunch = async (
 
     // Then we generate the contracts and parse the transaction
     logger.info({txHash: tx.id, launchTxMetadata}, 'Found init launch tx')
-    // TODO: make that sync, there's no reason to have it async
-    const launchContracts = await generateLaunchContracts(
+    const launchContracts = generateLaunchContracts(
       launchTxMetadata.data.config,
       CONSTANT_CONTRACTS,
     )

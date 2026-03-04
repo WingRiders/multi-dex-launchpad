@@ -196,7 +196,7 @@ export const resetInterestingLaunches = async () => {
   }
 
   for (const launch of launches) {
-    const contracts = await generateLaunchContracts(
+    const contracts = generateLaunchContracts(
       prismaLaunchToLaunchConfig(launch),
       CONSTANT_CONTRACTS,
     )

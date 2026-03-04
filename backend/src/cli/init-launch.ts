@@ -178,14 +178,14 @@ export const buildInitLaunchCommand = () => {
       }
 
       logger.info('Generating constant contracts...')
-      const constantContracts = await generateConstantContracts({
+      const constantContracts = generateConstantContracts({
         sundaePoolScriptHash: launchConfig.sundaePoolScriptHash,
         wrPoolSymbol: launchConfig.wrPoolCurrencySymbol,
         wrPoolValidatorHash: launchConfig.wrPoolValidatorHash,
       })
 
       logger.info('Generating launch contracts...')
-      const launchContracts = await generateLaunchContracts(
+      const launchContracts = generateLaunchContracts(
         launchConfig,
         constantContracts,
       )

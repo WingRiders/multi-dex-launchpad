@@ -51,7 +51,6 @@
         "@meshsdk/common": "^1.9.0-beta.98",
         "@meshsdk/core": "^1.9.0-beta.98",
         "@meshsdk/core-cst": "^1.9.0-beta.98",
-        "@wingriders/apply-params-to-script": "^0.1.2",
         "better-result": "^2.3.1",
         "zod": "4.1.13",
       },
@@ -566,8 +565,6 @@
     "@utxorpc/sdk": ["@utxorpc/sdk@0.6.8", "", { "dependencies": { "@connectrpc/connect": "1.4.0", "@connectrpc/connect-node": "1.4.0", "@connectrpc/connect-web": "1.4.0", "@utxorpc/spec": "0.16.0", "buffer": "6.0.3" } }, "sha512-Mff6q2o7R2aam85KmjtAZDKPhJesMmnGFbk2M54lPO0FwrrWRfUf6DYezqWfYcjXgKQSHDuklAcdtF0weEENRA=="],
 
     "@utxorpc/spec": ["@utxorpc/spec@0.16.0", "", { "dependencies": { "@bufbuild/protobuf": "1.10.1" } }, "sha512-EK2M0TBp14MrRCYDuFeJ+bAS39RxxLLh+CD08h/YvAgxSv/4ZOBCf1/sxHAGCBGGndB4heZYFeuQ+i1i8vP5lw=="],
-
-    "@wingriders/apply-params-to-script": ["@wingriders/apply-params-to-script@0.1.2", "", {}, "sha512-HTuyzbKsQGbZf4Acwuc1LcpR4r6T3k+AP3PDaX6bS94888u4kV/TxuJMQ+G4sW3gUeOeJBXg4YEgQWjmK3LAWA=="],
 
     "@wingriders/multi-dex-launchpad-backend": ["@wingriders/multi-dex-launchpad-backend@workspace:backend"],
 

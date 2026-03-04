@@ -19,7 +19,7 @@ export const getScriptFromExport = (plutusExport: {
   return {hash, hex, version}
 }
 
-export const applyParamsToScriptExport = async (
+export const applyParamsToScriptExport = (
   script: {cborHex: string; type: string},
   params: Data[],
 ) =>
