@@ -66,6 +66,11 @@ export type FailProofDatum = {
   scriptHash: string
 }
 
+export type WrFactoryDatum = {
+  poolRangeFrom: string
+  poolRangeTo: string
+}
+
 export type WrPoolDatum = {
   requestValidatorHash: string
   assetASymbol: string

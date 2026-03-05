@@ -57,6 +57,11 @@ export const WR_FACTORY_VALIDATOR_HASH = {
   preprod: 'a1640449d34fdfefc56868f0262eda2bebf91b33d1cda381dbfe3e2d',
 }
 
+export const WR_FACTORY_UNIT = {
+  mainnet: '6fdc63a1d71dc2c65502b79baae7fb543185702b12c3c5fb639ed73746',
+  preprod: '8e97ba723d217adabf5f4d02b037b083ac9d3d8deb7576a061ffcd7346',
+}
+
 export const WR_POOL_VALIDATOR_HASH = {
   mainnet: 'af97793b8702f381976cec83e303e9ce17781458c73c4bb16fe02b83',
   preprod: '4cffc25c184b6b452b9de831da55a2b9677dc7a9b2c06b362e5ba3d8',
@@ -78,3 +83,5 @@ export const SUNDAE_SETTINGS_SYMBOL = {
   // TODO: I couldn't find the preprod one
   preprod: '6d9d7acac59a4469ec52bb207106167c5cbfa689008ffa6ee92acc50',
 }
+
+export const WR_POOL_OIL = 3_000_000n

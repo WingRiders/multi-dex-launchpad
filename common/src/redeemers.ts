@@ -138,3 +138,49 @@ export const tokensHolderFirstRedeemerToMeshData = (
 
   return mConStr(constr, [])
 }
+
+export type TokensHolderFinalRedeemer =
+  | 'failed-flow' // failed = pool already existed
+  | 'normal-flow' // normal = create pool
+
+export const tokensHolderFinalRedeemerToMeshData = (
+  redeemer: TokensHolderFinalRedeemer,
+) => (redeemer === 'failed-flow' ? 0 : 1)
+
+export type WrPoolChoice =
+  | {
+      type: 'use-constant-product'
+    }
+  | {
+      type: 'use-stableswap'
+      scaleA: number
+      scaleB: number
+    }
+
+export type WrFactoryRedeemer = {
+  poolChoice: WrPoolChoice
+  tokenAPolicyId: string
+  tokenAAssetName: string
+  tokenBPolicyId: string
+  tokenBAssetName: string
+}
+
+export const wrFactoryRedeemerToMeshData = (redeemer: WrFactoryRedeemer) => {
+  const poolChoice =
+    redeemer.poolChoice.type === 'use-constant-product'
+      ? mConStr0([])
+      : mConStr1([redeemer.poolChoice.scaleA, redeemer.poolChoice.scaleB])
+  return mConStr0([
+    poolChoice,
+    redeemer.tokenAPolicyId,
+    redeemer.tokenAAssetName,
+    redeemer.tokenBPolicyId,
+    redeemer.tokenBAssetName,
+  ])
+}
+
+export type WrFactoryMintRedeemer = 'mint-first-factory' | 'mint-new-pool'
+
+export const wrFactoryMintRedeemerToMeshData = (
+  redeemer: WrFactoryMintRedeemer,
+) => mConStr(redeemer === 'mint-first-factory' ? 0 : 1, [])

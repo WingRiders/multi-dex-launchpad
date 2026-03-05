@@ -11,6 +11,8 @@ import type {
   RewardsHolderDatum,
   TokensHolderFirstDatum,
   VestingDatum,
+  WrFactoryDatum,
+  WrPoolDatum,
 } from './types'
 
 export const refScriptCarrierDatumToMeshData = (datum: RefScriptCarrierDatum) =>
@@ -92,4 +94,33 @@ export const vestingDatumToMeshData = (datum: VestingDatum) =>
     datum.firstUnlockPossibleAfter,
     datum.totalInstallments,
     datum.vestingMemo,
+  ])
+
+export const wrFactoryDatumToMeshData = (datum: WrFactoryDatum) =>
+  mConStr0([datum.poolRangeFrom, datum.poolRangeTo])
+
+// CP-only
+export const wrPoolDatumToMeshDate = (datum: WrPoolDatum) =>
+  mConStr0([
+    datum.requestValidatorHash,
+    datum.assetASymbol,
+    datum.assetAToken,
+    datum.assetBSymbol,
+    datum.assetBToken,
+    datum.swapFeeInBasis,
+    datum.protocolFeeInBasis,
+    datum.projectFeeInBasis,
+    datum.reserveFeeInBasis,
+    datum.feeBasis,
+    datum.agentFeeAda,
+    datum.lastInteraction,
+    datum.treasuryA,
+    datum.treasuryB,
+    datum.projectTreasuryA,
+    datum.projectTreasuryB,
+    datum.reserveTreasuryA,
+    datum.reserveTreasuryB,
+    maybeToMeshData(datum.projectBeneficiary, (b) => b),
+    maybeToMeshData(datum.reserveBeneficiary, (b) => b),
+    mConStr0([]), // Assumes CP
   ])

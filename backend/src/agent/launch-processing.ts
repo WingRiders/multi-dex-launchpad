@@ -450,7 +450,11 @@ const processLaunch = async (
     )
     const finalProjectTokensHolder = finalProjectTokensHolders[0]!
     if (finalProjectTokensHolder.dex === PrismaDex.WR) {
-      createWrPoolIfNeeded()
+      await createWrPoolIfNeeded(
+        launch,
+        finalProjectTokensHolder.txOut,
+        finalProjectTokensHolderValidatorRefScriptCarrier.txOut,
+      )
       return
     }
     createSundaePoolIfNeeded()

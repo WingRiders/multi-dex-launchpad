@@ -20,6 +20,7 @@ import type {
   RewardsFoldDatum,
   RewardsHolderDatum,
   SundaePoolDatum,
+  WrFactoryDatum,
   WrPoolDatum,
 } from './types'
 
@@ -452,3 +453,20 @@ export const finalProjectTokensHolderDatumCborSchema = z
     int: z.union([z.literal(0n), z.literal(1n)]),
   })
   .transform((res): Dex => (res.int === 0n ? 'WingRidersV2' : 'SundaeSwapV3'))
+
+export const wrFactoryDatumCborSchema = z
+  .object({
+    constructor: z.literal(0n),
+    fields: z.tuple([
+      // poolRangeFrom - either '00' or shareAssetName(64)
+      z.object({bytes: hexStringSchema.max(64)}),
+      // poolRangeTo - either shareAssetName(64) or 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00'
+      z.object({bytes: hexStringSchema.max(66)}),
+    ]),
+  })
+  .transform(
+    (res): WrFactoryDatum => ({
+      poolRangeFrom: res.fields[0].bytes,
+      poolRangeTo: res.fields[1].bytes,
+    }),
+  ) // TODO Factory datum should be valid
