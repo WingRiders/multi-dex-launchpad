@@ -1,5 +1,8 @@
 import type {TxInput, UTxO} from '@meshsdk/core'
-import type {AddReclaimCommitmentsArgs} from '@wingriders/multi-dex-launchpad-common'
+import type {
+  AddClaimRewardsArgs,
+  AddReclaimCommitmentsArgs,
+} from '@wingriders/multi-dex-launchpad-common'
 import type {
   CompleteDataForDraftStage,
   LaunchDraftStage,
@@ -55,6 +58,12 @@ const f = {
     [
       ...f.walletMutation(),
       'build-reclaim-nodes-tx',
+      replaceBigIntsWithStrings(buildArgs),
+    ] as const,
+  buildClaimRewardsTx: (buildArgs: AddClaimRewardsArgs | undefined) =>
+    [
+      ...f.walletMutation(),
+      'build-claim-rewards-tx',
       replaceBigIntsWithStrings(buildArgs),
     ] as const,
 }

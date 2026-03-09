@@ -18,12 +18,18 @@ import {useTRPC} from '@/trpc/client'
 import {ReclaimNodes} from './reclaim-nodes'
 import {RemoveCommitmentDialog} from './remove-commitment-dialog'
 import type {Node} from './types'
+import {UserRewards} from './user-rewards'
 
 type UserNodesProps = {
   launchTxHash: string
   config: Pick<
     LaunchConfig,
-    'raisingToken' | 'startTime' | 'endTime' | 'projectMinCommitment'
+    | 'projectMinCommitment'
+    | 'raisingToken'
+    | 'startTime'
+    | 'endTime'
+    | 'tokensToDistribute'
+    | 'projectToken'
   >
   connectedWallet: ConnectedWallet
   totalCommitted: bigint
@@ -98,6 +104,16 @@ export const UserNodes = ({
             launchTxHash={launchTxHash}
             config={config}
             nodes={data}
+          />
+        )}
+
+        {data && data.length > 0 && (
+          <UserRewards
+            launchTxHash={launchTxHash}
+            config={config}
+            connectedWallet={connectedWallet}
+            totalCommitted={totalCommitted}
+            userNodes={data}
           />
         )}
       </div>
