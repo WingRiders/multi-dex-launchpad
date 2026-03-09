@@ -104,7 +104,7 @@ export const generateLaunchContracts = (
         sundaePoolScriptHash: launchConfig.sundaePoolScriptHash,
         sundaeFeeTolerance: launchConfig.sundaeFeeTolerance,
         sundaeSettingsCurrencySymbol: launchConfig.sundaeSettingsCurrencySymbol,
-        poolProofValidatorHash: constantScriptHashes.failProofValidator.hash,
+        poolProofValidatorHash: constantScriptHashes.poolProofValidator.hash,
         vestingValidatorHash: launchConfig.vestingValidatorHash,
         vestingPeriodDuration: launchConfig.vestingPeriodDuration,
         vestingPeriodDurationToFirstUnlock:
