@@ -32,7 +32,6 @@ const UserLaunchesList = ({address}: UserLaunchesListProps) => {
   if ((!createdLaunches || createdLaunches.length === 0) && !draft) return null
 
   const handleDeleteDraft = () => {
-    // TODO: better UI for confirming the deletion
     if (
       confirm(
         'Are you sure you want to delete this draft? This action cannot be undone.',

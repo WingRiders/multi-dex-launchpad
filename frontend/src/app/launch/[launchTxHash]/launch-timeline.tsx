@@ -208,7 +208,7 @@ const TimelineItem = ({data, iconAnchorName}: TimelineItemProps) => {
         {formatDateTime(data.time)}
       </p>
       {data.additionalLabel && (
-        <p className="mt-1 text-muted-foreground text-sm">
+        <p className="mt-1 text-muted-foreground text-sm tabular-nums">
           {data.additionalLabel}
         </p>
       )}

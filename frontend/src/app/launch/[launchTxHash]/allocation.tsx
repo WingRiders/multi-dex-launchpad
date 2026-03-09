@@ -1,4 +1,7 @@
-import type {LaunchConfig} from '@wingriders/multi-dex-launchpad-common'
+import {
+  type LaunchConfig,
+  SPLIT_BPS_BASE,
+} from '@wingriders/multi-dex-launchpad-common'
 import {round} from 'es-toolkit'
 import {CoinsIcon, SparklesIcon, WavesIcon} from 'lucide-react'
 import type {ReactNode} from 'react'
@@ -9,12 +12,12 @@ import {cn} from '@/lib/utils'
 type AllocationProps = {
   config: Pick<
     LaunchConfig,
-    'projectToken' | 'totalTokens' | 'tokensToDistribute'
+    'projectToken' | 'totalTokens' | 'tokensToDistribute' | 'splitBps'
   >
 }
 
 export const Allocation = ({
-  config: {projectToken, totalTokens, tokensToDistribute},
+  config: {projectToken, totalTokens, tokensToDistribute, splitBps},
 }: AllocationProps) => {
   const tokensForParticipantsPercentage =
     (Number(tokensToDistribute) / Number(totalTokens)) * 100
@@ -56,6 +59,7 @@ export const Allocation = ({
           }
           className="from-chart-3/10 via-chart-3/5 to-transparent"
           additionalContent={`${round(tokensForPoolsPercentage, 2)}% of total`}
+          footer={<PoolsAllocationBreakdown splitBps={splitBps} />}
         />
       </div>
 
@@ -96,6 +100,7 @@ type CardItemProps = {
   iconClassName?: string
   content: ReactNode
   additionalContent?: ReactNode
+  footer?: ReactNode
   className?: string
 }
 
@@ -105,6 +110,7 @@ const CardItem = ({
   iconClassName,
   content,
   additionalContent,
+  footer,
   className,
 }: CardItemProps) => {
   return (
@@ -129,7 +135,58 @@ const CardItem = ({
             {additionalContent}
           </p>
         )}
+        {footer}
       </CardContent>
     </Card>
+  )
+}
+
+type PoolsAllocationBreakdownProps = {
+  splitBps: number
+}
+
+const PoolsAllocationBreakdown = ({
+  splitBps,
+}: PoolsAllocationBreakdownProps) => {
+  const wrPoolPercentage =
+    splitBps === 0 ? undefined : (splitBps / SPLIT_BPS_BASE) * 100
+  const sundaePoolPercentage =
+    splitBps === SPLIT_BPS_BASE
+      ? undefined
+      : ((SPLIT_BPS_BASE - splitBps) / SPLIT_BPS_BASE) * 100
+
+  return (
+    <div className="mt-4">
+      <div className="flex h-2 overflow-hidden rounded-full bg-muted/50">
+        {wrPoolPercentage != null && (
+          <div className="bg-chart-1" style={{width: `${wrPoolPercentage}%`}} />
+        )}
+        {sundaePoolPercentage != null && (
+          <div
+            className="bg-chart-2"
+            style={{width: `${sundaePoolPercentage}%`}}
+          />
+        )}
+      </div>
+
+      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+        {wrPoolPercentage != null && (
+          <div className="flex items-center gap-1.5">
+            <div className="size-2.5 rounded-sm bg-chart-1" />
+            <span className="text-muted-foreground text-xs">
+              {round(wrPoolPercentage, 1)}% WingRiders V2 pool
+            </span>
+          </div>
+        )}
+        {sundaePoolPercentage != null && (
+          <div className="flex items-center gap-1.5">
+            <div className="size-2.5 rounded-sm bg-chart-2" />
+            <span className="text-muted-foreground text-xs">
+              {round(sundaePoolPercentage, 1)}% SundaeSwap V3 pool
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

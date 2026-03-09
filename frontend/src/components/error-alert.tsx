@@ -16,7 +16,9 @@ export const ErrorAlert = ({
   return (
     <Alert variant="destructive" className={className}>
       <AlertCircleIcon className="size-4" />
-      {title != null && <AlertTitle>{title}</AlertTitle>}
+      {title != null && (
+        <AlertTitle className="line-clamp-none">{title}</AlertTitle>
+      )}
       {description != null && (
         <AlertDescription className="break-all">{description}</AlertDescription>
       )}
