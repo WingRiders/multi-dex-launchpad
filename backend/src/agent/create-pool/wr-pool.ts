@@ -44,6 +44,9 @@ import {
   getWalletPubKeyHash,
 } from '../wallet'
 
+// Returns:
+// - true if create pool transaction is needed or was just submitted
+// - false if the pool already existed, so we proceed with pool proof
 export const createWrPoolIfNeeded = async (
   launch: Launch,
   finalProjectTokensHolderTxOutput: TxOutput,
@@ -136,8 +139,7 @@ export const createWrPoolIfNeeded = async (
   const factoryUtxoWithDatum = suitableFactoryUtxos[0]
   if (factoryUtxoWithDatum == null) {
     logger.info({}, 'No suitable factory, pool exists.')
-    // TODO Fail flow
-    return
+    return false // Creating pool is not needed, proceed with pool proof
   }
 
   const {utxo: factoryUtxo, wrFactoryDatum: factoryDatum} = factoryUtxoWithDatum
@@ -434,7 +436,7 @@ export const createWrPoolIfNeeded = async (
       },
       `Error when building transaction: ${unsignedTx.error.message}`,
     )
-    return null
+    return true // Create pool transaction is needed
   }
 
   const signedTx = await wallet.signTx(unsignedTx.value)
@@ -450,13 +452,13 @@ export const createWrPoolIfNeeded = async (
       },
       `Error when submitting transaction: ${txHash.error.message}`,
     )
-    return null
+    return true // Create pool transaction is needed
   }
   logger.info(
     {launchTxHash, txHash: txHash.value},
     'Submitted WR pool transaction',
   )
-  return txHash.value
+  return true // Create pool transaction was needed
 }
 
 const getUnitHash = (unit: Unit) =>

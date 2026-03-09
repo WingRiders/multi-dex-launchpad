@@ -20,6 +20,7 @@ import {MAX_NODES_FOR_REWARDS_FOLD, SEPARATORS_TO_INSERT} from './constants'
 import {createSundaePoolIfNeeded} from './create-pool/sundae-pool'
 import {createWrPoolIfNeeded} from './create-pool/wr-pool'
 import {deployContractsIfNeeded, undeployContracts} from './deploy-contracts'
+import {createWrFailFlow} from './fail-flow/wr-fail-flow'
 import {createFailProof} from './fail-proof'
 import {isSeparator} from './node'
 import {createPoolProofsIfNeeded} from './pool-proof'
@@ -442,25 +443,48 @@ const processLaunch = async (
       },
       include: {txOut: true},
     })
+  const poolProofs = await prisma.poolProof.findMany({
+    where: {launchTxHash, txOut: {spentSlot: null}},
+    select: {dex: true, txOut: true},
+  })
   if (finalProjectTokensHolders.length > 0) {
     logger.info(
       {launchTxHash, pools: finalProjectTokensHolders.map(({dex}) => dex)},
-      `Need to create ${finalProjectTokensHolders.length} pools`,
+      `There are ${finalProjectTokensHolders.length} unspent final token holders`,
     )
     const finalProjectTokensHolder = finalProjectTokensHolders[0]!
     if (finalProjectTokensHolder.dex === PrismaDex.WR) {
-      await createWrPoolIfNeeded(
+      const createPoolWasNeeded = await createWrPoolIfNeeded(
         launch,
         finalProjectTokensHolder.txOut,
         finalProjectTokensHolderValidatorRefScriptCarrier.txOut,
       )
-      return
+      if (createPoolWasNeeded) {
+        // Wait for next block so we aggregate everything correctly
+        return
+      }
+      // Pool already existed
+      const wrPoolProof = poolProofs.find(({dex}) => dex === PrismaDex.WR)
+      if (wrPoolProof) {
+        await createWrFailFlow(
+          launch,
+          wrPoolProof.txOut,
+          finalProjectTokensHolder.txOut,
+          finalProjectTokensHolderValidatorRefScriptCarrier.txOut,
+        )
+        return
+      }
     }
-    createSundaePoolIfNeeded()
-    return
+
+    if (finalProjectTokensHolder.dex === PrismaDex.SUNDAE) {
+      createSundaePoolIfNeeded()
+      // TODO Return only if the pool creation is needed
+      //      If the pool already existed (or any other reason) - do not return, but continue with pool proof creation
+      // return
+    }
   }
 
-  await createPoolProofsIfNeeded(launch)
+  await createPoolProofsIfNeeded(launch, poolProofs)
 }
 
 const didLaunchSucceed = (launch: Launch, finishedCommitFold: CommitFold) =>

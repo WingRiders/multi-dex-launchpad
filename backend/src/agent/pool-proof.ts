@@ -64,15 +64,16 @@ const isPoolProofPending = (launchTxHash: string) =>
 
 // We check if there are pools but no pool proofs
 // we create those if needed
-export const createPoolProofsIfNeeded = async (launch: Launch) => {
+export const createPoolProofsIfNeeded = async (
+  launch: Launch,
+  poolProofs: {
+    dex: PrismaDex
+    txOut: TxOutput
+  }[],
+) => {
   // Tick TTL once per block call
   tickPendingPoolProofs()
   const launchTxHash = launch.txHash
-
-  const poolProofs = await prisma.poolProof.findMany({
-    where: {launchTxHash, txOut: {spentSlot: null}},
-    select: {dex: true, txOut: true},
-  })
 
   const needsWrPoolProof = launch.splitBps > 0
   const needsSundaePoolProof = launch.splitBps < 10_000
@@ -109,7 +110,8 @@ export const createPoolProofsIfNeeded = async (launch: Launch) => {
       where: {launchTxHash, txOut: {spentSlot: null}},
       select: {txOut: true},
     })
-    if (!wrPool) logger.info({launchTxHash}, 'No WingRiders pool created yet')
+    if (!wrPool)
+      logger.info({launchTxHash}, 'No WingRiders pool output aggregated yet')
     else {
       logger.info({launchTxHash}, 'Creating WingRiders pool proof')
       const txHash = await createPoolProof(
