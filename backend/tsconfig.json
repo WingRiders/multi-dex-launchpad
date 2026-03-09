@@ -13,7 +13,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "incremental": true,
-    "noErrorTruncation": true
+    "noErrorTruncation": true,
+    "types": ["bun"]
   },
   "include": ["src/**/*.ts", "prisma/**/*.ts", "test"],
   "exclude": ["node_modules"]
