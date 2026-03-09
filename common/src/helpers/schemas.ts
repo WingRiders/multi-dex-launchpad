@@ -3,6 +3,7 @@ import {
   buildEnterpriseAddress,
   CredentialType,
   Hash28ByteBase16,
+  scriptHashToBech32,
 } from '@meshsdk/core-cst'
 import z, {type ZodType} from 'zod'
 import {
@@ -137,15 +138,19 @@ export const getAddressSchema = (network: Network) =>
         : CredentialType.ScriptHash
 
     if (maybeStakeCred == null) {
-      return buildEnterpriseAddress(
+      if (credType(paymentCred) === CredentialType.KeyHash)
+        return buildEnterpriseAddress(
+          networkToNetworkId[network],
+          paymentKeyHash,
+        )
+          .toAddress()
+          .toBech32()
+          .toString()
+      return scriptHashToBech32(
+        paymentCred.fields[0].bytes,
+        undefined,
         networkToNetworkId[network],
-        paymentKeyHash,
-        // TODO Allow script enterprise address
-        // credType(paymentCred),
       )
-        .toAddress()
-        .toBech32()
-        .toString()
     }
     if (maybeStakeCred.constructor === 1n) {
       throw new Error('StakingPtr is not supported')
