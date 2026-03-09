@@ -1,7 +1,12 @@
 import type {Value} from '@cardano-ogmios/schema'
-import type {GeneratedPolicy} from '@wingriders/multi-dex-launchpad-common'
+import {
+  type GeneratedPolicy,
+  SUNDAE_POOL_SYMBOL,
+  WR_POOL_SYMBOL,
+} from '@wingriders/multi-dex-launchpad-common'
+import {config} from '../config'
 import type {launchScriptHashes} from '../interesting-launches'
-import {CONSTANT_CONTRACTS} from './constants'
+import {CONSTANT_CONTRACTS, WR_POOL_VALIDITY_ASSET_NAME} from './constants'
 
 /**
  * Checks whether a TxOutput contains the required validity token for
@@ -56,11 +61,19 @@ export const passesValidityToken = (
         ] === 1n
       )
     case 'wrPool':
-      // TODO: wr token
-      return true
-    case 'sundaePool':
-      // TODO: sundae token
-      return true
+      return (
+        value[WR_POOL_SYMBOL[config.NETWORK]]?.[WR_POOL_VALIDITY_ASSET_NAME] ===
+        1n
+      )
+    case 'sundaePool': {
+      const v = value[SUNDAE_POOL_SYMBOL[config.NETWORK]]
+      return (
+        typeof v === 'object' &&
+        v != null &&
+        Object.keys(v).length === 1 &&
+        Object.values(v)[0] === 1n
+      )
+    }
     default: {
       // Policies on utxos are definitely not correct for launchpad
       const _: GeneratedPolicy = type

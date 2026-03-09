@@ -6,8 +6,8 @@ import type {
   Transaction,
   TransactionOutputReference,
 } from '@cardano-ogmios/schema'
+import type {TxInput} from '@meshsdk/common'
 import {applyCborEncoding, resolveScriptHash} from '@meshsdk/core'
-import type {JsonValue} from '@prisma/client/runtime/client'
 import {
   type CommitFoldDatum,
   createUnit,
@@ -38,11 +38,7 @@ import {
 } from '@wingriders/multi-dex-launchpad-common'
 import type {SetNonNullable, SetRequired} from 'type-fest'
 import z from 'zod'
-import {
-  type Block,
-  Dex as PrismaDex,
-  type TxOutput,
-} from '../../../prisma/generated/client'
+import {type Block, Dex as PrismaDex} from '../../../prisma/generated/client'
 import type {
   LaunchCreateManyInput,
   TxOutputCreateManyInput,
@@ -144,38 +140,21 @@ type SyncEvent =
 
 export let syncEventBuffer: SyncEvent[] = []
 
-// TODO: we might want to switch to a set/map?
-let trackedUtxos: TxOutput[] = []
-// Scans all tracked utxos in O(n) and returns true if the utxo is tracked
-const isUtxoTracked = (utxo: TransactionOutputReference): boolean => {
-  for (const trackedUtxo of trackedUtxos)
-    if (
-      trackedUtxo.txHash === utxo.transaction.id &&
-      trackedUtxo.outputIndex === utxo.index
-    )
-      return true
+// Stores unspent interesting tx outputs - either in DB or in sync event buffer.
+let trackedUtxoIds: Set<string>
 
-  return false
-}
+const getUtxoId = ({txHash, outputIndex}: TxInput) => `${txHash}#${outputIndex}`
+const isUtxoTracked = (utxo: TransactionOutputReference) =>
+  trackedUtxoIds.has(
+    getUtxoId({txHash: utxo.transaction.id, outputIndex: utxo.index}),
+  )
 
 // Pushes to the sync event buffer, tracks utxos
 // Does NOT track the interesting launches
 const pushSyncEvent = (event: SyncEvent) => {
   syncEventBuffer.push(event)
   if (event.type === 'launchTxOutput')
-    trackedUtxos.push({
-      txHash: event.txOutput.txHash,
-      slot: event.txOutput.slot,
-      outputIndex: event.txOutput.outputIndex,
-      address: event.txOutput.address,
-      datum: event.txOutput.datum || null,
-      datumHash: event.txOutput.datumHash || null,
-      value: event.txOutput.value as JsonValue,
-      spentTxHash: null,
-      spentSlot: null,
-      scriptLanguage: event.txOutput.scriptLanguage ?? null,
-      scriptCbor: event.txOutput.scriptCbor ?? null,
-    })
+    trackedUtxoIds.add(getUtxoId(event.txOutput))
 }
 
 // Reset the tracked utxos cache.
@@ -186,15 +165,13 @@ const resetTrackedUtxos = async () => {
     {syncEventBuffer},
     'Sync event buffer must be empty to reset the tracked utxos cache',
   )
-  trackedUtxos = await prisma.txOutput.findMany({
+  const unspentTxOutputs = await prisma.txOutput.findMany({
     where: {spentSlot: null},
   })
+  trackedUtxoIds = new Set(unspentTxOutputs.map(getUtxoId))
   logger.debug(
     {
-      trackedUtxos: trackedUtxos.map((utxo) => ({
-        txHash: utxo.txHash,
-        outputIndex: utxo.outputIndex,
-      })),
+      trackedUtxos: [...trackedUtxoIds],
     },
     'Reset tracked utxos',
   )
@@ -232,14 +209,12 @@ const parseSpentTxOutputs = (slot: number, transactions: Transaction[]) => {
     const spentTrackedUtxos = tx.inputs.filter(isUtxoTracked)
     if (spentTrackedUtxos.length > 0) {
       spent.push({utxos: spentTrackedUtxos, spentTxHash: tx.id})
-      trackedUtxos = trackedUtxos.filter(
-        (utxo) =>
-          !spentTrackedUtxos.some(
-            (spentUtxo) =>
-              spentUtxo.transaction.id === utxo.txHash &&
-              spentUtxo.index === utxo.outputIndex,
-          ),
+      const spentUtxoIds = new Set(
+        spentTrackedUtxos.map(({transaction, index}) =>
+          getUtxoId({txHash: transaction.id, outputIndex: index}),
+        ),
       )
+      trackedUtxoIds = trackedUtxoIds.difference(spentUtxoIds)
     }
   }
   if (spent.length > 0)
@@ -876,7 +851,6 @@ const writeBuffersIfNecessary = async ({
         })
 
       if (spentTxOutputBuffer.length > 0)
-        // TODO: that can use less queries
         for (const {
           data: {spentSlot, spent},
         } of spentTxOutputBuffer)

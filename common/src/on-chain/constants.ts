@@ -72,16 +72,22 @@ export const WR_POOL_SYMBOL = {
   preprod: '8e97ba723d217adabf5f4d02b037b083ac9d3d8deb7576a061ffcd73',
 }
 
+export const SUNDAE_POOL_SYMBOL = {
+  mainnet: 'e0302560ced2fdcbfcb2602697df970cd0d6a38f94b32703f51c312b',
+  // TODO Fill when deployed preprod contracts
+  preprod: '00000000000000000000000000000000000000000000000000000000',
+}
+
 export const SUNDAE_POOL_SCRIPT_HASH = {
   mainnet: 'e0302560ced2fdcbfcb2602697df970cd0d6a38f94b32703f51c312b',
-  // TODO: I couldn't find the preprod one
-  preprod: 'e0302560ced2fdcbfcb2602697df970cd0d6a38f94b32703f51c312b',
+  // TODO: Fill when deployed preprod contracts
+  preprod: '00000000000000000000000000000000000000000000000000000000',
 }
 
 export const SUNDAE_SETTINGS_SYMBOL = {
   mainnet: '6d9d7acac59a4469ec52bb207106167c5cbfa689008ffa6ee92acc50',
-  // TODO: I couldn't find the preprod one
-  preprod: '6d9d7acac59a4469ec52bb207106167c5cbfa689008ffa6ee92acc50',
+  // TODO: Fill when deployed preprod contracts
+  preprod: '00000000000000000000000000000000000000000000000000000000',
 }
 
 export const WR_POOL_OIL = 3_000_000n

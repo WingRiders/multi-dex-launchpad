@@ -35,7 +35,7 @@ export const getDbCommitFolds = (
       ownerAddress,
       ...getCutoffWhereCondition(cutoff),
     },
-    orderBy: [{nodeCount: 'desc'}], // TODO What if there are multiple? We may order by txHash, but perhaps we should have an autoincrement field to always continue with the latest
+    orderBy: [{nodeCount: 'desc'}],
     include: {
       txOut: true,
     },

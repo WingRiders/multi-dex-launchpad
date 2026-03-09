@@ -13,5 +13,4 @@ const start = async () => {
   if (isServerMode) tokensMetadataLoop()
 }
 
-// TODO: catch errors from ensure, and probably all other errors as well
 await start()

@@ -7,6 +7,9 @@ export const compareHexStrings = (a: string, b: string) =>
 export const compareBigInts = (a: bigint, b: bigint) =>
   a > b ? 1 : a < b ? -1 : 0
 
+export const sumBigInts = (bigints: bigint[]) =>
+  bigints.reduce((acc, cur) => acc + cur, 0n)
+
 export const sqrtBigInt = (value: bigint): bigint => {
   ensure(
     value >= 0n,

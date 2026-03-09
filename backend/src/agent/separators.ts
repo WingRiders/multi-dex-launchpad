@@ -1,4 +1,5 @@
 import {
+  getLovelace,
   type MeshTxBuilder,
   SLOT_CONFIG_NETWORK,
   slotToBeginUnixTime,
@@ -11,6 +12,7 @@ import {
   decodeDatum,
   ensure,
   type GeneratedContracts,
+  isLovelaceUnit,
   LOVELACE_UNIT,
   launchpadConstants,
   type NodeDatum,
@@ -29,7 +31,7 @@ import {
 import {txOutputToRefScriptUtxo} from '../endpoints/ref-scripts'
 import {logger} from '../logger'
 import {SEPARATORS_TO_RECLAIM} from './constants'
-import {getMeshBuilderBodyForLogging} from './helpers'
+import {getMeshBuilderBodyForLogging, sumBigInts} from './helpers'
 import {submitTx} from './ogmios/tx-submission-client'
 import {setFetcherUtxos} from './providers'
 import {
@@ -179,9 +181,8 @@ export const insertSeparators = async (
   // the dao admin must sign the transaction
   b.requiredSignerHash(launchConfig.daoAdminPubKeyHash)
 
-  // TODO: it can be calculated correctly
-  //       it doesn't help that mesh js exposes almost no levers for us to pull
-  //       right now we overpay the fee
+  // TODO Use calculated tx fee when Mesh allows placement of the change output
+  //  https://github.com/MeshJS/mesh/issues/800
   const fee = 2_170_000n
 
   const {usedWalletUtxo, changeOutput} = pickWalletUtxo(b, fee, walletUtxos)
@@ -223,36 +224,31 @@ export const insertSeparators = async (
 }
 
 const pickWalletUtxo = (b: MeshTxBuilder, fee: bigint, walletUtxos: UTxO[]) => {
-  // TODO: That is incorrect when the diff is below min ada?
-  const requiredAdaOutput = b.meshTxBuilderBody.outputs.reduce(
-    (acc, output) =>
-      acc +
-      BigInt(
-        output.amount.find((asset) => asset.unit === LOVELACE_UNIT)?.quantity ??
-          '0',
-      ),
-    // we start with the fee
-    fee,
+  const outputsAda = sumBigInts(b.meshTxBuilderBody.outputs.map(getLovelace))
+
+  const inputsAda = sumBigInts(
+    b.meshTxBuilderBody.inputs.map((input) => {
+      const adaQuantity = input.txIn.amount?.find(({unit}) =>
+        isLovelaceUnit(unit),
+      )?.quantity
+      return adaQuantity == null ? 0n : BigInt(adaQuantity)
+    }),
   )
+  const requiredAdaOutput = outputsAda + fee - inputsAda
+  // Wallet UTxO covers separators, fee and minAda on the change output
+  const minAda = 2_000_000n
   const usedWalletUtxo = walletUtxos.find(
-    (utxo) =>
-      BigInt(
-        utxo.output.amount.find((asset) => asset.unit === LOVELACE_UNIT)
-          ?.quantity ?? '0',
-      ) >= requiredAdaOutput,
+    ({output}) => getLovelace(output) >= requiredAdaOutput + minAda,
   )
   ensure(usedWalletUtxo != null, 'No wallet utxo with enough ada found')
-  const usedWalletAda = BigInt(
-    usedWalletUtxo.output.amount.find((asset) => asset.unit === LOVELACE_UNIT)!
-      .quantity,
-  )
-  const diff = usedWalletAda - requiredAdaOutput
+  const usedWalletAda = getLovelace(usedWalletUtxo.output)
+  const changeAda = usedWalletAda - requiredAdaOutput
 
   return {
     usedWalletUtxo,
     changeOutput: {
       address: getWalletChangeAddress(),
-      amount: [{unit: LOVELACE_UNIT, quantity: diff.toString()}],
+      amount: [{unit: LOVELACE_UNIT, quantity: changeAda.toString()}],
     },
   }
 }

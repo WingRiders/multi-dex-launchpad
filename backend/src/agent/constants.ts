@@ -22,3 +22,5 @@ export const COMMIT_FOLDING_BATCH_SIZE = 50 // TODO Adjust based on performance 
 
 // Max possible is 20, we leave some headroom
 export const MAX_NODES_FOR_REWARDS_FOLD = 18
+
+export const WR_POOL_VALIDITY_ASSET_NAME = '4c' // L

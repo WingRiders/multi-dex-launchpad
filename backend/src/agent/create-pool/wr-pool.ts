@@ -26,6 +26,7 @@ import {txOutputToRefScriptUtxo} from '../../endpoints/ref-scripts'
 import {blake2b256} from '../../helpers/hash'
 import {logger} from '../../logger'
 import {poolRefScriptsByNetwork} from '../../ref-scripts'
+import {WR_POOL_VALIDITY_ASSET_NAME} from '../constants'
 import {
   compareHexStrings,
   getMeshBuilderBodyForLogging,
@@ -270,10 +271,9 @@ export const createWrPoolIfNeeded = async (
     networkToNetworkId[config.NETWORK],
   )
   const poolValidityPolicyId = launch.wrPoolCurrencySymbol
-  const poolValidityAssetName = '4c' // L
   const poolValidityUnit = createUnit(
     poolValidityPolicyId,
-    poolValidityAssetName,
+    WR_POOL_VALIDITY_ASSET_NAME,
   )
   const burnedShares = 1_000n
   const poolOilIfRaisingAda = isLovelaceUnit(raisingTokenUnit)
@@ -357,7 +357,7 @@ export const createWrPoolIfNeeded = async (
   )
   for (const {quantity, assetName} of [
     {quantity: '1', assetName: factoryValidityAssetName},
-    {quantity: '1', assetName: poolValidityAssetName},
+    {quantity: '1', assetName: WR_POOL_VALIDITY_ASSET_NAME},
     {
       quantity: (maxShares - burnedShares).toString(),
       assetName: poolShareAssetName,

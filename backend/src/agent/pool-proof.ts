@@ -37,10 +37,36 @@ import {
   trackSpentInputs,
 } from './wallet'
 
-// TODO: keep cache of submitted pool proofs like with commit fold
+// -----------------------------------------------------------------------------
+// Pending pool proof cache
+// -----------------------------------------------------------------------------
+
+const PENDING_POOL_PROOF_TTL = 10
+
+// launchTxHash -> remaining TTL (in blocks)
+const pendingPoolProofsTtl: Record<string, number> = {}
+
+const tickPendingPoolProofs = () => {
+  for (const launchTxHash of Object.keys(pendingPoolProofsTtl)) {
+    pendingPoolProofsTtl[launchTxHash]! -= 1
+    if (pendingPoolProofsTtl[launchTxHash]! <= 0) {
+      delete pendingPoolProofsTtl[launchTxHash]
+    }
+  }
+}
+
+const markPoolProofPending = (launchTxHash: string) => {
+  pendingPoolProofsTtl[launchTxHash] = PENDING_POOL_PROOF_TTL
+}
+
+const isPoolProofPending = (launchTxHash: string) =>
+  pendingPoolProofsTtl[launchTxHash] != null
+
 // We check if there are pools but no pool proofs
 // we create those if needed
 export const createPoolProofsIfNeeded = async (launch: Launch) => {
+  // Tick TTL once per block call
+  tickPendingPoolProofs()
   const launchTxHash = launch.txHash
 
   const poolProofs = await prisma.poolProof.findMany({
@@ -48,7 +74,37 @@ export const createPoolProofsIfNeeded = async (launch: Launch) => {
     select: {dex: true, txOut: true},
   })
 
-  if (!poolProofs.some((p) => p.dex === PrismaDex.WR)) {
+  const needsWrPoolProof = launch.splitBps > 0
+  const needsSundaePoolProof = launch.splitBps < 10_000
+  const hasWrPoolProof = poolProofs.some((p) => p.dex === PrismaDex.WR)
+  const hasSundaePoolProof = poolProofs.some((p) => p.dex === PrismaDex.SUNDAE)
+
+  if (
+    (!needsWrPoolProof || hasWrPoolProof) &&
+    (!needsSundaePoolProof || hasSundaePoolProof)
+  ) {
+    logger.info(
+      {launchTxHash, poolProofs: poolProofs.map(({dex}) => dex)},
+      'All needed pool proofs exist',
+    )
+    delete pendingPoolProofsTtl[launchTxHash]
+    return
+  }
+
+  if (isPoolProofPending(launchTxHash)) {
+    logger.info(
+      {
+        launchTxHash,
+        poolProofs,
+        needsWrPoolProof,
+        needsSundaePoolProof,
+      },
+      'Pool proof already pending but not included in the block, skipping resubmission',
+    )
+    return
+  }
+
+  if (needsWrPoolProof && !hasWrPoolProof) {
     const wrPool = await prisma.wrPool.findFirst({
       where: {launchTxHash, txOut: {spentSlot: null}},
       select: {txOut: true},
@@ -68,9 +124,9 @@ export const createPoolProofsIfNeeded = async (launch: Launch) => {
         logger.error({launchTxHash}, 'Failed to create WingRiders pool proof')
       return
     }
-  } else logger.info({launchTxHash}, 'WingRiders pool proof exists')
+  }
 
-  if (!poolProofs.some((p) => p.dex === PrismaDex.SUNDAE)) {
+  if (needsSundaePoolProof && !hasSundaePoolProof) {
     const sundaePool = await prisma.sundaePool.findFirst({
       where: {launchTxHash, txOut: {spentSlot: null}},
       select: {txOut: true},
@@ -89,7 +145,7 @@ export const createPoolProofsIfNeeded = async (launch: Launch) => {
       else logger.error({launchTxHash}, 'Failed to create Sundae pool proof')
       return
     }
-  } else logger.info({launchTxHash}, 'Sundae pool proof exists')
+  }
 }
 
 const createPoolProof = async (
@@ -144,6 +200,7 @@ const createPoolProof = async (
 
   const signedTx = await wallet.signTx(unsignedTx.value)
   const txHash = await submitTx(signedTx)
+  markPoolProofPending(launch.txHash)
   return txHash
 }
 

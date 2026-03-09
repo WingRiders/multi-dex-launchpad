@@ -83,9 +83,14 @@ export const getLaunches = async (
             spentSlot: {not: null},
           },
         },
+        orderBy: {
+          txOut: {
+            spentSlot: 'desc',
+          },
+        },
+        take: 1,
         select: {
           txOut: {
-            // TODO: Here we could just select the max
             select: {spentSlot: true},
           },
         },
@@ -100,10 +105,9 @@ export const getLaunches = async (
         ({startTime, firstProjectTokensHolders}) =>
           !isLaunchCancelled(
             Number(startTime),
-            // We get all historical first project token holder utxos here
-            // and we select the highest spentSlot, i.e. the most recent one
+            // firstProjectTokensHolders contains 0 or 1 items (the most recent one)
             // cancelled launches would have one spent utxo here
-            max(firstProjectTokensHolders.map((h) => h.txOut.spentSlot)),
+            firstProjectTokensHolders[0]?.txOut.spentSlot,
           ),
       )
       .map(
@@ -266,6 +270,12 @@ export const getLaunch = async (
             spentSlot: {not: null},
           },
         },
+        orderBy: {
+          txOut: {
+            spentSlot: 'desc',
+          },
+        },
+        take: 1,
         select: {
           txOut: {
             select: {spentSlot: true},
@@ -313,7 +323,7 @@ export const getLaunch = async (
     totalCommitted: totalCommitted._sum.committed ?? 0n,
     isCancelled: isLaunchCancelled(
       Number(launch.startTime),
-      max(launch.firstProjectTokensHolders.map((h) => h.txOut.spentSlot)),
+      launch.firstProjectTokensHolders[0]?.txOut.spentSlot,
     ),
   }
 }

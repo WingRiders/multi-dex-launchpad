@@ -73,14 +73,13 @@ const processLaunch = async (
   //
   // If the launch has ended and there's a rewards fold and unfolded nodes, we fold nodes
   //
-  // TODO: If the launch has ended and there are final project tokens holders, we create pools
+  // If the launch has ended and there are final project tokens holders, we create pools
   //
   // If there are pools and no pool proofs, we create them
   //
   // fail proof if needed
   const time = Date.now()
 
-  // TODO: that probably can be cached in the interestingLaunches
   const launch = await prisma.launch.findUniqueOrThrow({
     where: {
       txHash: launchTxHash,
