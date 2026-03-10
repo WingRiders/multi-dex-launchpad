@@ -37,7 +37,8 @@ export const useClipboard = (
     return () => setIsCopied(false)
   }, [setIsCopied, text])
 
-  const isSupported = !!window.navigator?.clipboard
+  const isSupported =
+    typeof window !== 'undefined' && !!window.navigator?.clipboard
 
   const copy = useCallback(async () => {
     if (!isSupported) {

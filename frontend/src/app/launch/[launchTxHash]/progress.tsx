@@ -59,7 +59,7 @@ export const Progress = ({
           <div className="relative">
             <div className="h-6 overflow-hidden rounded-full bg-muted/50">
               <div
-                className={`h-full rounded-full transition-all duration-500 ${
+                className={`h-full transition-all duration-500 ${
                   totalCommitted >= projectMinCommitment
                     ? 'bg-success'
                     : 'bg-chart-1'

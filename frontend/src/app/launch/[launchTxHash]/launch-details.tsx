@@ -27,6 +27,8 @@ export const LaunchDetails = ({launchTxHash}: LaunchDetailsProps) => {
     trpc.launch.queryOptions({txHash: launchTxHash}),
   )
 
+  useSuspenseQuery(trpc.tokenMetadata.queryOptions(data.config.projectToken))
+
   const {projectInfo, config, totalCommitted, isCancelled} = data
 
   return (
