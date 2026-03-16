@@ -1,11 +1,15 @@
 import {POLICY_ID_LENGTH} from '@meshsdk/core'
 import {
+  isLovelaceUnit,
   MAX_LENGTHS,
   SPLIT_BPS_BASE,
+  WR_POOL_OIL,
 } from '@wingriders/multi-dex-launchpad-common'
 import {isAfter} from 'date-fns'
 import {compact} from 'es-toolkit'
 import z from 'zod'
+import {formatAdaQuantity} from '@/helpers/format-asset-quantity'
+import {SUNDAE_FEE_TOLERANCE} from '../constants'
 import {SUPPORTED_RAISING_TOKENS_UNITS} from './constants'
 
 export const MIN_RAISED_TOKENS_POOL_PART_PERCENTAGE = 1
@@ -153,6 +157,33 @@ export const specificationSchema = z
         'Maximum amount to raise must be greater than or equal to minimum amount to raise',
     },
   )
+  .superRefine(({raisingTokenUnit, projectMinCommitment, splitBps}, ctx) => {
+    if (!isLovelaceUnit(raisingTokenUnit)) return
+
+    const isWrEnabled = splitBps !== 0
+    const isSundaeEnabled = splitBps !== SPLIT_BPS_BASE
+
+    const minWr =
+      (projectMinCommitment * BigInt(splitBps)) / BigInt(SPLIT_BPS_BASE)
+    const minSundae = projectMinCommitment - minWr
+
+    const coversWr = !isWrEnabled || minWr > WR_POOL_OIL
+    const coversSundae = !isSundaeEnabled || minSundae > SUNDAE_FEE_TOLERANCE
+
+    if (!coversWr)
+      ctx.addIssue({
+        code: 'custom',
+        path: ['projectMinCommitment'],
+        message: `The share of the minimum raise allocated to WingRiders is below the required minimum of ${formatAdaQuantity(WR_POOL_OIL)} for pool creation. Increase the minimum tokens to raise or allocate a larger share to WingRiders (adjust the pool split).`,
+      })
+
+    if (!coversSundae)
+      ctx.addIssue({
+        code: 'custom',
+        path: ['projectMinCommitment'],
+        message: `The share of the minimum raise allocated to SundaeSwap is below the required minimum of ${formatAdaQuantity(SUNDAE_FEE_TOLERANCE)} for pool creation. Increase the minimum tokens to raise or allocate a larger share to SundaeSwap (adjust the pool split).`,
+      })
+  })
 
 export type Specification = z.infer<typeof specificationSchema>
 
