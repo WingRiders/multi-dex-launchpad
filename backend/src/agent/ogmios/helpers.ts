@@ -50,13 +50,13 @@ export const originPoint = {
     height: 4490511,
   },
   preprod: {
-    // First launch https://preprod.cexplorer.io/tx/644c8fb4ba95d390cdbfb038c0a3850035dc3cab6fc0073f358c4e8e1c08a9c6
-    // In block https://preprod.cexplorer.io/block/457ef74b4b2f298946cf2b2daafebcf22ba7b69bbfc4dfe7e89db9af45ddafa1
+    // First launch https://preprod.cexplorer.io/tx/4aaef6b2bfc1f69f78c5f7969b3b210bf525a4aba9d8cf82069b17228bd9bbb8
+    // In block https://preprod.cexplorer.io/block/ee229a9906019093b122749ceaa1f50024c11125ffc1c077c13600bb22cb10d4
     // Origin point need to be 1 block before that
-    // https://preprod.cexplorer.io/block/585901a44ecfa55429b10b12763c08f00a687c800f2cf719c9de57d737fa069f
-    id: '585901a44ecfa55429b10b12763c08f00a687c800f2cf719c9de57d737fa069f',
-    slot: 113846266,
-    height: 4365014,
+    // https://preprod.cexplorer.io/block/7c095dd9e4fa0626b64d659135ba9400d6196401f5da12be562cea8f1ac5cf82
+    id: '7c095dd9e4fa0626b64d659135ba9400d6196401f5da12be562cea8f1ac5cf82',
+    slot: 118075031,
+    height: 4518078,
   },
 }[config.NETWORK]
 

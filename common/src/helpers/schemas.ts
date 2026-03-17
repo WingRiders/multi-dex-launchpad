@@ -24,10 +24,11 @@ import {
   VESTING_PERIOD_INSTALLMENTS,
   VESTING_VALIDATOR_HASH,
   WR_FACTORY_VALIDATOR_HASH,
+  WR_POOL_OIL,
   WR_POOL_SYMBOL,
   WR_POOL_VALIDATOR_HASH,
 } from '..'
-import {LOVELACE_UNIT} from './unit'
+import {isLovelaceUnit, LOVELACE_UNIT} from './unit'
 
 export const hexStringSchema = z
   .string()
@@ -239,6 +240,11 @@ export const getLaunchConfigTxMetadataSchema = ({
       endTime: z.bigint().nonnegative().transform(Number),
       projectToken: unitSchema,
       raisingToken: unitSchema,
+      // NOTE: is case ada is raised, the project min commitment must be big enough
+      //       to cover the pool oil ada for Wr if Wr's used
+      //       and to cover the Sundae pool creation fee if Sundae's used
+      //       since the pool creation fee can change during the duration of the launch
+      //       it's required to cover the sundae fee tolerance
       projectMinCommitment: bigintQuantitySchema,
       projectMaxCommitment: bigintQuantitySchema,
       totalTokens: bigintQuantitySchema,
@@ -318,6 +324,23 @@ export const getLaunchConfigTxMetadataSchema = ({
       error: 'vestingPeriodStart must be equal to endTime',
       path: ['vestingPeriodStart'],
     })
+    .refine(
+      (c) => {
+        if (!isLovelaceUnit(c.raisingToken)) return true
+        const minWr =
+          (c.projectMinCommitment * BigInt(c.splitBps)) / BigInt(SPLIT_BPS_BASE)
+        const minSundae = c.projectMinCommitment - minWr
+        const coversWr = c.splitBps === 0 || minWr > WR_POOL_OIL
+        const coversSundae =
+          c.splitBps === SPLIT_BPS_BASE || minSundae > c.sundaeFeeTolerance
+        return coversWr && coversSundae
+      },
+      {
+        error:
+          'projectMinCommitment must be big enough for ada launches to cover the pool oil ada for Wr if Wr is used and to cover the Sundae pool creation fee if Sundae is used',
+        path: ['projectMinCommitment'],
+      },
+    )
 
 export const getLaunchTxMetadataSchema = (
   opts: LaunchTxMetadataSchemaOptions,

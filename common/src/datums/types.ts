@@ -98,7 +98,7 @@ export type SundaePoolDatum = {
   identifier: string
   assetA: string
   assetB: string
-  circulatingLp: number
+  circulatingLp: bigint
   bidFeesPer10Thousand: number
   askFeesPer10Thousand: number
   feeManager: MultisigScript | null
@@ -128,4 +128,31 @@ export type VestingDatum = {
   firstUnlockPossibleAfter: number // POSIX time
   totalInstallments: number
   vestingMemo: string
+}
+
+// list with two ints on-chain
+export type Rational = [bigint, bigint]
+
+export type AddressCredential = {
+  type: 'pubKeyHash' | 'scriptHash'
+  value: string
+}
+
+export type SundaeSettingsDatum = {
+  settingsAdmin: MultisigScript
+  // full address on-chain
+  metadataAdminBech32Address: string
+  treasuryAdmin: MultisigScript
+  treasuryBech32Address: string
+  treasuryAllowance: Rational
+  // Aiken's VerificationKey
+  authorizedScoopers: string[] | null
+  // Aiken's Credential
+  authorizedStakingKeys: AddressCredential[]
+  baseFee: bigint
+  simpleFee: bigint
+  strategyFee: bigint
+  poolCreationFee: bigint
+  // Data on-chain
+  extensions: unknown
 }

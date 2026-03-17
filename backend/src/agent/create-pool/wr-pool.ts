@@ -112,11 +112,11 @@ export const createWrPoolIfNeeded = async (
       utxo.output.plutusData,
     )
     ensure(
-      wrFactoryDatum != null,
-      {launchTxHash, utxo},
+      wrFactoryDatum.isOk(),
+      {launchTxHash, utxo, wrFactoryDatum},
       'Factory datum should be valid',
     )
-    return {utxo, wrFactoryDatum}
+    return {utxo, wrFactoryDatum: wrFactoryDatum.value}
   })
   const suitableFactoryUtxos = factoryUtxosWithDecodedDatum.filter(
     ({wrFactoryDatum}) => {

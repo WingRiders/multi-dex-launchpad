@@ -10,16 +10,19 @@ import {
 } from '../helpers/schemas'
 import type {Dex} from '../types'
 import type {
+  AddressCredential,
   CommitFoldDatum,
   FailProofDatum,
   MultisigScript,
   NodeDatum,
   NodeKey,
   PoolProofDatum,
+  Rational,
   RefScriptCarrierDatum,
   RewardsFoldDatum,
   RewardsHolderDatum,
   SundaePoolDatum,
+  SundaeSettingsDatum,
   WrFactoryDatum,
   WrPoolDatum,
 } from './types'
@@ -424,7 +427,7 @@ export const sundaePoolDatumCborSchema = z
         res.fields[1].list[1].list[0].bytes,
         res.fields[1].list[1].list[1].bytes,
       ),
-      circulatingLp: Number(res.fields[2].int),
+      circulatingLp: res.fields[2].int,
       bidFeesPer10Thousand: Number(res.fields[3].int),
       askFeesPer10Thousand: Number(res.fields[4].int),
       feeManager: res.fields[5],
@@ -470,3 +473,87 @@ export const wrFactoryDatumCborSchema = z
       poolRangeTo: res.fields[1].bytes,
     }),
   ) // TODO Factory datum should be valid
+
+// A pair in aiken: (Int, Int)
+export const rationalCborSchema = z
+  .object({
+    list: z.tuple([z.object({int: z.bigint()}), z.object({int: z.bigint()})]),
+  })
+  .transform((res): Rational => [res.list[0].int, res.list[1].int])
+
+export const verificationKeyCborSchema = z
+  .object({bytes: hexStringSchema})
+  .transform((res) => res.bytes)
+
+// either a verificationKeyHash or a scriptHash
+export const credentialCborSchema = z
+  .union([
+    z.object({
+      constructor: z.literal(0n),
+      fields: z.tuple([z.object({bytes: pubKeyHashSchema})]),
+    }),
+    z.object({
+      constructor: z.literal(1n),
+      fields: z.tuple([z.object({bytes: scriptHashSchema})]),
+    }),
+  ])
+  .transform(
+    (res): AddressCredential =>
+      res.constructor === 0n
+        ? {type: 'pubKeyHash', value: res.fields[0].bytes}
+        : {type: 'scriptHash', value: res.fields[0].bytes},
+  )
+
+export const getSundaeSettingsDatumCborSchema = (network: Network) =>
+  z
+    .object({
+      constructor: z.literal(0n),
+      fields: z.tuple([
+        // settings admin
+        multisigScriptSchema,
+        // metadata admin
+        getAddressSchema(network),
+        // treasury admin
+        multisigScriptSchema,
+        // treasury address
+        getAddressSchema(network),
+        // treasury allowance
+        rationalCborSchema,
+        // authorized scoopers
+        makeMaybeCborSchema(
+          z.object({
+            list: z.array(verificationKeyCborSchema),
+          }),
+        ),
+        // authorized staking keys
+        z.object({
+          list: z.array(credentialCborSchema),
+        }),
+        // base fee
+        z.object({int: z.bigint()}),
+        // simple fee
+        z.object({int: z.bigint()}),
+        // strategy fee
+        z.object({int: z.bigint()}),
+        // pool creation fee
+        z.object({int: z.bigint()}),
+        // extensions, pure Data onchain, we do nothing with it
+        z.unknown(),
+      ]),
+    })
+    .transform(
+      (res): SundaeSettingsDatum => ({
+        settingsAdmin: res.fields[0],
+        metadataAdminBech32Address: res.fields[1],
+        treasuryAdmin: res.fields[2],
+        treasuryBech32Address: res.fields[3],
+        treasuryAllowance: res.fields[4],
+        authorizedScoopers: res.fields[5]?.list ?? null,
+        authorizedStakingKeys: res.fields[6].list,
+        baseFee: res.fields[7].int,
+        simpleFee: res.fields[8].int,
+        strategyFee: res.fields[9].int,
+        poolCreationFee: res.fields[10].int,
+        extensions: res.fields[11],
+      }),
+    )

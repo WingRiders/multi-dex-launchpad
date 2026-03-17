@@ -67,7 +67,8 @@ export const addCreateCommitment = (
     nodeToSpend.output.plutusData,
   )
   ensure(
-    nodeToSpendDatum != null,
+    nodeToSpendDatum.isOk(),
+    {err: nodeToSpendDatum},
     'Failed to decode the datum of the node to spend',
   )
 
@@ -114,12 +115,12 @@ export const addCreateCommitment = (
     key: {
       hash: ownerPubKeyHash,
       index:
-        nodeToSpendDatum.key != null &&
-        nodeToSpendDatum.key.hash === ownerPubKeyHash
-          ? nodeToSpendDatum.key.index + 1
+        nodeToSpendDatum.value.key != null &&
+        nodeToSpendDatum.value.key.hash === ownerPubKeyHash
+          ? nodeToSpendDatum.value.key.index + 1
           : 0,
     },
-    next: nodeToSpendDatum.next,
+    next: nodeToSpendDatum.value.next,
     createdTime: slotToBeginUnixTime(upperTimeLimitSlot, slotConfig),
     committed,
   }
@@ -169,7 +170,7 @@ export const addCreateCommitment = (
     nodeToSpend.output.amount,
   ).txOutInlineDatumValue(
     nodeDatumToMeshData({
-      ...nodeToSpendDatum,
+      ...nodeToSpendDatum.value,
       next: newNodeDatum.key,
     }),
   )

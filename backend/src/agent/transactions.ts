@@ -57,7 +57,7 @@ export const createRewardsFold = async (
     nodeDatumCborSchema,
     headNode.output.plutusData,
   )
-  ensure(headNodeDatum != null, {headNode}, 'Node datum must be valid')
+  ensure(headNodeDatum.isOk(), {err: headNode}, 'Node datum must be valid')
   const finishedCommitFold = prismaTxOutputToMeshOutput(
     finishedCommitFoldTxOutput,
   )
@@ -71,8 +71,8 @@ export const createRewardsFold = async (
     finishedCommitFold.output.plutusData,
   )
   ensure(
-    commitFoldDatum != null,
-    {finishedCommitFold},
+    commitFoldDatum.isOk(),
+    {err: commitFoldDatum},
     'Commit fold must be valid',
   )
   const commitFoldValidatorRef = txOutputToRefScriptUtxo(
@@ -215,12 +215,12 @@ export const createRewardsFold = async (
   ).txOutInlineDatumValue(
     rewardsFoldDatumToMeshData({
       nodeScriptHash: contracts.nodeValidator.hash,
-      next: headNodeDatum.next,
-      committed: commitFoldDatum.committed,
-      cutoffKey: commitFoldDatum.cutoffKey,
-      cutoffTime: commitFoldDatum.cutoffTime,
-      overcommitted: commitFoldDatum.overcommitted,
-      commitFoldOwner: commitFoldDatum.owner,
+      next: headNodeDatum.value.next,
+      committed: commitFoldDatum.value.committed,
+      cutoffKey: commitFoldDatum.value.cutoffKey,
+      cutoffTime: commitFoldDatum.value.cutoffTime,
+      overcommitted: commitFoldDatum.value.overcommitted,
+      commitFoldOwner: commitFoldDatum.value.owner,
     }),
   )
 

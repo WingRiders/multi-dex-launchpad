@@ -330,14 +330,14 @@ export const buildSubmitRewardsFolding = async (
     rewardsFold.txOut.datum,
   )
   ensure(
-    rewardsFoldDatum != null,
-    {rewardsFold},
+    rewardsFoldDatum.isOk(),
+    {error: rewardsFold},
     'Rewards fold must have datum',
   )
 
   const compensations = getCompensations(
     indexedNodes,
-    rewardsFoldDatum,
+    rewardsFoldDatum.value,
     launchConfig,
   )
 
@@ -621,7 +621,7 @@ export const buildSubmitRewardsFolding = async (
         quantity: '1',
       },
     ]).txOutInlineDatumValue(
-      rewardsFoldDatumToMeshData({...rewardsFoldDatum, next}),
+      rewardsFoldDatumToMeshData({...rewardsFoldDatum.value, next}),
     )
 
     // Recreate the first tokens holder when not last iteration
@@ -711,7 +711,10 @@ export const buildSubmitRewardsFolding = async (
     const assetsCommitFoldCompensation = [
       {unit: LOVELACE_UNIT, quantity: foldOutLovelace.toString()},
     ]
-    b.txOut(rewardsFoldDatum.commitFoldOwner, assetsCommitFoldCompensation)
+    b.txOut(
+      rewardsFoldDatum.value.commitFoldOwner,
+      assetsCommitFoldCompensation,
+    )
 
     // Pay to the dao when last iteration
     const assetsDao = makeAssetsWithOverlap(daoOutLovelace, daoCommittedOut)

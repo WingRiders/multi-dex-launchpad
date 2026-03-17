@@ -72,22 +72,24 @@ export const WR_POOL_SYMBOL = {
   preprod: '8e97ba723d217adabf5f4d02b037b083ac9d3d8deb7576a061ffcd73',
 }
 
-export const SUNDAE_POOL_SYMBOL = {
-  mainnet: 'e0302560ced2fdcbfcb2602697df970cd0d6a38f94b32703f51c312b',
-  // TODO Fill when deployed preprod contracts
-  preprod: '00000000000000000000000000000000000000000000000000000000',
-}
-
 export const SUNDAE_POOL_SCRIPT_HASH = {
   mainnet: 'e0302560ced2fdcbfcb2602697df970cd0d6a38f94b32703f51c312b',
-  // TODO: Fill when deployed preprod contracts
-  preprod: '00000000000000000000000000000000000000000000000000000000',
+  preprod: 'fc455ec7f51942e6d10d8e0703b4734a6130cfbc5fa98c6328f8bd9f',
 }
 
 export const SUNDAE_SETTINGS_SYMBOL = {
   mainnet: '6d9d7acac59a4469ec52bb207106167c5cbfa689008ffa6ee92acc50',
-  // TODO: Fill when deployed preprod contracts
-  preprod: '00000000000000000000000000000000000000000000000000000000',
+  preprod: 'ca1b7e723e28608ca401d1a8086ac0b714396bcb3a4fb22cc84391f9',
 }
 
+// 3 ADA
 export const WR_POOL_OIL = 3_000_000n
+
+export const SUNDAE_SETTINGS_ADDRESS_BECH32 = {
+  mainnet: 'addr1w9ke67k2ckdyg60v22ajqugxze79e0ax3yqgl7nway4vc5q84hpqs',
+  preprod: 'addr_test1wr9pklnj8c5xpr9yq8g6szr2czm3gwttevaylv3vepper7gmuqwar',
+}
+
+// NOTE: must be the same as the default WrV2 fees
+export const SUNDAE_POOL_BID_FEES_PER_10_THOUSAND = 35
+export const SUNDAE_POOL_ASK_FEES_PER_10_THOUSAND = 35

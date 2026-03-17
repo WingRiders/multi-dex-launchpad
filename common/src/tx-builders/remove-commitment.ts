@@ -102,7 +102,8 @@ export const addRemoveCommitment = (
     nodeUtxoToRemove.output.plutusData,
   )
   ensure(
-    nodeToRemoveDatum != null,
+    nodeToRemoveDatum.isOk(),
+    {err: nodeToRemoveDatum},
     'Failed to decode the datum of the node to remove',
   )
   const previousNodeDatum = decodeDatum(
@@ -110,7 +111,8 @@ export const addRemoveCommitment = (
     previousNodeUtxo.output.plutusData,
   )
   ensure(
-    previousNodeDatum != null,
+    previousNodeDatum.isOk(),
+    {err: previousNodeDatum},
     'Failed to decode the datum of the previous node',
   )
   b.txOut(
@@ -118,8 +120,8 @@ export const addRemoveCommitment = (
     previousNodeUtxo.output.amount,
   ).txOutInlineDatumValue(
     nodeDatumToMeshData({
-      ...previousNodeDatum,
-      next: nodeToRemoveDatum.next,
+      ...previousNodeDatum.value,
+      next: nodeToRemoveDatum.value.next,
     }),
   )
 

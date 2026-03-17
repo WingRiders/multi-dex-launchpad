@@ -21,6 +21,7 @@ export type Tier = (typeof tiers)[number]
 export const dexes = ['WingRidersV2', 'SundaeSwapV3'] as const
 export type Dex = (typeof dexes)[number]
 
+// For schema use finalProjectTokensHolderDatumCborSchema
 export const dexToMeshData = (dex: Dex) => (dex === 'WingRidersV2' ? 0 : 1)
 
 export type SetNullable<T, K extends keyof T> = {

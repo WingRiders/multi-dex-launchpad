@@ -81,7 +81,7 @@ export const insertSeparators = async (
     nodeDatumCborSchema,
     headNode.output.plutusData,
   )
-  ensure(headNodeDatum != null, {headNode}, 'Node datum must be valid')
+  ensure(headNodeDatum.isOk(), {err: headNodeDatum}, 'Node datum must be valid')
 
   const wallet = getWallet()
 
@@ -138,7 +138,7 @@ export const insertSeparators = async (
     headNode.output.amount,
   ).txOutInlineDatumValue(
     nodeDatumToMeshData({
-      ...headNodeDatum,
+      ...headNodeDatum.value,
       next: separatorDatums[0]!.key,
     }),
   )

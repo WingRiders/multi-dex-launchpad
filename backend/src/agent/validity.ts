@@ -1,7 +1,7 @@
 import type {Value} from '@cardano-ogmios/schema'
 import {
   type GeneratedPolicy,
-  SUNDAE_POOL_SYMBOL,
+  SUNDAE_POOL_SCRIPT_HASH,
   WR_POOL_SYMBOL,
 } from '@wingriders/multi-dex-launchpad-common'
 import {config} from '../config'
@@ -66,7 +66,7 @@ export const passesValidityToken = (
         1n
       )
     case 'sundaePool': {
-      const v = value[SUNDAE_POOL_SYMBOL[config.NETWORK]]
+      const v = value[SUNDAE_POOL_SCRIPT_HASH[config.NETWORK]]
       return (
         typeof v === 'object' &&
         v != null &&

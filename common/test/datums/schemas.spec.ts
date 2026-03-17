@@ -10,7 +10,7 @@ describe('decodeWrPoolDatum', () => {
   it('works with on-chain data', () => {
     const cbor =
       'd8799f581cc134d839a64a5dfb9b155869ef3f34280751a622f69958baa8ffd29c4040581cc0ee29a85b13209423b10447d3c2e6a50641a15c57770e27cb9d50734a57696e67526964657273181e0500001927101a001e84801b0000019c03ae7d881a002d814d1a02bf1b1600000000d87a80d87a80d87980ff'
-    expect(decodeDatum(wrPoolDatumCborSchema, cbor)).toEqual({
+    expect(decodeDatum(wrPoolDatumCborSchema, cbor).unwrapOr(null)).toEqual({
       requestValidatorHash:
         'c134d839a64a5dfb9b155869ef3f34280751a622f69958baa8ffd29c',
       assetASymbol: '',
@@ -41,18 +41,20 @@ describe('decodeSundaePoolDatum', () => {
     const cbor =
       'd8799f581c3e259cc410c7932ff0f579085cb47e882498f1af51f1d8db90bc14fc9f9f4040ff9f581ce5a42a1a1d3d1da71b0449663c32798725888d2eb0843c4dabeca05a51576f726c644d6f62696c65546f6b656e58ffff1b000000af7cf28a0f181e181ed87a80001ac6866340ff'
 
-    expect(decodeDatum(sundaePoolDatumCborSchema, cbor)).toEqual({
-      identifier: '3e259cc410c7932ff0f579085cb47e882498f1af51f1d8db90bc14fc',
-      assetA: 'lovelace',
-      assetB:
-        'e5a42a1a1d3d1da71b0449663c32798725888d2eb0843c4dabeca05a576f726c644d6f62696c65546f6b656e58',
-      circulatingLp: 753715546639,
-      bidFeesPer10Thousand: 30,
-      askFeesPer10Thousand: 30,
-      feeManager: null,
-      marketOpen: 0,
-      protocolFees: 3330696000,
-    })
+    expect(decodeDatum(sundaePoolDatumCborSchema, cbor).unwrapOr(null)).toEqual(
+      {
+        identifier: '3e259cc410c7932ff0f579085cb47e882498f1af51f1d8db90bc14fc',
+        assetA: 'lovelace',
+        assetB:
+          'e5a42a1a1d3d1da71b0449663c32798725888d2eb0843c4dabeca05a576f726c644d6f62696c65546f6b656e58',
+        circulatingLp: 753715546639n,
+        bidFeesPer10Thousand: 30,
+        askFeesPer10Thousand: 30,
+        feeManager: null,
+        marketOpen: 0,
+        protocolFees: 3330696000,
+      },
+    )
   })
 })
 
@@ -60,7 +62,7 @@ describe('Node datum', () => {
   it('should decode a node datum datum with both keys set to null', () => {
     const cbor = 'd8799fd87a80d87a8018640aff'
     const decoded = decodeDatum(nodeDatumCborSchema, cbor)
-    expect(decoded).toEqual({
+    expect(decoded.unwrapOr(null)).toEqual({
       key: null,
       next: null,
       committed: 10n,
@@ -72,7 +74,7 @@ describe('Node datum', () => {
     const cbor =
       'd8799fd8799fd8799f581ccafecafecafecafecafecafecafecafecafecafecafecafecafecafe00ffffd8799fd8799f581ccafecafecafecafecafecafecafecafecafecafecafecafecafecafe01ffff18640aff'
     const decoded = decodeDatum(nodeDatumCborSchema, cbor)
-    expect(decoded).toEqual({
+    expect(decoded.unwrapOr(null)).toEqual({
       key: {
         hash: 'cafecafecafecafecafecafecafecafecafecafecafecafecafecafe',
         index: 0,

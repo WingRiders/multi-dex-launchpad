@@ -184,3 +184,34 @@ export type WrFactoryMintRedeemer = 'mint-first-factory' | 'mint-new-pool'
 export const wrFactoryMintRedeemerToMeshData = (
   redeemer: WrFactoryMintRedeemer,
 ) => mConStr(redeemer === 'mint-first-factory' ? 0 : 1, [])
+
+export type SundaePoolMintRedeemer =
+  | {type: 'MintLp'; identifier: string}
+  | {
+      type: 'CreatePool'
+      assets: [[string, string], [string, string]]
+      poolOutput: number
+      metadataOutput: number
+    }
+  | {type: 'BurnPool'; identifier: string}
+
+export const sundaePoolMintRedeemerToMeshData = (
+  redeemer: SundaePoolMintRedeemer,
+) => {
+  switch (redeemer.type) {
+    case 'MintLp':
+      return mConStr0([redeemer.identifier])
+    case 'CreatePool':
+      return mConStr1([
+        redeemer.assets,
+        redeemer.poolOutput,
+        redeemer.metadataOutput,
+      ])
+    case 'BurnPool':
+      return mConStr2([redeemer.identifier])
+    default: {
+      const _exhaustiveCheck: never = redeemer
+      ensure(false, {redeemer}, 'Unknown sundae pool mint redeemer')
+    }
+  }
+}

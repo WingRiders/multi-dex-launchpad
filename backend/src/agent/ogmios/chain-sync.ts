@@ -279,8 +279,8 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
           txOutput.datum,
         )
         ensure(
-          commitFoldDatum != null,
-          {txOutput},
+          commitFoldDatum.isOk(),
+          {err: commitFoldDatum},
           'Commit fold must have valid inline datum',
         )
         pushSyncEvent({
@@ -288,7 +288,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
           launchTxHash: launch.txHash,
           txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType: 'commitFold',
-          commitFoldDatum,
+          commitFoldDatum: commitFoldDatum.value,
         })
         continue
       }
@@ -304,8 +304,8 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
         )
         const nodeDatum = decodeDatum(nodeDatumCborSchema, txOutput.datum)
         ensure(
-          nodeDatum != null,
-          {txOutput},
+          nodeDatum.isOk(),
+          {err: nodeDatum},
           'Node must have valid inline datum',
         )
 
@@ -314,7 +314,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
           launchTxHash: launch.txHash,
           txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType: 'node',
-          nodeDatum,
+          nodeDatum: nodeDatum.value,
         })
         continue
       }
@@ -333,8 +333,8 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
           txOutput.datum,
         )
         ensure(
-          finalProjectTokensHolderDatum != null,
-          {txOutput},
+          finalProjectTokensHolderDatum.isOk(),
+          {err: finalProjectTokensHolderDatum},
           'Final project tokens holder must have valid inline datum',
         )
 
@@ -343,7 +343,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
           launchTxHash: launch.txHash,
           txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType: 'finalProjectTokensHolder',
-          finalProjectTokensHolderDatum,
+          finalProjectTokensHolderDatum: finalProjectTokensHolderDatum.value,
         })
         continue
       }
@@ -371,11 +371,11 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
         )
         const datum = decodeDatum(failProofDatumCborSchema, txOutput.datum)
         ensure(
-          datum != null,
-          {txOutput},
+          datum.isOk(),
+          {err: datum},
           'Fail proof must have valid inline datum',
         )
-        const nodeValidatorHash = datum.scriptHash
+        const nodeValidatorHash = datum.value.scriptHash
         const lookup = launchScriptHashes[nodeValidatorHash]
         // If we don't track the stored hash as a node
         // for an interesting launch, we skip the utxo
@@ -397,12 +397,18 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
         )
         const datum = decodeDatum(poolProofDatumCborSchema, txOutput.datum)
         ensure(
-          datum != null,
-          {txOutput},
+          datum.isOk(),
+          {err: datum},
           'Pool proof must have valid inline datum',
         )
-        const projectUnit = createUnit(datum.projectSymbol, datum.projectToken)
-        const raisingUnit = createUnit(datum.raisingSymbol, datum.raisingToken)
+        const projectUnit = createUnit(
+          datum.value.projectSymbol,
+          datum.value.projectToken,
+        )
+        const raisingUnit = createUnit(
+          datum.value.raisingSymbol,
+          datum.value.raisingToken,
+        )
         const launch = interestingLaunchByUnits(projectUnit, raisingUnit)
         if (!launch) continue
         pushSyncEvent({
@@ -410,7 +416,9 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
           launchTxHash: launch.txHash,
           txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType:
-            datum.dex === 'WingRidersV2' ? 'wrPoolProof' : 'sundaePoolProof',
+            datum.value.dex === 'WingRidersV2'
+              ? 'wrPoolProof'
+              : 'sundaePoolProof',
         })
         break
       }
@@ -423,14 +431,14 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
           txOutput.datum,
         )
         // We also skip rewards holders with invalid datums
-        if (!rewardsHolderDatum) continue
+        if (rewardsHolderDatum.isErr()) continue
         const projectUnit = createUnit(
-          rewardsHolderDatum.projectSymbol,
-          rewardsHolderDatum.projectToken,
+          rewardsHolderDatum.value.projectSymbol,
+          rewardsHolderDatum.value.projectToken,
         )
         const raisingUnit = createUnit(
-          rewardsHolderDatum.raisingSymbol,
-          rewardsHolderDatum.raisingToken,
+          rewardsHolderDatum.value.raisingSymbol,
+          rewardsHolderDatum.value.raisingToken,
         )
         const launch = interestingLaunchByUnits(projectUnit, raisingUnit)
         if (!launch) continue
@@ -439,7 +447,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
           launchTxHash: launch.txHash,
           txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType: 'rewardsHolder',
-          rewardsHolderDatum,
+          rewardsHolderDatum: rewardsHolderDatum.value,
         })
         break
       }
@@ -464,8 +472,10 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
           refScriptCarrierDatumCborSchema,
           datum,
         )
-        if (!refScriptCarrierDatum) continue
-        if (refScriptCarrierDatum.ownerPubKeyHash !== getWalletPubKeyHash())
+        if (refScriptCarrierDatum.isErr()) continue
+        if (
+          refScriptCarrierDatum.value.ownerPubKeyHash !== getWalletPubKeyHash()
+        )
           continue
 
         pushSyncEvent({
@@ -473,7 +483,7 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
           launchTxHash: lookup.launch.txHash,
           txOutput: makePrismaTxOutput(slot, txHash, outputIndex, txOutput),
           outputType,
-          refScriptCarrierDatum,
+          refScriptCarrierDatum: refScriptCarrierDatum.value,
         })
         break
       }
@@ -486,12 +496,18 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
         )
         const datum = decodeDatum(wrPoolDatumCborSchema, txOutput.datum)
         ensure(
-          datum != null,
-          {txOutput},
+          datum.isOk(),
+          {err: datum},
           'Wr pool must have valid inline datum',
         )
-        const unitA = createUnit(datum.assetASymbol, datum.assetAToken)
-        const unitB = createUnit(datum.assetBSymbol, datum.assetBToken)
+        const unitA = createUnit(
+          datum.value.assetASymbol,
+          datum.value.assetAToken,
+        )
+        const unitB = createUnit(
+          datum.value.assetBSymbol,
+          datum.value.assetBToken,
+        )
         const launch = interestingLaunchByUnits(unitA, unitB)
         if (!launch) continue
         pushSyncEvent({
@@ -511,11 +527,14 @@ const parseLaunchTxOutputs = (slot: number, transactions: Transaction[]) => {
         )
         const datum = decodeDatum(sundaePoolDatumCborSchema, txOutput.datum)
         ensure(
-          datum != null,
-          {txOutput},
+          datum.isOk(),
+          {err: datum},
           'Sundae pool must have valid inline datum',
         )
-        const launch = interestingLaunchByUnits(datum.assetA, datum.assetB)
+        const launch = interestingLaunchByUnits(
+          datum.value.assetA,
+          datum.value.assetB,
+        )
         if (!launch) continue
         pushSyncEvent({
           type: 'launchTxOutput',

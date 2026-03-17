@@ -1,14 +1,17 @@
-import {mConStr0} from '@meshsdk/common'
-import {bech32AddressToMeshData, maybeToMeshData} from '../helpers'
+import {type MConStr, mConStr, mConStr0} from '@meshsdk/common'
+import {ensure} from '../ensure'
+import {bech32AddressToMeshData, maybeToMeshData, parseUnit} from '../helpers'
 import type {
   CommitFoldDatum,
   FailProofDatum,
+  MultisigScript,
   NodeDatum,
   NodeKey,
   PoolProofDatum,
   RefScriptCarrierDatum,
   RewardsFoldDatum,
   RewardsHolderDatum,
+  SundaePoolDatum,
   TokensHolderFirstDatum,
   VestingDatum,
   WrFactoryDatum,
@@ -123,4 +126,58 @@ export const wrPoolDatumToMeshDate = (datum: WrPoolDatum) =>
     maybeToMeshData(datum.projectBeneficiary, (b) => b),
     maybeToMeshData(datum.reserveBeneficiary, (b) => b),
     mConStr0([]), // Assumes CP
+  ])
+
+export const multisigScriptToMeshData = (
+  multisigScript: MultisigScript,
+): MConStr<0 | 1 | 2 | 3 | 4 | 5 | 6> => {
+  switch (multisigScript.type) {
+    case 'MultisigSignature':
+      return mConStr(0, [multisigScript.keyHash])
+    // TODO: Are that one and the following correct?
+    //       are they really (1, [{list: ...}]) and not (1, [...])
+    case 'MultisigAllOf':
+      return mConStr(1, [multisigScript.scripts.map(multisigScriptToMeshData)])
+    case 'MultisigAnyOf':
+      return mConStr(2, [multisigScript.scripts.map(multisigScriptToMeshData)])
+    case 'MultisigAtLeast':
+      return mConStr(3, [
+        multisigScript.required,
+        multisigScript.scripts.map(multisigScriptToMeshData),
+      ])
+    case 'MultisigBefore':
+      return mConStr(4, [multisigScript.time])
+    case 'MultisigAfter':
+      return mConStr(5, [multisigScript.time])
+    case 'MultisigScript':
+      return mConStr(6, [multisigScript.scriptHash])
+    default: {
+      const _: never = multisigScript
+      ensure(
+        false,
+        {multisigScript},
+        'Unknown multisig script, should never happen',
+      )
+    }
+  }
+}
+
+export const sundaePoolDatumToMeshData = (datum: SundaePoolDatum) =>
+  mConStr0([
+    // identifier
+    datum.identifier,
+    // assets
+    [parseUnit(datum.assetA), parseUnit(datum.assetB)],
+    // circulatingLp
+    datum.circulatingLp,
+    // bidFeesPer10Thousand
+    datum.bidFeesPer10Thousand,
+    // askFeesPer10Thousand
+    datum.askFeesPer10Thousand,
+    // feeManager
+    maybeToMeshData(datum.feeManager, multisigScriptToMeshData),
+    // marketOpen
+    datum.marketOpen,
+    // protocolFees
+    datum.protocolFees,
   ])

@@ -19,8 +19,8 @@
     },
     {
       "name": "pool-proof-policy",
-      "size": 5551,
-      "symbol": "ad12b79233f2fd77355cbd267722a00b69f3bc6d57f78ef23c4ac1ce"
+      "size": 5547,
+      "symbol": "157754accaabee3aa58f2e7446490a0f19692e5478783763c45078a4"
     },
     {
       "name": "project-tokens-holder-policy",
@@ -60,9 +60,9 @@
       "size": 7075
     },
     {
-      "hash": "e6f09eca82096aea225cacc0a3cb1cde72462fe00daa9ed7ac332680",
+      "hash": "015ed1faaf997957c86093354039eb580ac685c7e1b83f42381871b6",
       "name": "node",
-      "size": 14544
+      "size": 14302
     },
     {
       "hash": "ab2b77feb5b9c1b91f964b528cf0ade8007e2ad0fd0a7e3fce6d9014",
@@ -70,9 +70,9 @@
       "size": 7
     },
     {
-      "hash": "cb2154b6be8ce8e1102cb7df2af565eb01b2832180df14b59131258e",
+      "hash": "1cbfc74e779f8c36088fdd798d0e399968fd9d68649b441b99e2c88d",
       "name": "project-tokens-holder-final",
-      "size": 9517
+      "size": 9509
     },
     {
       "hash": "971b997e312ae57a3cdb846a0f9894ee5aba32077a920befea6d7b3a",

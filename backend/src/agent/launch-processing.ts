@@ -1,8 +1,10 @@
+import type {Value} from '@cardano-ogmios/schema'
 import {
   ensure,
   type GeneratedContracts,
+  SUNDAE_SETTINGS_ADDRESS_BECH32,
+  SUNDAE_SETTINGS_SYMBOL,
 } from '@wingriders/multi-dex-launchpad-common'
-
 import {Result} from 'better-result'
 import {
   type CommitFold,
@@ -11,18 +13,26 @@ import {
   RefScriptCarrierType,
 } from '../../prisma/generated/client'
 import {timeToSlot} from '../common'
+import {config} from '../config'
 import {getUnspentNodes} from '../db/node'
 import {prisma} from '../db/prisma-client'
+import {txOutputToRefScriptUtxo} from '../endpoints/ref-scripts'
 import type {InterestingLaunch} from '../interesting-launches'
 import {logger} from '../logger'
 import {executeCommitFolding} from './commit-fold/execute-commit-folding'
-import {MAX_NODES_FOR_REWARDS_FOLD, SEPARATORS_TO_INSERT} from './constants'
+import {
+  MAX_NODES_FOR_REWARDS_FOLD,
+  SEPARATORS_TO_INSERT,
+  SUNDAE_SETTINGS_NFT_ASSET_NAME,
+} from './constants'
 import {createSundaePoolIfNeeded} from './create-pool/sundae-pool'
 import {createWrPoolIfNeeded} from './create-pool/wr-pool'
 import {deployContractsIfNeeded, undeployContracts} from './deploy-contracts'
 import {createWrFailFlow} from './fail-flow/wr-fail-flow'
 import {createFailProof} from './fail-proof'
 import {isSeparator} from './node'
+import {ogmiosUtxoToMeshUtxo} from './ogmios/helpers'
+import {getUtxos} from './ogmios/ledger-state-query'
 import {createPoolProofsIfNeeded} from './pool-proof'
 import {buildSubmitRewardsFolding} from './rewards-fold'
 import {insertSeparators, reclaimSeparators} from './separators'
@@ -452,11 +462,17 @@ const processLaunch = async (
       {launchTxHash, pools: finalProjectTokensHolders.map(({dex}) => dex)},
       `There are ${finalProjectTokensHolders.length} unspent final token holders`,
     )
-    const finalProjectTokensHolder = finalProjectTokensHolders[0]!
-    if (finalProjectTokensHolder.dex === PrismaDex.WR) {
+    const finalProjectTokensHolderWr = finalProjectTokensHolders.find(
+      (h) => h.dex === PrismaDex.WR,
+    )
+    const finalProjectTokensHolderSundae = finalProjectTokensHolders.find(
+      (h) => h.dex === PrismaDex.SUNDAE,
+    )
+
+    if (finalProjectTokensHolderWr) {
       const createPoolWasNeeded = await createWrPoolIfNeeded(
         launch,
-        finalProjectTokensHolder.txOut,
+        finalProjectTokensHolderWr.txOut,
         finalProjectTokensHolderValidatorRefScriptCarrier.txOut,
       )
       if (createPoolWasNeeded) {
@@ -469,23 +485,56 @@ const processLaunch = async (
         await createWrFailFlow(
           launch,
           wrPoolProof.txOut,
-          finalProjectTokensHolder.txOut,
+          finalProjectTokensHolderWr.txOut,
           finalProjectTokensHolderValidatorRefScriptCarrier.txOut,
         )
         return
       }
     }
 
-    if (finalProjectTokensHolder.dex === PrismaDex.SUNDAE) {
-      createSundaePoolIfNeeded()
-      // TODO Return only if the pool creation is needed
-      //      If the pool already existed (or any other reason) - do not return, but continue with pool proof creation
-      // return
+    if (finalProjectTokensHolderSundae) {
+      const settingsUtxos = await Result.tryPromise(() =>
+        getUtxos([SUNDAE_SETTINGS_ADDRESS_BECH32[config.NETWORK]]),
+      )
+      if (settingsUtxos.isErr()) {
+        logger.error(
+          {
+            launchTxHash,
+            error: settingsUtxos.error,
+          },
+          `Error fetching UTxOs on Sundae settings address: ${settingsUtxos.error.message}`,
+        )
+        return
+      }
+      const sundaePoolSettingsUtxo = settingsUtxos.value.find((utxo) =>
+        isCorrectSundaeSettingsValue(utxo.value),
+      )
+      if (sundaePoolSettingsUtxo != null) {
+        const settingsUtxo = ogmiosUtxoToMeshUtxo(sundaePoolSettingsUtxo)
+        const finalProjectTokensHolderValidatorRef = txOutputToRefScriptUtxo(
+          finalProjectTokensHolderValidatorRefScriptCarrier.txOut,
+        )
+        await createSundaePoolIfNeeded(
+          launch,
+          finalProjectTokensHolderSundae,
+          finalProjectTokensHolderValidatorRef,
+          settingsUtxo,
+        )
+      } else
+        logger.error(
+          {launchTxHash},
+          'Sundae pool settings utxo not found, cannot create pool',
+        )
     }
   }
 
   await createPoolProofsIfNeeded(launch, poolProofs)
 }
+
+const isCorrectSundaeSettingsValue = (value: Value) =>
+  value[SUNDAE_SETTINGS_SYMBOL[config.NETWORK]]?.[
+    SUNDAE_SETTINGS_NFT_ASSET_NAME
+  ] === 1n
 
 const didLaunchSucceed = (launch: Launch, finishedCommitFold: CommitFold) =>
   finishedCommitFold.committed >= launch.projectMinCommitment

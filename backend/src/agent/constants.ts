@@ -1,3 +1,4 @@
+import {stringToHex} from '@meshsdk/common'
 import {
   generateConstantContracts,
   SUNDAE_POOL_SCRIPT_HASH,
@@ -24,3 +25,5 @@ export const COMMIT_FOLDING_BATCH_SIZE = 50 // TODO Adjust based on performance 
 export const MAX_NODES_FOR_REWARDS_FOLD = 18
 
 export const WR_POOL_VALIDITY_ASSET_NAME = '4c' // L
+
+export const SUNDAE_SETTINGS_NFT_ASSET_NAME = stringToHex('settings')
