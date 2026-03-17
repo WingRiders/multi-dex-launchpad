@@ -25,7 +25,10 @@ import {
   SEPARATORS_TO_INSERT,
   SUNDAE_SETTINGS_NFT_ASSET_NAME,
 } from './constants'
-import {createSundaePoolIfNeeded} from './create-pool/sundae-pool'
+import {
+  createSundaePoolIfNeeded,
+  failSundaeFinalHolder,
+} from './create-pool/sundae-pool'
 import {createWrPoolIfNeeded} from './create-pool/wr-pool'
 import {deployContractsIfNeeded, undeployContracts} from './deploy-contracts'
 import {createWrFailFlow} from './fail-flow/wr-fail-flow'
@@ -514,12 +517,19 @@ const processLaunch = async (
         const finalProjectTokensHolderValidatorRef = txOutputToRefScriptUtxo(
           finalProjectTokensHolderValidatorRefScriptCarrier.txOut,
         )
-        await createSundaePoolIfNeeded(
+        const shouldFail = await createSundaePoolIfNeeded(
           launch,
           finalProjectTokensHolderSundae,
           finalProjectTokensHolderValidatorRef,
           settingsUtxo,
         )
+        if (shouldFail)
+          await failSundaeFinalHolder(
+            launch,
+            finalProjectTokensHolderSundae,
+            finalProjectTokensHolderValidatorRef,
+            settingsUtxo,
+          )
       } else
         logger.error(
           {launchTxHash},

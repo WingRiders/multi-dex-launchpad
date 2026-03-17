@@ -471,3 +471,130 @@ export const createSundaePoolIfNeeded = async (
 
   return false
 }
+
+export const failSundaeFinalHolder = async (
+  launch: Launch,
+  projectTokensHolder: FinalProjectTokensHolder & {txOut: TxOutput},
+  finalProjectTokensHolderValidatorRef: RefScriptUtxo,
+  sundaeSettingsUtxo: UTxO,
+) => {
+  const launchTxHash = launch.txHash
+  logger.info(
+    {launchTxHash},
+    'Submitting fail flow for Sundae (we have an unspent final project tokens holder and a settings with fee exceeding the tolerance)',
+  )
+
+  const holder = prismaTxOutputToMeshOutput(projectTokensHolder.txOut)
+
+  const wallet = getWallet()
+  const b = makeBuilder(getWalletChangeAddress())
+
+  const walletUtxos = getSpendableWalletUtxos()
+  setFetcherUtxos([
+    ...walletUtxos,
+    holder,
+    finalProjectTokensHolderValidatorRef,
+    sundaeSettingsUtxo,
+  ])
+
+  const collateral = (await wallet.getCollateral())[0]
+  ensure(collateral != null, 'No collateral available')
+  b.txInCollateral(
+    collateral.input.txHash,
+    collateral.input.outputIndex,
+    collateral.output.amount,
+    collateral.output.address,
+  )
+  b.selectUtxosFrom(walletUtxos)
+
+  // The settings utxo must be referenced
+  b.readOnlyTxInReference(
+    sundaeSettingsUtxo.input.txHash,
+    sundaeSettingsUtxo.input.outputIndex,
+  )
+
+  // The holder is spent
+  b.spendingPlutusScriptV2()
+    .txIn(
+      holder.input.txHash,
+      holder.input.outputIndex,
+      holder.output.amount,
+      holder.output.address,
+      0,
+    )
+    .spendingTxInReference(
+      finalProjectTokensHolderValidatorRef.input.txHash,
+      finalProjectTokensHolderValidatorRef.input.outputIndex,
+      finalProjectTokensHolderValidatorRef.scriptSize.toString(),
+      finalProjectTokensHolderValidatorRef.output.scriptHash,
+    )
+    .txInInlineDatumPresent()
+    .txInRedeemerValue(tokensHolderFinalRedeemerToMeshData('failed-flow'))
+
+  const raisingTokenUnit = createUnit(
+    launch.raisingTokenPolicyId,
+    launch.raisingTokenAssetName,
+  )
+  const projectTokenUnit = createUnit(
+    launch.projectTokenPolicyId,
+    launch.projectTokenAssetName,
+  )
+  const holderRaisingTokens = holder.output.amount.find(
+    ({unit}) => unit === raisingTokenUnit,
+  )?.quantity
+  ensure(
+    holderRaisingTokens != null,
+    {launchTxHash, holder},
+    'The holder must contain raising tokens',
+  )
+  const holderProjectTokens = holder.output.amount.find(
+    ({unit}) => unit === projectTokenUnit,
+  )?.quantity
+  ensure(
+    holderProjectTokens != null,
+    {launchTxHash, holder},
+    'The holder must contain project tokens',
+  )
+
+  // The dao fee receiver gets the funds
+  b.txOut(launch.daoFeeReceiverBech32Address, [
+    {unit: raisingTokenUnit, quantity: holderRaisingTokens},
+    {unit: projectTokenUnit, quantity: holderProjectTokens},
+  ])
+
+  const {validityStartSlot, validityEndSlot} = calculateTxValidityInterval(
+    config.NETWORK,
+  )
+  b.invalidBefore(validityStartSlot).invalidHereafter(validityEndSlot)
+
+  const unsignedTx = await buildTx(b)
+  if (unsignedTx.isErr()) {
+    logger.error(
+      {
+        error: unsignedTx.error,
+        txBuilderBody: getMeshBuilderBodyForLogging(b),
+        launchTxHash: launch.txHash,
+      },
+      `Error when building transaction: ${unsignedTx.error.message}`,
+    )
+    return
+  }
+
+  trackSpentInputs(b)
+
+  const signedTx = await wallet.signTx(unsignedTx.value)
+  const txHash = await Result.tryPromise(() => submitTx(signedTx))
+
+  if (txHash.isErr()) {
+    logger.error(
+      {
+        txBuilderBody: getMeshBuilderBodyForLogging(b),
+        signedTx,
+        error: txHash.error,
+        cause: txHash.error.cause,
+        launchTxHash: launch.txHash,
+      },
+      'Error when submitting Sundae Final Holder fail transaction',
+    )
+  }
+}
