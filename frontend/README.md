@@ -2,6 +2,10 @@
 
 Frontend application for the Multi-DEX Launchpad built with Next.js.
 
+## User manual
+
+See the [user manual](user-manual/user-manual.md) for how to contribute to launches and create new token launches.
+
 ## Run
 
 ### Setup environment variables

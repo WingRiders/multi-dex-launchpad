@@ -284,7 +284,7 @@ const CreateLaunchDialogContent = ({
                 quantity={configAndProjectInfo.config.collateral}
               />
             }
-            tooltip="Required deposit to create a token launch. It will be returned to you after the launch ends."
+            tooltip="Required deposit to create a token launch. It will be returned to you if the launch succeeds."
           />
 
           <DataRow
