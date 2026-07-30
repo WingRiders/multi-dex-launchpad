@@ -25,6 +25,7 @@ const envSchema = z.object({
   DB_SCHEMA: z.string(),
   OGMIOS_HOST: z.string(),
   OGMIOS_PORT: z.coerce.number().positive(),
+  OGMIOS_HTTP_URL: z.string().optional(),
   CORS_ENABLED_FOR: z.string().optional(),
   LAUNCH_TO_PROCESS: z.string().optional(),
 })

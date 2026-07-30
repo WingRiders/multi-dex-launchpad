@@ -16,7 +16,9 @@ import {
 import {getWalletChangeAddress} from './wallet'
 
 export const ogmiosProvider = new OgmiosProvider(
-  `http://${config.OGMIOS_HOST}:${config.OGMIOS_PORT}`,
+  config.OGMIOS_HTTP_URL && config.OGMIOS_HTTP_URL !== '-1'
+    ? config.OGMIOS_HTTP_URL
+    : `http://${config.OGMIOS_HOST}:${config.OGMIOS_PORT}`,
 )
 
 const fetcher = new OfflineFetcher(config.NETWORK)
